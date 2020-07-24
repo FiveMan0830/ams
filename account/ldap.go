@@ -16,7 +16,7 @@ func (lm *LDAPManagement) AddGroup() {
 	defer lm.ldapConn.Close()
 	lm.bind()
 
-	addReq := ldap.NewAddRequest("CN=testgroup,ou=Groups,dc=csie,dc=ntut,dc=edu,dc=tw", []ldap.Control{})
+	addReq := ldap.NewAddRequest("CN=testgroup,ou=Groups,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", []ldap.Control{})
 
 	addReq.Attribute("objectClass", []string{"top", "group"})
 	addReq.Attribute("name", []string{"testgroup"})
@@ -34,7 +34,7 @@ func (lm *LDAPManagement) AddUser(username, surname, password string) {
 	defer lm.ldapConn.Close()
 	lm.bind()
 
-	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,dc=csie,dc=ntut,dc=edu,dc=tw", username), []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "person"})
 	addReq.Attribute("cn", []string{username})
 	addReq.Attribute("sn", []string{surname})
@@ -62,7 +62,7 @@ func (lm *LDAPManagement) AddUser(username, surname, password string) {
 // }
 
 func (lm *LDAPManagement) connectWithoutTLS() {
-	ldapURL := "ldap://localhost:389"
+	ldapURL := "ldap://140.124.181.94:389"
 	var err error
 	lm.ldapConn, err = ldap.DialURL(ldapURL)
 	if err != nil {
@@ -71,7 +71,7 @@ func (lm *LDAPManagement) connectWithoutTLS() {
 }
 
 func (lm *LDAPManagement) bind() {
-	err := lm.ldapConn.Bind("cn=qaz,dc=csie,dc=ntut,dc=edu,dc=tw", "lab1321")
+	err := lm.ldapConn.Bind("cn=admin,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", "admin")
 	if err != nil {
 		log.Fatal(err)
 	}
