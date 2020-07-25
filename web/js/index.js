@@ -14,5 +14,7 @@ window.onload = function() {
             }
         })
     }
-    $("#login-button")
+    $("#login-button").click(function(){
+        login()
+    })
 }

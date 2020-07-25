@@ -1,6 +1,6 @@
 @font-face {
     font-family: OpenSans;
-    src: url(/font/OpenSans-SemiBold.ttf);
+    src: url(../font/OpenSans-SemiBold.ttf);
     font-weight: bold;
   }
 body{
@@ -8,7 +8,7 @@ body{
     display: flex;
     align-items: center;
     flex-direction: column;
-    background-image: url(/img/background.jpg);
+    background-image: url(../img/background.jpg);
     background-size: cover;
     background-attachment: fixed;
 }
