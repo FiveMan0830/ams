@@ -4,27 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OIS Login</title>
-    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/animation.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.js"   integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="   crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="ois-title">
+    <div class="container" onclick="onclick">
+    <div class="top"></div>
+    <div class="bottom"></div>
+    <div class="center">
         <h1>OIS</h1>
         <p>Organization Integrating System</p>
+        <input type="username" placeholder="username" id="username-field"/>
+        <input type="password" placeholder="password" id="password-field"/>
+        <input class="submit-button" type="submit" value="Log In" id="login-button">
+        <h2>&nbsp;</h2>
     </div>
-    <form class="form">
-        <div class="row">
-            <label>Username or email</label>
-            <input type="text" name="username" id="username-field">
-        </div>
-        <div class="row">
-            <label>Password</label>
-            <input type="password" name="password" id="password-field">
-        </div>
-        <div class="row">
-            <input class="submit-button" type="submit" value="Log In" id="login-button">
-        </div>
-    </form>
-    <script src="./js/index.js"></script>
+</div>
+<script src="./js/index.js"></script>
 </body>
 </html>
