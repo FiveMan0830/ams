@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -59,17 +60,25 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 
 // Login is a function for user to login and get information
 func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) {
-	lm.connectWithoutTLS()
+	if err := lm.connectWithoutTLS(); err != nil {
+		return nil, err
+	}
 	defer lm.ldapConn.Close()
-	// lm.bind(username, password)
-	lm.bind(adminUser, adminPasswd)
+
+	// First bind with a read only user
+	if adminPasswd != "" {
+		if err := lm.bind(adminUser, adminPasswd); err != nil {
+			return nil, err
+		}
+	}
+
 	baseDN := "dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw"
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
 
 	// Filters must start and finish with ()!
 	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
 		0, 0, 0, false, filter,
-		[]string{"description", "sn", "cn", "displayname", "userPassword", "uid", "mail"},
+		[]string{"description", "sn", "cn", "displayname", "userPassword", "uid", "mail", "givenname"},
 		[]ldap.Control{})
 
 	result, err := lm.ldapConn.Search(searchReq)
@@ -77,6 +86,14 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 		return nil, err
+	}
+
+	if len(result.Entries) < 1 {
+		return nil, errors.New("User not found")
+	}
+
+	if len(result.Entries) > 1 {
+		return nil, errors.New("Too many entries returned")
 	}
 
 	userdn := result.Entries[0].DN
@@ -95,21 +112,25 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 	// }
 }
 
-func (lm *LDAPManagement) connectWithoutTLS() {
+func (lm *LDAPManagement) connectWithoutTLS() error {
 	ldapURL := "ldap://140.124.181.94:389"
 	var err error
 	lm.ldapConn, err = ldap.DialURL(ldapURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
+	return nil
 }
 
-func (lm *LDAPManagement) bind(username, password string) {
+func (lm *LDAPManagement) bind(username, password string) error {
 	err := lm.ldapConn.Bind(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), password)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
+	return nil
 }
 
 // NewLDAPManagement is a factory method to generate LDAPManagement
