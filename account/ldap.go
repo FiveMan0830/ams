@@ -7,59 +7,93 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
+// LDAPManagement implement Management interface to connect to LDAP
 type LDAPManagement struct {
 	ldapConn *ldap.Conn
 }
 
-func (lm *LDAPManagement) AddGroup() {
+// AddGroup is a function for user to create group
+func (lm *LDAPManagement) AddGroup(username, password, groupname string) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
-	lm.bind()
+	lm.bind(username, password)
 
-	addReq := ldap.NewAddRequest("CN=testgroup,ou=Groups,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,ou=Groups,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", groupname), []ldap.Control{})
 
 	addReq.Attribute("objectClass", []string{"top", "group"})
-	addReq.Attribute("name", []string{"testgroup"})
-	addReq.Attribute("sAMAccountName", []string{"testgroup"})
+	addReq.Attribute("name", []string{groupname})
+	addReq.Attribute("sAMAccountName", []string{groupname})
 	addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
 	addReq.Attribute("groupType", []string{fmt.Sprintf("%d", 0x00000004|0x80000000)})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		log.Fatal("error adding group:", addReq, err)
+		log.Println("error adding group:", addReq, err)
 	}
 }
 
-func (lm *LDAPManagement) AddUser(username, surname, password string) {
+// AddUser is a function for user to register
+func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
-	lm.bind()
+	lm.bind(adminUser, adminPasswd)
 
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), []ldap.Control{})
-	addReq.Attribute("objectClass", []string{"top", "person"})
+	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "inetOrgPerson"})
 	addReq.Attribute("cn", []string{username})
+	addReq.Attribute("givenname", []string{givenname})
 	addReq.Attribute("sn", []string{surname})
+	addReq.Attribute("displayname", []string{givenname + " " + surname})
 	addReq.Attribute("userPassword", []string{password})
+	addReq.Attribute("uid", []string{userID})
+	addReq.Attribute("mail", []string{email})
+
+	// addReq.Attribute("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
+	// addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
+	//
+	// addReq.Attribute("accountExpires", []string{fmt.Sprintf("%d", 0x00000000)})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		log.Fatal("error adding service:", addReq, err)
+		log.Println("error adding service:", addReq, err)
 	}
 }
 
-// func Search(l *ldap.Conn){
-// 	user := "fooUser"
-// 	baseDN := "DC=example,DC=com"
-// 	filter := fmt.Sprintf("(CN=%s)", ldap.EscapeFilter(user))
+// Login is a function for user to login and get information
+func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	// lm.bind(username, password)
+	lm.bind(adminUser, adminPasswd)
+	baseDN := "dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw"
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
 
-// 	// Filters must start and finish with ()!
-// 	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree, 0, 0, 0, false, filter, []string{"sAMAccountName"}, []ldap.Control{})
+	// Filters must start and finish with ()!
+	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		0, 0, 0, false, filter,
+		[]string{"description", "sn", "cn", "displayname", "userPassword", "uid", "mail"},
+		[]ldap.Control{})
 
-// 	result, err := l.Search(searchReq)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to query LDAP: %w", err)
-// 	}
+	result, err := lm.ldapConn.Search(searchReq)
 
-// 	log.Println("Got", len(result.Entries), "search results")
-// }
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return nil, err
+	}
+
+	userdn := result.Entries[0].DN
+
+	// Bind as the user to verify their password
+	err = lm.ldapConn.Bind(userdn, password)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return result.Entries[0].Attributes, nil
+
+	// for _, attribute := range result.Entries[0].Attributes {
+	// 	fmt.Printf("%s: %v\n", attribute.Name, attribute.Values)
+	// }
+}
 
 func (lm *LDAPManagement) connectWithoutTLS() {
 	ldapURL := "ldap://140.124.181.94:389"
@@ -70,13 +104,15 @@ func (lm *LDAPManagement) connectWithoutTLS() {
 	}
 }
 
-func (lm *LDAPManagement) bind() {
-	err := lm.ldapConn.Bind("cn=admin,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", "admin")
+func (lm *LDAPManagement) bind(username, password string) {
+	err := lm.ldapConn.Bind(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), password)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func NewLDAPManagement() AccountManagement {
+// NewLDAPManagement is a factory method to generate LDAPManagement
+func NewLDAPManagement() Management {
 	return &LDAPManagement{}
 }

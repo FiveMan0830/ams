@@ -4,10 +4,10 @@ window.onload = function() {
         const password = document.getElementById("password-field").value
         $.ajax({
             type: "POST",
-            url: "http://localhost:9000/api/login",
+            url: "http://localhost:8080/login",
             data: {
-                username: username,
-                password: password
+                Username: username,
+                Password: password
             },
             success: function(res) {
                 console.log(res)
