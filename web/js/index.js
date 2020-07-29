@@ -30,12 +30,15 @@ window.onload = () => {
                 }
             },
             error: (xhr, ajaxOptions, thrownError) => {
-                // console.log(xhr.status)
-                // console.log(thrownError)
-                // alert("Login Failed")
-                // alert("Username or Password incorrect")
-                $('.display-box').fadeIn()
-                $('.display-box').fadeOut(3000)
+                console.log(xhr.status)
+                console.log(thrownError)
+                var errorMessage = document.getElementById('error')
+                var temp = window.getComputedStyle(errorMessage).getPropertyValue("opacity");
+                if(temp == 1) {
+                    errorMessage.classList.toggle('shake');
+                } else {
+                    errorMessage.classList.toggle('fade');
+                }
             }
         })
     }

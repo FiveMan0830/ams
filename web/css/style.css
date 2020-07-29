@@ -68,7 +68,7 @@ h1{
 .center {
     position: absolute;
     width: 400px;
-    height: 400px;
+    height: 450px;
     top: 50%;
     left: 50%;
     margin-left: -200px;
@@ -109,13 +109,25 @@ h1{
 }
 
 .display-box {
-    position: absolute;
-    top:70%;
-    left: 42%;
-    width: 16vw;
-    display: none;
-    justify-items: center;
-    
+    width: 16vw;    
+    overflow: visible;
+    opacity: 0;
+}
+
+#error {
+    opacity: 0;
+    transition: opacity 1s; 
+}
+  
+#error.fade {
+    opacity: 1;
+}
+
+#error.shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 .error-message {
@@ -125,10 +137,11 @@ h1{
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0 10%;
+    padding: 0 8.8%;
 }
 
 .error-message p{
+    margin-left: 5px;
     font-size: x-small;
 }
 
@@ -148,6 +161,24 @@ h1{
     }
     100% {
         opacity: 1;
+    }
+}
+
+@keyframes shake {
+    10%, 90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    
+    20%, 80% {
+      transform: translate3d(2px, 0, 0);
+    }
+  
+    30%, 50%, 70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+  
+    40%, 60% {
+      transform: translate3d(4px, 0, 0);
     }
 }
       
