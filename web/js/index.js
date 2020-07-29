@@ -30,10 +30,12 @@ window.onload = () => {
                 }
             },
             error: (xhr, ajaxOptions, thrownError) => {
-                console.log(xhr.status)
-                console.log(thrownError)
-                alert("Login Failed")
-                alert("Username or Password incorrect")
+                // console.log(xhr.status)
+                // console.log(thrownError)
+                // alert("Login Failed")
+                // alert("Username or Password incorrect")
+                $('.display-box').fadeIn()
+                $('.display-box').fadeOut(3000)
             }
         })
     }
