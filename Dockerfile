@@ -8,4 +8,5 @@ RUN go build -o app ./cmd/server/login.go
 FROM alpine
 WORKDIR /app
 COPY --from=build /src/app /app/
+COPY ./web /app/web/
 CMD ["./app"]
