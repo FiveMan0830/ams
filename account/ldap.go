@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/go-ldap/ldap/v3"
+	ldap "github.com/go-ldap/ldap/v3"
+
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 // LDAPManagement implement Management interface to connect to LDAP
@@ -19,7 +21,7 @@ func (lm *LDAPManagement) AddGroup(username, password, groupname string) {
 	defer lm.ldapConn.Close()
 	lm.bind(username, password)
 
-	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,ou=Groups,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", groupname), []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,ou=Groups,%s", groupname, config.GetDC()), []ldap.Control{})
 
 	addReq.Attribute("objectClass", []string{"top", "group"})
 	addReq.Attribute("name", []string{groupname})
@@ -38,7 +40,7 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
-	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,%s", username, config.GetDC()), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "inetOrgPerson"})
 	addReq.Attribute("cn", []string{username})
 	addReq.Attribute("givenname", []string{givenname})
@@ -72,7 +74,7 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 		}
 	}
 
-	baseDN := "dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw"
+	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
 
 	// Filters must start and finish with ()!
@@ -113,7 +115,7 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 }
 
 func (lm *LDAPManagement) connectWithoutTLS() error {
-	ldapURL := "ldap://140.124.181.94:389"
+	ldapURL := config.GetLDAPURL()
 	var err error
 	lm.ldapConn, err = ldap.DialURL(ldapURL)
 	if err != nil {
@@ -124,7 +126,7 @@ func (lm *LDAPManagement) connectWithoutTLS() error {
 }
 
 func (lm *LDAPManagement) bind(username, password string) error {
-	err := lm.ldapConn.Bind(fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username), password)
+	err := lm.ldapConn.Bind(fmt.Sprintf("cn=%s,%s", username, config.GetDC()), password)
 
 	if err != nil {
 		log.Println(err)

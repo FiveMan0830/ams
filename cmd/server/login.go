@@ -23,7 +23,7 @@ func main() {
 		reqbody := &LoginRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
-		info, err := accountManagement.Login(config.AdminUser, config.AdminPassword, reqbody.Username, reqbody.Password)
+		info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
 
 		if err != nil {
 			c.JSON(401, err)
