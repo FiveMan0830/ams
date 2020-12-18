@@ -10,24 +10,43 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
+const ObjectCategory_Group string = "groupOfNames"
+
 // LDAPManagement implement Management interface to connect to LDAP
 type LDAPManagement struct {
 	ldapConn *ldap.Conn
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) AddGroup(username, password, groupname string) {
+func (lm *LDAPManagement) AddGroup(adminUser, adminPasswd, groupname string) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
-	lm.bind(username, password)
+	lm.bind(adminUser, adminPasswd)
 
-	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,ou=Groups,%s", groupname, config.GetDC()), []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=test,%s", groupname, config.GetDC()), []ldap.Control{})
 
-	addReq.Attribute("objectClass", []string{"top", "group"})
-	addReq.Attribute("name", []string{groupname})
-	addReq.Attribute("sAMAccountName", []string{groupname})
-	addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
-	addReq.Attribute("groupType", []string{fmt.Sprintf("%d", 0x00000004|0x80000000)})
+	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
+	addReq.Attribute("cn", []string{groupname})
+	addReq.Attribute("member", []string{""})
+	// addReq.Attribute("sAMAccountName", []string{groupname})
+	// addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
+	// addReq.Attribute("groupType", []string{fmt.Sprintf("%d", 0x00000004|0x80000000)})
+
+	if err := lm.ldapConn.Add(addReq); err != nil {
+		log.Println("error adding group:", addReq, err)
+	}
+}
+
+// AddOu is a function for user to create ou
+func (lm *LDAPManagement) AddOu(adminUser, adminPasswd, ouname string) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	addReq := ldap.NewAddRequest(fmt.Sprintf("ou=%s,%s", ouname, config.GetDC()), []ldap.Control{})
+
+	addReq.Attribute("objectClass", []string{"top", "organizationalUnit"})
+	addReq.Attribute("ou", []string{ouname})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
@@ -58,6 +77,24 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding service:", addReq, err)
 	}
+}
+
+func (lm *LDAPManagement) SearchGroup(adminUser, adminPasswd, search string) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"ou"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+	}
+	result.Print()
 }
 
 // Login is a function for user to login and get information
