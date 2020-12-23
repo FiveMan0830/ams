@@ -21,10 +21,10 @@ func main() {
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\n", "")
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\r", "")
 
-	groupName, _ := reader.ReadString('\n')
-	groupName = strings.ReplaceAll(groupName, "\n", "")
-	groupName = strings.ReplaceAll(groupName, "\r", "")
+	username, _ := reader.ReadString('\n')
+	username = strings.ReplaceAll(username, "\n", "")
+	username = strings.ReplaceAll(username, "\r", "")
 
-	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName)
-	accountManagement.CreateGroup(adminUser, adminPasswd, groupName)
+	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " username: " + username)
+	accountManagement.SearchUser(adminUser, adminPasswd, username)
 }

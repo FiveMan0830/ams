@@ -26,5 +26,5 @@ func main() {
 	groupName = strings.ReplaceAll(groupName, "\r", "")
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName)
-	accountManagement.CreateGroup(adminUser, adminPasswd, groupName)
+	accountManagement.SearchGroupMembers(adminUser, adminPasswd, groupName)
 }

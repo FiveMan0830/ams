@@ -18,11 +18,12 @@ type LDAPManagement struct {
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) AddGroup(adminUser, adminPasswd, groupname string) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname string) ([]*ldap.EntryAttribute, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
+	// if !GroupExist(adminUser, adminPasswd, groupname)
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=test,%s", groupname, config.GetDC()), []ldap.Control{})
 
 	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
@@ -34,7 +35,22 @@ func (lm *LDAPManagement) AddGroup(adminUser, adminPasswd, groupname string) {
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
+		return nil, err
 	}
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(groupname))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"ou"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+	if err != nil {
+		log.Println("error searching group:", request, err)
+		return nil, err
+	}
+	return result.Entries[0].Attributes, nil
 }
 
 // AddOu is a function for user to create ou
@@ -79,10 +95,26 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 	}
 }
 
-func (lm *LDAPManagement) SearchGroup(adminUser, adminPasswd, search string) {
+func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, username string) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	request := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,%s", groupName, baseDN), []ldap.Control{})
+	request.Add("member", []string{fmt.Sprintf("cn=%s,dc=ssl-drone,dc=csie,dc=ntut,dc=edu,dc=tw", username)})
+	err := lm.ldapConn.Modify(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+	}
+}
+
+func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
 	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
@@ -91,6 +123,47 @@ func (lm *LDAPManagement) SearchGroup(adminUser, adminPasswd, search string) {
 		[]string{"ou"},
 		[]ldap.Control{})
 	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+	}
+	result.Print()
+}
+
+func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"cn"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+	}
+	result.Print()
+}
+
+func (lm *LDAPManagement) SearchGroupMembers(adminUser, adminPasswd, search string) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		nil,
+		nil)
+	result, err := lm.ldapConn.Search(request)
+
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 	}
