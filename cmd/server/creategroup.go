@@ -17,6 +17,10 @@ type GetGroupsRequest struct {
 	GroupList []string
 }
 
+type DeleteGroupRequest struct {
+	GroupName string
+}
+
 func main() {
 	router := gin.Default()
 	accountManagement := account.NewLDAPManagement()
@@ -48,6 +52,19 @@ func main() {
 			return
 		}
 		c.JSON(200, GroupList)
+	})
+
+	router.POST("/delete/team", func(c *gin.Context) {
+        // c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		reqbody := &DeleteGroupRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		err := accountManagement.DeleteGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+		if err != nil {
+			c.JSON(401,err)
+			return
+		}
 	})
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
