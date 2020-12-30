@@ -6,10 +6,12 @@ import "github.com/go-ldap/ldap/v3"
 type Management interface {
 	AddUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string)
 	CreateGroup(adminUser, adminPasswd, groupname string) ([]*ldap.EntryAttribute, error)
+	GetGroups(adminUser, adminPasswd string) ([]string, error)
 	AddOu(adminUser, adminPasswd, ouname string)
 	AddMemberToGroup(adminUser, adminPasswd, groupName, username string)
 	GroupExists(adminUser, adminPasswd, groupname string)
 	SearchUser(adminUser, adminPasswd, username string)
 	SearchGroupMembers(adminUser, adminPasswd, groupname string)
+	DeleteGroup(adminUser, adminPasswd, cn string)(error) 
 	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) //adminUser, adminPasswd,
 }

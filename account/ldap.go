@@ -130,6 +130,52 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) {
 	result.Print()
 }
 
+func (lm *LDAPManagement)GetGroups(adminUser, adminPasswd string) ([]string, error)  {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	ou := "test"
+	if ou == "" {
+		log.Fatal("ou is a required paramater for getting a list of groups")
+	}
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(objectClass=%s)", ldap.EscapeFilter(ObjectCategory_Group))
+	searchRequest := ldap.NewSearchRequest(
+		baseDN,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"cn"},
+		[]ldap.Control{},
+	)
+	sr, err := lm.ldapConn.Search(searchRequest)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var groupsList []string
+	for _, entry := range sr.Entries {
+		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
+	}
+
+	return groupsList, err
+}
+
+func (lm *LDAPManagement)DeleteGroup(adminUser, adminPasswd, cn string)(error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	baseDN := config.GetDC()
+	ou := "test"
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", cn, ou,baseDN), nil)
+	err := lm.ldapConn.Del(d)
+	if err != nil {
+		log.Println("Group entry could not be deleted :", err)
+		return err
+	} else {
+		log.Printf("Group %s is deleted\n", cn)
+		return nil
+	}
+}
+
 func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
