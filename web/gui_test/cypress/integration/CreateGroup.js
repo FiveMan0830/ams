@@ -19,6 +19,14 @@ describe("Create a team and show the team list.", () => {
     });
 
 
+    it("Assert Team", () =>{
+        const groupList = '//ul[@id="groups"]'
+        cy.xpath(groupList)
+          .should(($li)=>{
+            expect($li).to.contain(inputTeam)
+          });
+    })
+
 
     it("Tear down", () => {
         const inputText = '//input[@id="groupname-field"]';
