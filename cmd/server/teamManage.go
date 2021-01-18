@@ -43,7 +43,7 @@ func main() {
 		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
 		if err != nil {
-			c.JSON(401,err)
+			c.JSON(401, err)
 			return
 		}
 		c.JSON(200, info)
@@ -71,7 +71,7 @@ func main() {
 		err := accountManagement.DeleteGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
 		if err != nil {
-			c.JSON(401,err)
+			c.JSON(401, err)
 			return
 		}
 	})
@@ -82,8 +82,9 @@ func main() {
 		c.Bind(reqbody)
 		log.Println(reqbody)
 		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+
 		if err != nil {
-			c.JSON(401,err)
+			c.JSON(401, err)
 			return
 		}
 		c.JSON(200, memberList)
@@ -109,8 +110,9 @@ func main() {
 		c.Bind(reqbody)
 		log.Println(reqbody)
 		memberList, err := accountManagement.RemoveMemberFromGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+
 		if err != nil {
-			c.JSON(401,err)
+			c.JSON(401, err)
 			return
 		}
 		c.JSON(200, memberList)

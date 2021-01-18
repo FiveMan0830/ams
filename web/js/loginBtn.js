@@ -6,11 +6,11 @@ function changeColor() {
     var filled = true;
     
     $( "input[type='username'],textarea" ).each(function() {
-    if($( this ).val() == "") {
+    if ($( this ).val() == "") {
         filled = false;
         }
     });
-    if(filled) {
+    if (filled) {
         $('.submit-button').css({background:'#ABFFDB'})
     } else {
         $('.submit-button').css({background:'rgb(239, 239, 239)'})

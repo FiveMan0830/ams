@@ -27,7 +27,7 @@ func main() {
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " username: " + username)
 	result := accountManagement.SearchUser(adminUser, adminPasswd, username)
-	if (result != false){
+	if (result != false) {
 		fmt.Println("found")
 	}
 }

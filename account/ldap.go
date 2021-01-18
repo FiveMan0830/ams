@@ -24,15 +24,11 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname string) 
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
-	// if !GroupExist(adminUser, adminPasswd, groupname)
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupname, config.GetDC()), []ldap.Control{})
 
 	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
 	addReq.Attribute("cn", []string{groupname})
 	addReq.Attribute("member", []string{""})
-	// addReq.Attribute("sAMAccountName", []string{groupname})
-	// addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
-	// addReq.Attribute("groupType", []string{fmt.Sprintf("%d", 0x00000004|0x80000000)})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
@@ -66,7 +62,7 @@ func (lm *LDAPManagement) AddOu(adminUser, adminPasswd, ouname string) {
 	addReq.Attribute("ou", []string{ouname})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		log.Println("error adding group:", addReq, err)
+		log.Println("error adding ou:", addReq, err)
 	}
 }
 
@@ -86,16 +82,12 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 	addReq.Attribute("uid", []string{userID})
 	addReq.Attribute("mail", []string{email})
 
-	// addReq.Attribute("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
-	// addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
-	//
-	// addReq.Attribute("accountExpires", []string{fmt.Sprintf("%d", 0x00000000)})
-
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding service:", addReq, err)
 	}
 }
 
+// GetGroupMembers is a function to get all the member from a group
 func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string ,error){
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
@@ -112,7 +104,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 	sr, err := lm.ldapConn.Search(searchRequest)
 	if err != nil {
 		log.Fatal(err)
-		return nil,err
+		return nil, err
 	}
 	var memberIdList []string
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
@@ -121,32 +113,10 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
 		memberIdList = append(memberIdList, memberDN)
 	}
-	return memberIdList,nil
+	return memberIdList, nil
 }
 
-func (lm *LDAPManagement) GetMemberNoConn(adminUser, adminPasswd, groupName string) []string {
-	baseDN := config.GetDC()
-	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=groupOfNames))",
-		[]string{"member"},
-		nil,
-	)
-	sr, err := lm.ldapConn.Search(searchRequest)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var memberIdList []string
-	memberDnList := sr.Entries[0].GetAttributeValues("member")
-	for _, memberDN := range memberDnList {
-		memberDN = strings.Replace(memberDN, "cn=", "", -1)
-		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
-		memberIdList = append(memberIdList, memberDN)
-	}
-	return memberIdList
-}
-
+// GroupExists is a function for get all the groups
 func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) bool {
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
@@ -162,31 +132,12 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	}
 	if len(result.Entries) < 1 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
 
-func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string) bool {
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"cn"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-	}
-	if len(result.Entries) < 1 {
-		return false
-	}else {
-		return true
-	}
-}
-
+// SearchUser is a function to search a user
 func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
@@ -206,11 +157,12 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) bool
 	}
 	if len(result.Entries) < 1 {
 		return false
-	}else {
+	} else {
 		return true
 	}
 }
 
+// AddMemberToGroup is a function to add a user to a group
 func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
@@ -241,24 +193,25 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 		err := lm.ldapConn.Modify(modify)
 		if err != nil {
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-			return membersIdList,err
+			return membersIdList, err
 		}
-		log.Printf("User %s is added to the group %s\n",  username,groupName)
+		log.Printf("User %s is added to the group %s\n",  username, groupName)
 	} else {
-		log.Printf("User %s is already a member of the group %s\n",  username,groupName)
+		log.Printf("User %s is already a member of the group %s\n",  username, groupName)
 	}
 
 	memberList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
-	return memberList,nil
+	return memberList, nil
 }
 
+// RemoveMemberFromGroup is a function to remove a user from a group
 func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string)([]string,error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 	
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		log.Printf("Group %s does not exist, cn or ou is incorrect\n",groupName)
+		log.Printf("Group %s does not exist, cn or ou is incorrect\n", groupName)
 		return nil, errors.New("Group does not exist")
 	}
 	memberExists := false
@@ -276,16 +229,17 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 		err := lm.ldapConn.Modify(modify)
 		if err != nil {
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-			return nil,err
+			return nil, err
 		}
-		log.Printf("User %s is removed from the group %s\n",  username,groupName)
+		log.Printf("User %s is removed from the group %s\n",  username, groupName)
 	} else {
-		log.Printf("User %s is not a member of the group %s\n",  username,groupName)
+		log.Printf("User %s is not a member of the group %s\n",  username, groupName)
 	}
 	membersList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
-	return  membersList,nil
+	return  membersList, nil
 }
 
+// GetGroups is a function to get all the group
 func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
@@ -315,41 +269,22 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	return groupsList, err
 }
 
-func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, cn string) error {
+// DeleteGroup is a function to delete the group
+func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 	baseDN := config.GetDC()
 	ou := "test"
-	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", cn, ou, baseDN), nil)
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", groupName, ou, baseDN), nil)
 	err := lm.ldapConn.Del(d)
 	if err != nil {
 		log.Println("Group entry could not be deleted :", err)
 		return err
 	} else {
-		log.Printf("Group %s is deleted\n", cn)
+		log.Printf("Group %s is deleted\n", groupName)
 		return nil
 	}
-}
-
-func (lm *LDAPManagement) SearchGroupMembers(adminUser, adminPasswd, search string) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		nil,
-		nil)
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-	}
-	log.Println("seacrh : ",result)
 }
 
 // Login is a function for user to login and get information
@@ -400,10 +335,6 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 	}
 
 	return result.Entries[0].Attributes, nil
-
-	// for _, attribute := range result.Entries[0].Attributes {
-	// 	fmt.Printf("%s: %v\n", attribute.Name, attribute.Values)
-	// }
 }
 
 func (lm *LDAPManagement) connectWithoutTLS() error {
@@ -430,4 +361,49 @@ func (lm *LDAPManagement) bind(username, password string) error {
 // NewLDAPManagement is a factory method to generate LDAPManagement
 func NewLDAPManagement() Management {
 	return &LDAPManagement{}
+}
+
+// GetMemberNoConn is a function to get all the member from a group
+func (lm *LDAPManagement) GetMemberNoConn(adminUser, adminPasswd, groupName string) []string {
+	baseDN := config.GetDC()
+	searchRequest := ldap.NewSearchRequest(
+		fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=groupOfNames))",
+		[]string{"member"},
+		nil,
+	)
+	sr, err := lm.ldapConn.Search(searchRequest)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var memberIdList []string
+	memberDnList := sr.Entries[0].GetAttributeValues("member")
+	for _, memberDN := range memberDnList {
+		memberDN = strings.Replace(memberDN, "cn=", "", -1)
+		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
+		memberIdList = append(memberIdList, memberDN)
+	}
+	return memberIdList
+}
+
+// SearchUserNoConn is a function to search a user
+func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string) bool {
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"cn"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+	}
+	if len(result.Entries) < 1 {
+		return false
+	} else {
+		return true
+	}
 }

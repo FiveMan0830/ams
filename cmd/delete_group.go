@@ -25,16 +25,9 @@ func main() {
 	groupName = strings.ReplaceAll(groupName, "\n", "")
 	groupName = strings.ReplaceAll(groupName, "\r", "")
 
-	// fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd )
-	// result,err := accountManagement.GetGroups(adminUser, adminPasswd)
-	// if (err != nil){
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(result)
-
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd  + "group name: " + groupName)
 	err := accountManagement.DeleteGroup(adminUser, adminPasswd, groupName)
-	if (err != nil){
+	if (err != nil) {
 		fmt.Println(err)
 	}
 

@@ -1,7 +1,10 @@
 
 describe("Add a member to the group", () => {
     const inputTeam = 'Test';
-    const inputUsername = 'test'
+    const inputUsername = 'test';
+    const teamText = '//input[@id="groupname-field"]';
+    const usernameText = '//input[@id="username-field"]';
+
 
     it("Visit the website", ()=>{
 
@@ -9,8 +12,6 @@ describe("Add a member to the group", () => {
     });
 
     it("Enter Team's name and username", () => {
-        const teamText = '//input[@id="groupname-field"]';
-        const usernameText = '//input[@id="username-field"]';
         const addBtn = '//input[@id="add-button"]';
 
         cy.xpath(teamText)
@@ -26,8 +27,13 @@ describe("Add a member to the group", () => {
 
 
     it("Assert Team", () =>{
-        const groupList = '//ul[@id="groups"]'
+        const groupList = '//ul[@id="member"]'
         const searchBtn = '//input[@id="get-member-button"]';
+
+        cy.xpath(teamText).clear();
+        cy.xpath(teamText)
+          .type(inputTeam)
+          .should("have.value",inputTeam);
 
         cy.xpath(searchBtn).click();
 
@@ -43,10 +49,12 @@ describe("Add a member to the group", () => {
         const usernameText = '//input[@id="username-field"]';
         const removeBtn = '//input[@id="remove-button"]';
 
+        cy.xpath(teamText).clear();
         cy.xpath(teamText)
           .type(inputTeam)
           .should("have.value",inputTeam);
 
+        cy.xpath(usernameText).clear();
         cy.xpath(usernameText)
           .type(inputUsername)
           .should("have.value",inputUsername);

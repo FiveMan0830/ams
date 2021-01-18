@@ -25,8 +25,6 @@ func main() {
 	password, _ := reader.ReadString('\n')
 	password = strings.ReplaceAll(password, "\n", "")
 	password = strings.ReplaceAll(password, "\r", "")
-
-
-
+	
 	accountManagement.Login(adminUser, adminPasswd, username, password)
 }

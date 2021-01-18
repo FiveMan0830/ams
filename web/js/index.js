@@ -34,7 +34,7 @@ window.onload = () => {
                 console.log(thrownError)
                 var errorMessage = document.getElementById('error')
                 var temp = window.getComputedStyle(errorMessage).getPropertyValue("opacity");
-                if(temp == 1) {
+                if (temp == 1) {
                     errorMessage.classList.toggle('shake');
                 } else {
                     errorMessage.classList.toggle('fade');

@@ -26,10 +26,8 @@ func main() {
 	groupName = strings.ReplaceAll(groupName, "\r", "")
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName)
-	// accountManagement.GetGroupMembers(adminUser, adminPasswd, groupName)
-
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPasswd, groupName)
-	if (result != nil || err == nil){
+	if (err == nil) {
 		fmt.Println(result)
 	}
 }

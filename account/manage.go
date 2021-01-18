@@ -11,10 +11,8 @@ type Management interface {
 	AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	GroupExists(adminUser, adminPasswd, groupname string) (bool)
 	SearchUser(adminUser, adminPasswd, username string) (bool)
-	SearchGroupMembers(adminUser, adminPasswd, groupname string)
-	DeleteGroup(adminUser, adminPasswd, cn string)(error) 
-	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) //adminUser, adminPasswd,
-	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string,error)
-	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string,error)
-
+	DeleteGroup(adminUser, adminPasswd, cn string) (error) 
+	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) 
+	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
+	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 }

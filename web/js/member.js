@@ -47,7 +47,7 @@ window.onload = () => {
                 const ul = document.getElementById("member");
                 ul.innerHTML = '';
                 res.forEach(data => {
-                    if(data!=""){
+                    if (data != "") {
                        const li = document.createElement("li");
                         li.textContent = data;
                         ul.appendChild(li); 
