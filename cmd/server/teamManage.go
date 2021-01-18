@@ -21,6 +21,15 @@ type DeleteGroupRequest struct {
 	GroupName string
 }
 
+type AddMemberRequest struct {
+	GroupName string
+	Username string
+}
+
+type GetMemberRequest struct {
+	GroupName string
+}
+
 func main() {
 	router := gin.Default()
 	accountManagement := account.NewLDAPManagement()
@@ -65,6 +74,46 @@ func main() {
 			c.JSON(401,err)
 			return
 		}
+	})
+
+	router.POST("/add/member", func(c *gin.Context) {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		reqbody := &AddMemberRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+		if err != nil {
+			c.JSON(401,err)
+			return
+		}
+		c.JSON(200, memberList)
+	})
+
+	router.POST("/get/members", func(c *gin.Context) {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		reqbody := &GetMemberRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+		if err != nil {
+			c.JSON(401, err)
+			return
+		}
+		c.JSON(200, memberList)
+	})
+
+	router.POST("/remove/member", func(c *gin.Context) {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		reqbody := &AddMemberRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		memberList, err := accountManagement.RemoveMemberFromGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+		if err != nil {
+			c.JSON(401,err)
+			return
+		}
+		c.JSON(200, memberList)
 	})
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

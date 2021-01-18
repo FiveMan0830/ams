@@ -28,8 +28,8 @@ func main() {
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName)
 	// accountManagement.GetGroupMembers(adminUser, adminPasswd, groupName)
 
-	result := accountManagement.GetGroupMembers(adminUser, adminPasswd, groupName)
-	if (result != nil){
+	result, err := accountManagement.GetGroupMembers(adminUser, adminPasswd, groupName)
+	if (result != nil || err == nil){
 		fmt.Println(result)
 	}
 }

@@ -8,13 +8,13 @@ type Management interface {
 	CreateGroup(adminUser, adminPasswd, groupname string) ([]*ldap.EntryAttribute, error)
 	GetGroups(adminUser, adminPasswd string) ([]string, error)
 	AddOu(adminUser, adminPasswd, ouname string)
-	AddMemberToGroup(adminUser, adminPasswd, groupName, username string)
+	AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	GroupExists(adminUser, adminPasswd, groupname string) (bool)
 	SearchUser(adminUser, adminPasswd, username string) (bool)
 	SearchGroupMembers(adminUser, adminPasswd, groupname string)
 	DeleteGroup(adminUser, adminPasswd, cn string)(error) 
 	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) //adminUser, adminPasswd,
-	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string)
-	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) 
+	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string,error)
+	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string,error)
 
 }
