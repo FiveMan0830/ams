@@ -432,3 +432,36 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 		return true
 	}
 }
+
+func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user, baseDN)
+	searchRequest := ldap.NewSearchRequest(
+        baseDN,
+		ldap.ScopeWholeSubtree, 
+		ldap.NeverDerefAliases, 
+		0, 
+		0, 
+		false,
+		filter,
+		[]string{"dn", "cn"},
+		[]ldap.Control{})
+
+	sr, err := lm.ldapConn.Search(searchRequest)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var groupsList []string
+
+	for _, entry := range sr.Entries {
+		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
+	}
+
+	return groupsList, err
+}

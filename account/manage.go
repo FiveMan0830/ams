@@ -15,4 +15,5 @@ type Management interface {
 	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) 
 	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
 	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
+	SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error)
 }
