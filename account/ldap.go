@@ -165,15 +165,38 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) ([]s
 	return user, nil
 }
 
-func (lm *LDAPManagement) AddUserMemberOfAtt(groupName, username string) {
+func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	
 	baseDN := config.GetDC()
-	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,%s", username, baseDN), []ldap.Control{})
-	modify.Add("memberOf", []string{fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN)})
-	err := lm.ldapConn.Modify(modify)
+	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user, baseDN)
+	searchRequest := ldap.NewSearchRequest(
+        baseDN,
+		ldap.ScopeWholeSubtree, 
+		ldap.NeverDerefAliases, 
+		0, 
+		0, 
+		false,
+		filter,
+		[]string{"dn", "cn"},
+		[]ldap.Control{})
+
+	sr, err := lm.ldapConn.Search(searchRequest)
+
 	if err != nil {
-		log.Println(fmt.Errorf("failed to add : %w", err))
+		log.Fatal(err)
+		return nil, err
 	}
+
+	var groupsList []string
+	for _, entry := range sr.Entries {
+		groupsList = append(groupsList, entry.GetAttributeValue("cn"))	
+	}
+	return groupsList, nil
 }
+
 // AddMemberToGroup is a function to add a user to a group
 func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error) {
 	lm.connectWithoutTLS()
@@ -207,7 +230,6 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 			return membersIdList, err
 		}
-		lm.AddUserMemberOfAtt(groupName, username)
 		log.Printf("User %s is added to the group %s\n",  username, groupName)
 	} else {
 		log.Printf("User %s is already a member of the group %s\n",  username, groupName)
@@ -440,37 +462,4 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	} else {
 		return true
 	}
-}
-
-func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-	
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user, baseDN)
-	searchRequest := ldap.NewSearchRequest(
-        baseDN,
-		ldap.ScopeWholeSubtree, 
-		ldap.NeverDerefAliases, 
-		0, 
-		0, 
-		false,
-		filter,
-		[]string{"dn", "cn"},
-		[]ldap.Control{})
-
-	sr, err := lm.ldapConn.Search(searchRequest)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var groupsList []string
-
-	for _, entry := range sr.Entries {
-		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
-	}
-
-	return groupsList, err
 }

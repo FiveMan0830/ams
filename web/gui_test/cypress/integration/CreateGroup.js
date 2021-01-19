@@ -10,7 +10,7 @@ describe("Create a team and show the team list.", () => {
 
     it("Create Team and enter leader's name", () => {
         const teaminputText = '//input[@id="groupname-field"]';
-        const leadeinputText = '//input[@id="groupname-field"]';
+        const leadeinputText = '//input[@id="username-field"]';
         const createBtn = '//input[@id="create-button"]';
 
         cy.xpath(teaminputText)

@@ -31,6 +31,12 @@ type GetMemberRequest struct {
 	GroupName string
 }
 
+type GetGroupOfMemberRequest struct {
+	Username string
+	GroupList []string
+}
+
+
 func main() {
 	router := gin.Default()
 	accountManagement := account.NewLDAPManagement()
@@ -56,6 +62,20 @@ func main() {
 		reqbody := &GetGroupsRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
+
+		if err != nil {
+			c.JSON(401, err)
+			return
+		}
+		c.JSON(200, GroupList)
+	})
+
+	router.POST("/get/groups/byuser", func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+        reqbody := &GetGroupOfMemberRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		GroupList, err := accountManagement.SearchUserMemberOf(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
 
 		if err != nil {
 			c.JSON(401, err)

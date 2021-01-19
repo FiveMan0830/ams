@@ -22,8 +22,8 @@ func main() {
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\r", "")
 
 	memberName, _ := reader.ReadString('\n')
-	memberName = strings.ReplaceAll(groupName, "\n", "")
-	memberName = strings.ReplaceAll(groupName, "\r", "")
+	memberName = strings.ReplaceAll(memberName, "\n", "")
+	memberName = strings.ReplaceAll(memberName, "\r", "")
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " memberName: " + memberName)
 	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPasswd, memberName)
