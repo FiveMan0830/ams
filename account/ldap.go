@@ -142,7 +142,7 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 }
 
 // SearchUser is a function to search a user
-func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) bool {
+func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) ([]string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -152,20 +152,28 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) bool
 	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases, 0, 0, false,
 		filter,
-		[]string{"cn"},
+		[]string{"email"},
 		[]ldap.Control{})
 	result, err := lm.ldapConn.Search(request)
 
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return nil,err
 	}
-	if len(result.Entries) < 1 {
-		return false
-	} else {
-		return true
-	}
+	log.Printf(result.Entries[0].DN)
+	user := result.Entries[0].GetAttributeValues("email")
+	return user, nil
 }
 
+func (lm *LDAPManagement) AddUserMemberOfAtt(groupName, username string) {
+	baseDN := config.GetDC()
+	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,%s", username, baseDN), []ldap.Control{})
+	modify.Add("memberOf", []string{fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN)})
+	err := lm.ldapConn.Modify(modify)
+	if err != nil {
+		log.Println(fmt.Errorf("failed to add : %w", err))
+	}
+}
 // AddMemberToGroup is a function to add a user to a group
 func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error) {
 	lm.connectWithoutTLS()
@@ -199,6 +207,7 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 			return membersIdList, err
 		}
+		lm.AddUserMemberOfAtt(groupName, username)
 		log.Printf("User %s is added to the group %s\n",  username, groupName)
 	} else {
 		log.Printf("User %s is already a member of the group %s\n",  username, groupName)

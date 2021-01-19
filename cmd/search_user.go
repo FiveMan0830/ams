@@ -26,8 +26,8 @@ func main() {
 	username = strings.ReplaceAll(username, "\r", "")
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " username: " + username)
-	result := accountManagement.SearchUser(adminUser, adminPasswd, username)
-	if (result != false) {
-		fmt.Println("found")
+	result,err := accountManagement.SearchUser(adminUser, adminPasswd, username)
+	if (err == nil) {
+		fmt.Println(result)
 	}
 }

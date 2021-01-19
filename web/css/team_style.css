@@ -47,6 +47,7 @@ input {
 
 .show-list ul {
     font-size: larger;
+    margin: 1%;
 }
 
 .member-manage {

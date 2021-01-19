@@ -10,7 +10,7 @@ type Management interface {
 	AddOu(adminUser, adminPasswd, ouname string)
 	AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) ([]string, error)
-	SearchUser(adminUser, adminPasswd, username string) (bool)
+	SearchUser(adminUser, adminPasswd, username string) ([]string, error)
 	DeleteGroup(adminUser, adminPasswd, cn string) (error) 
 	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) 
 	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
