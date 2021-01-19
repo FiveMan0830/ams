@@ -11,6 +11,7 @@ import (
 
 type CreateGroupRequest struct {
 	GroupName string
+	Username string
 }
 
 type GetGroupsRequest struct {
@@ -40,7 +41,7 @@ func main() {
 		reqbody := &CreateGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
-		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
 		if err != nil {
 			c.JSON(401, err)

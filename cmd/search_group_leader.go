@@ -24,11 +24,10 @@ func main() {
 	groupName, _ := reader.ReadString('\n')
 	groupName = strings.ReplaceAll(groupName, "\n", "")
 	groupName = strings.ReplaceAll(groupName, "\r", "")
-	
-	username, _ := reader.ReadString('\n')
-	username = strings.ReplaceAll(username, "\n", "")
-	username = strings.ReplaceAll(username, "\r", "")
 
-	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName + "username: "+username ) 
-	accountManagement.CreateGroup(adminUser, adminPasswd, groupName, username)
+	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName ) 
+	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPasswd, groupName)
+	if(err==nil) {
+		fmt.Println(leader)
+	}
 }

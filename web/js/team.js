@@ -3,11 +3,13 @@ window.onload = () => {
 
     function creategroup() {
         const groupname = $("#groupname-field").val()
+        const username = $("#username-field").val()
         $.ajax({
             type: "POST",
             url: "http://localhost:8080/create/team",
             data: {
-                GroupName: groupname 
+                GroupName: groupname, 
+                Username: username
             },
             success: res => {
                 const queryStr = decodeURIComponent(window.location.search.substring(1)).split("&")

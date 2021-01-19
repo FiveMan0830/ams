@@ -1,19 +1,25 @@
 
 describe("Create a team and show the team list.", () => {
     const inputTeam = 'Team Test';
+    const inputLeader = 'Test';
 
     it("Visit the website", ()=>{
 
         cy.visit("http://127.0.0.1:5500/web/team.html");
     });
 
-    it("Create Team", () => {
-        const inputText = '//input[@id="groupname-field"]';
+    it("Create Team and enter leader's name", () => {
+        const teaminputText = '//input[@id="groupname-field"]';
+        const leadeinputText = '//input[@id="groupname-field"]';
         const createBtn = '//input[@id="create-button"]';
 
-        cy.xpath(inputText)
+        cy.xpath(teaminputText)
           .type(inputTeam)
           .should("have.value",inputTeam);
+
+        cy.xpath(leadeinputText)
+          .type(inputLeader)
+          .should("have.value",inputLeader);
 
         cy.xpath(createBtn).click();
     });
