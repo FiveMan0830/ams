@@ -31,6 +31,10 @@ type GetMemberRequest struct {
 	GroupName string
 }
 
+type GetLeaderRequest struct {
+	GroupName string
+}
+
 type GetGroupOfMemberRequest struct {
 	Username string
 	GroupList []string
@@ -43,7 +47,10 @@ func main() {
 	router.Static("/", "./web")
 
 	router.POST("/create/team", func(c *gin.Context) {
-        // c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Methods, Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		reqbody := &CreateGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -70,6 +77,20 @@ func main() {
 		c.JSON(200, GroupList)
 	})
 
+	router.POST("/get/leader", func(c *gin.Context) {
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		reqbody := &GetLeaderRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+		if err != nil {
+			c.JSON(401, err)
+			return
+		}
+		c.JSON(200, leaderList)
+	})
+
 	router.POST("/get/groups/byuser", func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
         reqbody := &GetGroupOfMemberRequest{}
@@ -85,7 +106,7 @@ func main() {
 	})
 
 	router.POST("/delete/team", func(c *gin.Context) {
-        // c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &DeleteGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)

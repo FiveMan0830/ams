@@ -26,10 +26,14 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 
 	baseDN := config.GetDC()
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupname, config.GetDC()), []ldap.Control{})
-
+	
+	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
+		log.Printf("User %s does not exist", username)
+		return nil, errors.New("User does not exist")
+	}
 	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
 	addReq.Attribute("cn", []string{groupname})
-	addReq.Attribute("o", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
+	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
@@ -116,6 +120,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 	}
 	return memberIdList, nil
 }
+
 // GroupExists is a function for get all the groups
 func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search string) ([]string, error) {
 	lm.connectWithoutTLS()
@@ -137,6 +142,7 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 		return nil,err
 	} 
 	leader := result.Entries[0].GetAttributeValues("o")
+
 	return leader, nil
 	
 }

@@ -1,7 +1,7 @@
 
 describe("Add a member to the group", () => {
     const inputTeam = 'Test';
-    const inputUsername = 'test';
+    const inputUsername = 'audi';
     const teamText = '//input[@id="groupname-field"]';
     const usernameText = '//input[@id="username-field"]';
 

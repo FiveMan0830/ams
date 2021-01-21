@@ -26,10 +26,10 @@ describe("Create a team and show the team list.", () => {
 
 
     it("Assert Team", () =>{
-        const groupList = '//ul[@id="groups"]'
+        const groupList = '//table[@id="groups"]'
         cy.xpath(groupList)
-          .should(($li)=>{
-            expect($li).to.contain(inputTeam)
+          .should(($td)=>{
+            expect($td).to.contain(inputTeam)
           });
     })
 

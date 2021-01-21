@@ -27,8 +27,31 @@
     <div class="show-list">
         <ul id="member">List of Added Member</ul>
     </div>
+
+    <!-- <div class="show-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Team Name</th>
+                    <th>Leader Username</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: users">
+                <tr>
+                    <td data-bind="text: team"></td>
+                    <td data-bind="text: leader"></td>
+                    <td>
+                        <button data-bind="click: $parent.RemoveUser">移除</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+         <ul id="groups">List of created Groups</ul> 
+    </div> -->
     
 </div>
 <script src="./js/member.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.1.0.js"></script>
 </body>
 </html>
