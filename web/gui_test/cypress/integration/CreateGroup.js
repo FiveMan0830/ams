@@ -1,11 +1,11 @@
 
 describe("Create a team and show the team list.", () => {
     const inputTeam = 'Team Test';
-    const inputLeader = 'Test';
+    const inputLeader = 'ellen';
 
     it("Visit the website", ()=>{
 
-        cy.visit("http://127.0.0.1:5500/web/team.html");
+        cy.visit("http://localhost:8080/team.html");
     });
 
     it("Create Team and enter leader's name", () => {
@@ -27,10 +27,14 @@ describe("Create a team and show the team list.", () => {
 
     it("Assert Team", () =>{
         const groupList = '//table[@id="groups"]'
+        const groupTR = "//td[contains(text(),'"+inputTeam+"')]"
         cy.xpath(groupList)
-          .should(($td)=>{
-            expect($td).to.contain(inputTeam)
+          .should(($tr)=>{
+            expect($tr).to.contain(inputTeam)
           });
+        cy.xpath(groupTR)
+          .siblings()
+          .should("contain", inputLeader);
     })
 
 

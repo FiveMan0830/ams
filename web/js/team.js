@@ -2,20 +2,6 @@ window.onload = () => {
     
     const API_HOST = "http://localhost:8080";
     getGroups();
-    // var Team = function (team, leader) {
-    //     var self = this;
-    //     self.team = team;
-    //     self.leader = leader;
-    // }
-
-    // var viewModel = function () {
-    //     var self = this;
-    //     self.users = ko.observableArray();
-
-    //     //移除使用者事件
-    //     self.RemoveUser = deletegroup(self.team);
-    //     console.log(this.team);
-    // }
 
 
    function creategroup(){
@@ -83,7 +69,6 @@ window.onload = () => {
                 leaderName = getLeaderName(data)
                 leaderName.then((value) => {
                     td1.textContent = value;
-                    console.log(value);
                 });
                 tr.appendChild(td1);
                 // const td3 = document.createElement("td");
@@ -115,18 +100,7 @@ window.onload = () => {
                     query[itemPair[0]] = itemPair[1]
                 })
     
-                // const table = document.getElementById("groups");
-                // // table.innerHTML = '';
-                // res.data.forEach(data => {
-                //     const tr = document.createElement("tr");
-                //     // const td = document.createElement("td");
-                //     tr.textContent = data;
-                //     // tr.appendChild(td);
-                //     table.appendChild(tr);
-                // })
-    
                 console.log(res);
-                console.log(res.data);
                 resolve(res.data);
             })
             .catch(err => {
@@ -134,36 +108,6 @@ window.onload = () => {
                 reject(err);
             })
         })
-        
-
-        
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: "http://localhost:8080/get/leader",
-        //     data: {
-        //         GroupName: groupname
-        //     },
-        //     success: res => {
-        //         const queryStr = decodeURIComponent(window.location.search.substring(1)).split("&")
-        //         const query = {}
-        //         queryStr.forEach((item, i) => {
-        //             itemPair = item.split("=")
-        //             query[itemPair[0]] = itemPair[1]
-        //         })
-        //         res.forEach(data => {
-        //             // console.log(data)
-        //             string=data+""
-        //             // console.log(string)
-        //         })
-        //     },
-        //     error: (xhr, ajaxOptions, thrownError) => {
-        //         console.log(xhr.status)
-        //         console.log(thrownError)
-        //     }
-        // })
-        // console.log(string)
-        // return string;
     }
 
     function changeText(type) {
@@ -181,7 +125,6 @@ window.onload = () => {
     $("#delete-button").click(() => {
         deletegroup();
         window.location.reload();
-        // changeText("Delete ");
     })
 
     // var deleteBtn = document.getElementById("btn");

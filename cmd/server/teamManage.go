@@ -47,10 +47,6 @@ func main() {
 	router.Static("/", "./web")
 
 	router.POST("/create/team", func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Methods, Content-Type, Authorization")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		reqbody := &CreateGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -64,7 +60,6 @@ func main() {
 	})
 
 	router.POST("/get/groups", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		GroupList, err := accountManagement.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
 		reqbody := &GetGroupsRequest{}
 		c.Bind(reqbody)
@@ -78,7 +73,6 @@ func main() {
 	})
 
 	router.POST("/get/leader", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &GetLeaderRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -92,7 +86,6 @@ func main() {
 	})
 
 	router.POST("/get/groups/byuser", func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
         reqbody := &GetGroupOfMemberRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -106,7 +99,6 @@ func main() {
 	})
 
 	router.POST("/delete/team", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &DeleteGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -119,7 +111,6 @@ func main() {
 	})
 
 	router.POST("/add/member", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &AddMemberRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -133,7 +124,6 @@ func main() {
 	})
 
 	router.POST("/get/members", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &GetMemberRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
@@ -147,7 +137,6 @@ func main() {
 	})
 
 	router.POST("/remove/member", func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		reqbody := &AddMemberRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
