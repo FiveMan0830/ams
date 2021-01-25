@@ -11,7 +11,7 @@ import (
 
 type CreateGroupRequest struct {
 	GroupName string
-	Username string
+	Username  string
 }
 
 type GetGroupsRequest struct {
@@ -24,7 +24,7 @@ type DeleteGroupRequest struct {
 
 type AddMemberRequest struct {
 	GroupName string
-	Username string
+	Username  string
 }
 
 type GetMemberRequest struct {
@@ -37,9 +37,11 @@ type GetLeaderRequest struct {
 
 type GetGroupOfMemberRequest struct {
 	Username string
-	GroupList []string
 }
 
+type GetUUIDByUsernameRequest struct {
+	Username string
+}
 
 func main() {
 	router := gin.Default()
@@ -86,10 +88,15 @@ func main() {
 	})
 
 	router.POST("/get/groups/byuser", func(c *gin.Context) {
-        reqbody := &GetGroupOfMemberRequest{}
+		reqbody := &GetGroupOfMemberRequest{}
 		c.Bind(reqbody)
+
 		log.Println(reqbody)
+		log.Println(reqbody.Username)
+
 		GroupList, err := accountManagement.SearchUserMemberOf(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+
+		log.Println(GroupList)
 
 		if err != nil {
 			c.JSON(401, err)
@@ -147,6 +154,19 @@ func main() {
 			return
 		}
 		c.JSON(200, memberList)
+	})
+
+	router.POST("/get/uuid", func(c *gin.Context) {
+		reqbody := &AddMemberRequest{}
+		c.Bind(reqbody)
+		log.Println(reqbody)
+		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+
+		if err != nil {
+			c.JSON(401, err)
+			return
+		}
+		c.JSON(200, uuid)
 	})
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

@@ -19,7 +19,7 @@ type LDAPManagement struct {
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username string) ([]*ldap.EntryAttribute, error) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, groupID, username string) ([]*ldap.EntryAttribute, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -35,6 +35,7 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 	addReq.Attribute("cn", []string{groupname})
 	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
+	addReq.Attribute("", []string{groupID})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
@@ -122,7 +123,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 }
 
 // GroupExists is a function for get all the groups
-func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search string) ([]string, error) {
+func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -139,9 +140,9 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-		return nil,err
+		return "",err
 	} 
-	leader := result.Entries[0].GetAttributeValues("o")
+	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
 
 	return leader, nil
 	
@@ -326,6 +327,30 @@ func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) 
 		log.Printf("Group %s is deleted\n", groupName)
 		return nil
 	}
+}
+
+// GetUUIDByUsername is a function to get username to get UUID
+func (lm *LDAPManagement) GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)  {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+	
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"uid"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return "", err
+	}
+	log.Printf(result.Entries[0].DN)
+	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
+	return user, nil
 }
 
 // Login is a function for user to login and get information
