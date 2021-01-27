@@ -19,7 +19,7 @@ type LDAPManagement struct {
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, groupID, username string) ([]*ldap.EntryAttribute, error) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username string) ([]*ldap.EntryAttribute, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -35,7 +35,6 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, groupID
 	addReq.Attribute("cn", []string{groupname})
 	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
-	addReq.Attribute("", []string{groupID})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)

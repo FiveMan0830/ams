@@ -4,8 +4,10 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
+
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
@@ -157,10 +159,11 @@ func main() {
 	})
 
 	router.POST("/get/uuid", func(c *gin.Context) {
-		reqbody := &AddMemberRequest{}
-		c.Bind(reqbody)
-		log.Println(reqbody)
-		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+		// reqbody := &GetUUIDByUsernameRequest{}
+		// c.Bind(reqbody)
+		x, err := ioutil.ReadAll(c.Request.Body)
+		log.Println(x)
+		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(x))
 
 		if err != nil {
 			c.JSON(401, err)
