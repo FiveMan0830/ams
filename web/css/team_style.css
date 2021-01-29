@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
+@font-face {
+    font-family: 'flexslider-icon';
+    src: url('../fonts/flexslider-icon.eot');
+    src: url('../fonts/flexslider-icon.eot?#iefix') format('embedded-opentype'), url('../fonts/flexslider-icon.woff') format('woff'), url('../fonts/flexslider-icon.ttf') format('truetype'), url('../fonts/flexslider-icon.svg#flexslider-icon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+  }
+
 body {
     margin:0;
     min-height: 100vh;
@@ -17,15 +25,36 @@ p {
 
 }
 
+.container {
+    width: 100%;  
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: -webkit-linear-gradient(45deg, #e2fdc8, #fc7e79);
+    background: -o-linear-gradient(45deg, #e2fdc8, #fc7e79);
+    background: -moz-linear-gradient(45deg, #e2fdc8, #fc7e79);
+    background: linear-gradient(45deg, #e2fdc8, #fc7e79);
+    
+  }
 
 .member-manage {
-    padding: 10px;
+    padding: 20px;
     position: relative;
     width: 40%;
-    height: 100vh;
+    height: 50vh;
     margin:1%;
-    background-color: #d4d4d4;
+    background-color: rgba(255, 255, 255, 0.808);;
+    border-radius: 2%;
     float: left;
+    justify-content: center;
+    align-items: center;
 }
 
 input {
@@ -34,15 +63,14 @@ input {
     margin: 5px;
     border-radius: 1px;
     border: 1px solid #ccc;
-    font-family: inherit;
+    font-family: 'Raleway', sans-serif;
 }
 
 .show-list {
-    width: 100vw;
-    height: 100vh;
-    margin: 1%;
     padding: 10px;
-    background-color: #ffffff;
+    position: relative;
+    width: 40%;
+    float: right;
 }
 
 .show-list ul {
@@ -50,12 +78,6 @@ input {
     margin: 1%;
 }
 
-.member-manage {
-    position: relative;
-    width: 400px;
-    height: 450px;
-    margin:1%;
-}
 
 table,
 td {

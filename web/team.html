@@ -6,10 +6,10 @@
     <title>TEAM</title>
     <link href="./css/team_style.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.js"   integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="   crossorigin="anonymous"></script>
-    
+
 </head>
 <body>
-    
+<div class="container">
     <div class="member-manage">
         <h1>TEAM</h1>
         <p>Create Group</p>
@@ -21,20 +21,21 @@
         
         <input class="submit-button" type="submit" value="Create" id="create-button">
         <p id="group-list"></p>
-    </div>
 
-    <div class="show-list">
-    
-        <table id="groups">
-            <tr>
-                <th>Team Name</th>
-                <th>Leader Username</th>
-                <th></th>
-            </tr>
-        </table>
+        <div class="show-list">
+            
+            <table id="groups">
+                <tr>
+                    <th>Team Name</th>
+                    <th>Leader Username</th>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
     </div>
-    
 </div>
+
+
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.1.0.js"></script>
 <script src="./js/team.js"></script>

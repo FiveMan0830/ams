@@ -19,10 +19,12 @@ window.onload = () => {
                     query[itemPair[0]] = itemPair[1]
                 })
                 console.log(res)
+                changeTextSuccess("Adding ");
             },
             error: (xhr, ajaxOptions, thrownError) => {
                 console.log(xhr.status)
                 console.log(thrownError)
+                changeTextFail("Adding ");
             }
         })
     }
@@ -81,29 +83,36 @@ window.onload = () => {
                     query[itemPair[0]] = itemPair[1]
                 })
                 console.log(res)
+                changeTextSuccess("Removing ");
             },
             error: (xhr, ajaxOptions, thrownError) => {
                 console.log(xhr.status)
                 console.log(thrownError)
+                changeTextFail("Removing ");
             }
         })
     }
 
-    function changeText(type) {
+    function changeTextSuccess(type) {
         const result = document.getElementById("username-field");
         const li = document.createElement("li");
         li.textContent = type + result.value + ' member success!';
         document.getElementById("member-list").textContent=li.textContent;
     }
 
+    function changeTextFail(type) {
+        const result = document.getElementById("username-field");
+        const li = document.createElement("li");
+        li.textContent = type + result.value + ' member fail!';
+        document.getElementById("member-list").textContent=li.textContent;
+    }
+
     $("#add-button").click(() => {
         addMember();
-        changeText("Adding ");
     })
 
     $("#remove-button").click(() => {
         removeMember();
-        changeText("Removing ");
     })
 
     $("#get-member-button").click(() => {

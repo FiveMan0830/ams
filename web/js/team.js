@@ -21,9 +21,11 @@ window.onload = () => {
                     query[itemPair[0]] = itemPair[1]
                 })
             console.log(res);
+            alert("Create group : "+ groupname +"success!!");
         })
         .catch(err => {
             console.log(err);
+            alert("Create group : "+ groupname +"fail!!");
         })
     }
 
@@ -42,9 +44,11 @@ window.onload = () => {
                     query[itemPair[0]] = itemPair[1]
                 })
             console.log(res);
+            alert("Delete group : "+ groupname +"success!!");
         })
         .catch(err => {
             console.log(err);
+            alert("Delete group : "+ groupname +"fail!!");
         })
     }
 
