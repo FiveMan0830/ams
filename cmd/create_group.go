@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/google/uuid"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
@@ -22,8 +21,6 @@ func main() {
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\n", "")
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\r", "")
 
-	groupID := uuid.New().String()
-
 	groupName, _ := reader.ReadString('\n')
 	groupName = strings.ReplaceAll(groupName, "\n", "")
 	groupName = strings.ReplaceAll(groupName, "\r", "")
@@ -32,6 +29,9 @@ func main() {
 	username = strings.ReplaceAll(username, "\n", "")
 	username = strings.ReplaceAll(username, "\r", "")
 
-	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName + " groupID: " + groupID + "username: " + username)
-	accountManagement.CreateGroup(adminUser, adminPasswd, groupName, groupID, username)
+	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " groupName: " + groupName + " groupID: " + "username: " + username)
+	groupname,err:=accountManagement.CreateGroup(adminUser, adminPasswd, groupName, username)
+	if (err == nil) {
+		fmt.Println(groupname)
+	}
 }
