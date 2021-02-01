@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
+
 @font-face {
     font-family: 'flexslider-icon';
     src: url('../fonts/flexslider-icon.eot');
@@ -22,7 +23,36 @@ h1{
 p {
     font-size: large;
     font-weight: 100;
+}
 
+.navbar {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.192);
+}
+
+/* Style the links inside the navigation bar */
+.navbar a {
+    float: left;
+    display: block;
+    color: #423734;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.navbar a:hover {
+    background-color: rgb(255, 249, 234);
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.navbar a.active {
+    background-color: #f7725b;
+    color: white;
 }
 
 .container {
@@ -45,12 +75,13 @@ p {
   }
 
 .member-manage {
+    /* left: 45vh; */
     padding: 20px;
     position: relative;
     width: 40%;
     height: 50vh;
     margin:1%;
-    background-color: rgba(255, 255, 255, 0.808);;
+    background-color: rgba(255, 255, 255, 0.808);
     border-radius: 2%;
     float: left;
     justify-content: center;
@@ -67,9 +98,15 @@ input {
 }
 
 .show-list {
-    padding: 10px;
+    padding: 20px;
     position: relative;
     width: 40%;
+    height: 50vh;
+    margin:1%;
+    background-color: rgba(255, 255, 255, 0.808);
+    border-radius: 2%;
+    justify-content: center;
+    align-items: center;
     float: right;
 }
 
