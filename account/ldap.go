@@ -19,7 +19,7 @@ type LDAPManagement struct {
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username string) ([]string, error) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -28,8 +28,12 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupname, config.GetDC()), []ldap.Control{})
 
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
-		log.Printf("User %s does not exist", username)
-		return nil, errors.New("User does not exist")
+		log.Printf("User %s does not exist\n", username)
+		return "", errors.New("User does not exist")
+	}
+	if lm.GroupExists(adminUser, adminPasswd, groupname) {
+		log.Printf("Group %s does exist\n", groupname)
+		return "", errors.New("Duplicate Group Name")
 	}
 	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
 	addReq.Attribute("cn", []string{groupname})
@@ -38,7 +42,7 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
-		return nil, err
+		return "", err
 	}
 
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(groupname))
@@ -50,9 +54,10 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 	result, err := lm.ldapConn.Search(request)
 	if err != nil {
 		log.Println("error searching group:", request, err)
-		return nil, err
+		return "", err
 	}
-	return result.Entries[0].GetAttributeValues("cn"), nil
+	group := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
+	return group, nil
 }
 
 // AddOu is a function for user to create ou
@@ -355,12 +360,12 @@ func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) 
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
-	baseDN := config.GetDC()
-	ou := "OISGroup"
-	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", groupName, ou, baseDN), nil)
+	// baseDN := config.GetDC()
+	// ou := "OISGroup"
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), nil)
 	err := lm.ldapConn.Del(d)
 	if err != nil {
-		log.Println("Group entry could not be deleted :", err)
+		log.Println("Group entry could not be deleted :", d ,err)
 		return err
 	} else {
 		log.Printf("Group %s is deleted\n", groupName)

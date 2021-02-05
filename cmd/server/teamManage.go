@@ -57,7 +57,7 @@ func main() {
 		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(401, err.Error())
 			return
 		}
 		c.JSON(200, info)

@@ -5,7 +5,7 @@ import "github.com/go-ldap/ldap/v3"
 // Management is a interface to help user manage accounts
 type Management interface {
 	AddUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error
-	CreateGroup(adminUser, adminPasswd, groupname, username string) ([]string, error)
+	CreateGroup(adminUser, adminPasswd, groupname, username string) (string, error)
 	GetGroups(adminUser, adminPasswd string) ([]string, error)
 	AddOu(adminUser, adminPasswd, ouname string) error
 	DeleteOu(adminUser, adminPasswd, ouname string) error

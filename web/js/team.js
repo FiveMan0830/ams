@@ -123,12 +123,12 @@ window.onload = () => {
 
     $("#create-button").click(() => {
         creategroup();
-        window.location.reload();
+        // window.location.reload();
     })
 
     $("#delete-button").click(() => {
         deletegroup();
-        window.location.reload();
+        // window.location.reload();
     })
 
     // var deleteBtn = document.getElementById("btn");
