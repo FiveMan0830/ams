@@ -27,6 +27,7 @@ const groupName string = "testGroup"
 const groupLeader string = "testLeader"
 const groupLeader2 string = "testLeader2"
 const groupMember string = "testMember"
+const groupMember2 string = "testMember2"
 
 // Ou test data
 const ouName = "testOu"
@@ -51,6 +52,14 @@ func TestSearchUser(t *testing.T) {
 	result, err := accountManagement.SearchUser(adminUser, adminPassword, username)
 
 	assert.Equal(t, result, userID)
+	assert.Equal(t, err, nil)
+}
+
+func TestGetUUIDByUsername(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+	uuid, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, username)
+
+	assert.Equal(t, uuid, userID)
 	assert.Equal(t, err, nil)
 }
 
@@ -88,6 +97,25 @@ func TestGroupLeaderNotExists(t *testing.T) {
 	assert.Equal(t, group, groupNull)
 	assert.Equal(t, err, leaderError)
 }
+
+func TestSearchGroupLeader(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
+	
+	assert.Equal(t, leader, groupLeader)
+	assert.Equal(t, err, nil)
+}
+
+// func TestAddMemberToGroup(t *testing.T) {
+// 	accountManagement := NewLDAPManagement()
+// 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+// 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, groupMember)
+
+// 	assert.Equal(t, result[0], groupLeader)
+// 	assert.Equal(t, result[1], username)
+// 	assert.Equal(t, result[2], groupMember)
+// 	assert.Equal(t, err, nil)
+// }
  
 func TestCreateOU(t *testing.T) {
 	accountManagement := NewLDAPManagement()
@@ -107,39 +135,6 @@ func TestTearDown(t *testing.T) {
 	assert.Equal(t, deleteOu, nil)
 }
 
-
-// func TestSearchUser(t *testing.T) {
-// 	accountManagement := NewLDAPManagement()
-// 	username := "testing"
-// 	uid, err := accountManagement.SearchUser(adminUser, adminPass, username)
-// 	userID := []string{"c61965be-8176-4419-b289-4d52617728fb"}
-// 	if err != nil {
-// 		log.Fatalf("Error creating groups %+v", err)
-// 	}
-// 	for i, user := range uid {
-// 		if (user != userID[i]){
-// 			log.Fatalf("User not found")
-// 		} else {
-// 			log.Printf("User %s is found with id = %s", username,user)
-// 		}
-// 	}
-// }
-
-// func TestGetUUIDByUsername(t *testing.T) {
-// 	accountManagement := NewLDAPManagement()
-// 	username := "testing"
-// 	uid, err := accountManagement.GetUUIDByUsername(adminUser, adminPass, username)
-// 	userID := "c61965be-8176-4419-b289-4d52617728fb"
-// 	if err != nil {
-// 		log.Fatalf("Error finding user %+v", err)
-// 	}
-// 	if (userID != uid){
-// 		log.Fatalf("User not found")
-// 	} else {
-// 		log.Printf("User %s is found with id = %s", username,uid)
-// 	}
-// }
-
 // func TestGetGroupMembers(t *testing.T) {
 // 	accountManagement := NewLDAPManagement()
 // 	result,err := accountManagement.GetGroupMembers(adminUser, adminPass, "Testing Test")
@@ -154,22 +149,6 @@ func TestTearDown(t *testing.T) {
 // 			log.Printf("User %s is in the group", member)
 // 		}
 // 	}
-// }
-
-// func TestSearchGroupLeader(t *testing.T) {
-// 	accountManagement := NewLDAPManagement()
-// 	groupName := "Testing Test"
-// 	result,err := accountManagement.SearchGroupLeader(adminUser, adminPass, groupName)
-// 	leader := "Test"
-// 	if err != nil {
-// 		log.Fatalf("Error Getting Leader %+v", err)
-// 	}
-// 	if (result != leader){
-// 		log.Fatalf("User %s isn't the group leader", result)
-// 	} else {
-// 		log.Printf("User %s is %s leader", result,groupName)
-// 	}
-
 // }
 
 // func TestSearchUserMemberOf(t *testing.T) {
