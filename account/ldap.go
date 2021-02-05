@@ -28,11 +28,9 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupname, config.GetDC()), []ldap.Control{})
 
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
-		log.Printf("User %s does not exist\n", username)
 		return "", errors.New("User does not exist")
 	}
 	if lm.GroupExists(adminUser, adminPasswd, groupname) {
-		log.Printf("Group %s does exist\n", groupname)
 		return "", errors.New("Duplicate Group Name")
 	}
 	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
@@ -61,7 +59,7 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 }
 
 // AddOu is a function for user to create ou
-func (lm *LDAPManagement) AddOu(adminUser, adminPasswd, ouname string) error {
+func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -75,7 +73,6 @@ func (lm *LDAPManagement) AddOu(adminUser, adminPasswd, ouname string) error {
 		log.Println("error adding ou:", addReq, err)
 		return err
 	} else {
-		log.Printf("Organization Unit %s is added\n", ouname)
 		return nil
 	}
 	return nil
@@ -92,13 +89,12 @@ func (lm *LDAPManagement) DeleteOu(adminUser, adminPasswd, ouname string) error 
 		log.Println("Organization Unit entry could not be deleted :", err)
 		return err
 	} else {
-		log.Printf("Organization Unit %s is deleted\n", ouname)
 		return nil
 	}
 }
 
 // AddUser is a function for user to register
-func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string)error {
+func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string)error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -114,15 +110,13 @@ func (lm *LDAPManagement) AddUser(adminUser, adminPasswd, userID, username, give
 	addReq.Attribute("mail", []string{email})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		log.Println("error adding service:", addReq, err)
-		return err
+		return errors.New("User already exist")
 	} else {
-		log.Printf("User %s is added\n", username)
 		return nil
 	}
 }
 
-func (lm *LDAPManagement) RemoveUser(adminUser, adminPasswd, username string) error {
+func (lm *LDAPManagement) DeleteUser(adminUser, adminPasswd, username string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -133,7 +127,6 @@ func (lm *LDAPManagement) RemoveUser(adminUser, adminPasswd, username string) er
 		log.Println("User could not be deleted :", err)
 		return err
 	} else {
-		log.Printf("User %s is deleted\n", username)
 		return nil
 	}
 }
@@ -194,7 +187,7 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 }
 
 // SearchUser is a function to search a user
-func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) ([]string, error) {
+func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -209,10 +202,9 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) ([]s
 	result, err := lm.ldapConn.Search(request)
 
 	if err != nil {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-		return nil, err
+		return "", errors.New("User not found")
 	}
-	user := result.Entries[0].GetAttributeValues("uid")
+	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
 	return user, nil
 }
 
@@ -368,7 +360,6 @@ func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) 
 		log.Println("Group entry could not be deleted :", d ,err)
 		return err
 	} else {
-		log.Printf("Group %s is deleted\n", groupName)
 		return nil
 	}
 }
