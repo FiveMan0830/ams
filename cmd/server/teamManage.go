@@ -57,7 +57,7 @@ func main() {
 		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
 		if err != nil {
-			c.JSON(401, err.Error())
+			c.JSON(500, err.Error())
 			return
 		}
 		c.JSON(200, info)
@@ -70,7 +70,7 @@ func main() {
 		log.Println(reqbody)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, GroupList)
@@ -83,7 +83,7 @@ func main() {
 		leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, leaderList)
@@ -101,7 +101,7 @@ func main() {
 		log.Println(GroupList)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, GroupList)
@@ -114,7 +114,7 @@ func main() {
 		err := accountManagement.DeleteGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 	})
@@ -126,7 +126,7 @@ func main() {
 		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err.Error())
 			return
 		}
 		c.JSON(200, memberList)
@@ -139,7 +139,7 @@ func main() {
 		memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, memberList)
@@ -152,7 +152,7 @@ func main() {
 		memberList, err := accountManagement.RemoveMemberFromGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, memberList)
@@ -166,7 +166,7 @@ func main() {
 		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(x))
 
 		if err != nil {
-			c.JSON(401, err)
+			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, uuid)
