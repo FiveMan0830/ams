@@ -276,7 +276,8 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 			return membersIdList, errors.New("Failed to add user to group")
 		}
 	} else {
-		return nil, errors.New("User already member of the group")
+		log.Printf("User %s is already a member of the group %s\n", username, groupName)
+		return nil, errors.New("User is already a member")
 	}
 
 	memberList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)

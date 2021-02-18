@@ -1,4 +1,3 @@
-
 describe("Create Team Success", () => {
     const inputTeam = 'TestCreate';
     const inputLeader = 'Test';
@@ -45,7 +44,7 @@ describe("Create Team With Not Registered User as Leader", () => {
             'Username' : notRegisterUser
             }
         }).then((response)=> {            
-            expect(response.status).to.be.equal(401);
+            expect(response.status).to.be.equal(500);
             expect(response).has.property("body","User does not exist");
 
         })
@@ -54,7 +53,9 @@ describe("Create Team With Not Registered User as Leader", () => {
 
 
 describe("Create Team with Duplicate Team Name", () => {
-    
+    const inputTeam = 'TestCreate';
+    const inputLeader = 'Test';
+
     it("Create First Team", ()=>{
         cy.request({
             method : 'POST',
@@ -73,14 +74,26 @@ describe("Create Team with Duplicate Team Name", () => {
         cy.request({
             method : 'POST',
             url : "http://localhost:8080/create/team",
+            failOnStatusCode: false,
             body : {
                 'GroupName': inputTeam, 
                 'Username' : inputLeader
                 }
             }).then((response)=> {            
-                expect(response.status).to.be.equal(200);
-                expect(response).has.property("body",inputTeam);
+                expect(response.status).to.be.equal(500);
+                expect(response).has.property("body","Duplicate Group Name");
             })
         })
 
-})
+    it("Tear down", () => {
+        cy.request({
+            method : 'POST',
+            url : "http://localhost:8080/delete/team",
+            body : {
+                'GroupName': inputTeam
+                }
+            }).then((response)=> {
+                expect(response.status).to.be.equal(200);
+            })
+        })
+});
