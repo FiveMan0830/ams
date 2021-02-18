@@ -94,7 +94,7 @@ func (lm *LDAPManagement) DeleteOu(adminUser, adminPasswd, ouname string) error 
 }
 
 // AddUser is a function for user to register
-func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string)error {
+func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -202,6 +202,8 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (str
 	result, err := lm.ldapConn.Search(request)
 
 	if err != nil {
+		return "", errors.New("Search Failed")
+	} else if len(result.Entries) < 1 {
 		return "", errors.New("User not found")
 	}
 	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
@@ -271,11 +273,10 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 		err := lm.ldapConn.Modify(modify)
 		if err != nil {
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-			return membersIdList, err
+			return membersIdList, errors.New("Failed to add user to group")
 		}
-		log.Printf("User %s is added to the group %s\n", username, groupName)
 	} else {
-		log.Printf("User %s is already a member of the group %s\n", username, groupName)
+		return nil, errors.New("User already member of the group")
 	}
 
 	memberList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
@@ -357,7 +358,7 @@ func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) 
 	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), nil)
 	err := lm.ldapConn.Del(d)
 	if err != nil {
-		log.Println("Group entry could not be deleted :", d ,err)
+		log.Println("Group entry could not be deleted :", d, err)
 		return err
 	} else {
 		return nil

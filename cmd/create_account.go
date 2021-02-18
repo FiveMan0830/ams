@@ -45,5 +45,5 @@ func main() {
 	email = strings.ReplaceAll(email, "\r", "")
 
 	fmt.Println("admin: " + adminUser + ", adminPasswd: " + adminPasswd + ", userName: " + username + ", surname: " + surname + ", password: " + password)
-	accountManagement.AddUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email)
+	accountManagement.CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email)
 }

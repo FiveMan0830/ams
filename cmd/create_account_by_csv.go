@@ -46,6 +46,6 @@ func main() {
 		password := record[4]
 		email := record[5]
 
-		accountManagement.AddUser(adminUser, adminPassword, userID, username, givenname, surname, password, email)
+		accountManagement.CreateUser(adminUser, adminPassword, userID, username, givenname, surname, password, email)
 	}
 }
