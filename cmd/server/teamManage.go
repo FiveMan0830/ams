@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -54,7 +55,8 @@ func main() {
 		reqbody := &CreateGroupRequest{}
 		c.Bind(reqbody)
 		log.Println(reqbody)
-		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+		teamID := uuid.New().String()
+		info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username, teamID)
 
 		if err != nil {
 			c.JSON(500, err.Error())
@@ -164,6 +166,21 @@ func main() {
 		x, err := ioutil.ReadAll(c.Request.Body)
 		log.Println(x)
 		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(x))
+
+		if err != nil {
+			c.JSON(500, err)
+			return
+		}
+		c.JSON(200, uuid)
+	})
+
+	
+	router.POST("/get/teamUid", func(c *gin.Context) {
+		// reqbody := &GetUUIDByUsernameRequest{}
+		// c.Bind(reqbody)
+		x, err := ioutil.ReadAll(c.Request.Body)
+		log.Println(x)
+		uuid, err := accountManagement.SearchGroupUUID(config.GetAdminUser(), config.GetAdminPassword(), string(x))
 
 		if err != nil {
 			c.JSON(500, err)

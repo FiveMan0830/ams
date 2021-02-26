@@ -19,7 +19,7 @@ type LDAPManagement struct {
 }
 
 // AddGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username string) (string, error) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -33,10 +33,11 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 	if lm.GroupExists(adminUser, adminPasswd, groupname) {
 		return "", errors.New("Duplicate Group Name")
 	}
-	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group})
+	addReq.Attribute("objectClass", []string{"top", ObjectCategory_Group, "UidObject"})
 	addReq.Attribute("cn", []string{groupname})
 	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
+	addReq.Attribute("uid", []string{teamID})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
@@ -183,6 +184,32 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
 
 	return leader, nil
+
+}
+
+// GroupExists is a function for get all the groups
+func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string) (string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", search, baseDN),
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"uid"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return "", err
+	}
+	teamID := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
+	log.Println("team id : " + teamID)
+	return teamID, nil
 
 }
 
