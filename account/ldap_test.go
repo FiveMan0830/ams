@@ -13,6 +13,7 @@ const adminPassword string = "admin"
 // User test data
 const userIDNull string = ""
 const usernameNotExists string = "usernameNotExists"
+
 const userID string = "c61965be-8176-4419-b289-4d52617728fb"
 const username string = "testUser"
 const givenName string = "testUser"
@@ -43,12 +44,12 @@ const leaderEmail2 string = "testLeade2r@gmail.com"
 
 // Group test data
 const groupNull = ""
+const groupNameNotExists = "testGroupNotExists"
 const groupName string = "testGroup"
 const groupName2 string = "testGroup2"
 const groupLeader string = "testLeader"
 const groupLeader2 string = "testLeader2"
 const groupLeaderNotExists string = "testLeaderNotExists"
-
 
 // Ou test data
 const ouName = "testOu"
@@ -139,6 +140,7 @@ func TestGroupNameDuplicate(t *testing.T) {
 	assert.Equal(t, err, duplicateError)
 }
 
+
 func TestSearchGroupLeader(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
@@ -178,6 +180,36 @@ func TestAddMemberToGroup(t *testing.T) {
 	assert.Equal(t, err2, nil)
 }
 
+func TestAddMemberToNotExistsGroup(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupNameNotExists, username)
+	groupNotExistsError := errors.New("Group does not exist")
+
+	assert.Equal(t, result, []string([]string(nil)))
+	assert.Equal(t, err, groupNotExistsError)
+}
+
+func TestAddNotExistsMemberToGroup(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, usernameNotExists)
+	memberNotExistsError := errors.New("User does not exist")
+
+	assert.Equal(t, result, []string([]string(nil)))
+	assert.Equal(t, err, memberNotExistsError)
+}
+
+func TestAddDuplicateMemberToGroup(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+	memberDuplicateError := errors.New("User already member of the group")
+
+	assert.Equal(t, result, []string([]string(nil)))
+	assert.Equal(t, err, memberDuplicateError)
+}
+
 func TestGetGroupMembers(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
@@ -212,6 +244,26 @@ func TestRemoveMemberFromGroup(t *testing.T) {
 	assert.Equal(t, err2, nil)
 }
 
+func TestRemoveMemberFromNotExistsGroup(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupNameNotExists, username)
+	groupNotExistsError := errors.New("Group does not exist")
+
+	assert.Equal(t, result, []string([]string(nil)))
+	assert.Equal(t, err, groupNotExistsError)
+}
+
+func TestRemoveNotExistsMemberFromGroup(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, usernameNotExists)
+	userNotExistsError := errors.New("User is not a member of group")
+
+	assert.Equal(t, result, []string([]string(nil)))
+	assert.Equal(t, err, userNotExistsError)
+}
+
 func TestCreateOU(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
@@ -219,6 +271,16 @@ func TestCreateOU(t *testing.T) {
 
 	assert.Equal(t, ou, nil)
 }
+
+func TestOUNameDuplicate(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	ou := accountManagement.CreateOu(adminUser, adminPassword, ouName)
+	duplicateError := errors.New("This Organization Unit already exists")
+
+	assert.Equal(t, ou, duplicateError)
+}
+
 func TestTearDown(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 

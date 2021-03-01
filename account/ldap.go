@@ -71,8 +71,7 @@ func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error 
 	addReq.Attribute("ou", []string{ouname})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		log.Println("error adding ou:", addReq, err)
-		return err
+		return errors.New("This Organization Unit already exists")
 	} else {
 		return nil
 	}
@@ -276,11 +275,9 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 	lm.bind(adminUser, adminPasswd)
 
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		log.Printf("Group %s does not exist, cn or ou is incorrect\n", groupName)
 		return nil, errors.New("Group does not exist")
 	}
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
-		log.Printf("User %s does not exist, hence the user could not be added to the group %s\n", username, groupName)
 		return nil, errors.New("User does not exist")
 	}
 
@@ -299,7 +296,6 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 		modify.Add("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
 		err := lm.ldapConn.Modify(modify)
 		if err != nil {
-			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 			return membersIdList, errors.New("Failed to add user to group")
 		}
 	} else {
@@ -318,7 +314,6 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 	lm.bind(adminUser, adminPasswd)
 
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		log.Printf("Group %s does not exist, cn or ou is incorrect\n", groupName)
 		return nil, errors.New("Group does not exist")
 	}
 	memberExists := false
@@ -338,9 +333,8 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 			return nil, err
 		}
-		log.Printf("User %s is removed from the group %s\n", username, groupName)
 	} else {
-		log.Printf("User %s is not a member of the group %s\n", username, groupName)
+		return nil, errors.New("User is not a member of group")
 	}
 	membersList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
 	return membersList, nil
