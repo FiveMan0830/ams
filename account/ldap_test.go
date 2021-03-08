@@ -70,6 +70,15 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, leader2, nil)
 }
 
+func TestSearchUserByUUID(t *testing.T) {
+	accountManagement := NewLDAPManagement();
+
+	userResult, err := accountManagement.SearchUserByUUID(adminUser, adminPassword, userID)
+
+	assert.Equal(t, userResult, username)
+	assert.Equal(t, err, nil)
+}
+
 func TestUserDuplicate(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
