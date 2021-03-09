@@ -236,7 +236,7 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (str
 	return user, nil
 }
 
-func (lm *LDAPManagement) SearchUserByUUID(adminUser, adminPasswd, search string) (string, error) {
+func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)

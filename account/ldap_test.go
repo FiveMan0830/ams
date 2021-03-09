@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"testing"
+	"github.com/google/uuid"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -49,6 +50,8 @@ const groupName string = "testGroup"
 const groupName2 string = "testGroup2"
 const groupLeader string = "testLeader"
 const groupLeader2 string = "testLeader2"
+var groupUUID1 string = uuid.New().String()
+var groupUUID2 string = uuid.New().String()
 const groupLeaderNotExists string = "testLeaderNotExists"
 
 // Ou test data
@@ -73,11 +76,12 @@ func TestCreateUser(t *testing.T) {
 func TestSearchUserByUUID(t *testing.T) {
 	accountManagement := NewLDAPManagement();
 
-	userResult, err := accountManagement.SearchUserByUUID(adminUser, adminPassword, userID)
+	userResult, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, userID)
 
 	assert.Equal(t, userResult, username)
 	assert.Equal(t, err, nil)
 }
+
 
 func TestUserDuplicate(t *testing.T) {
 	accountManagement := NewLDAPManagement()
@@ -119,14 +123,23 @@ func TestGetUUIDByUsername(t *testing.T) {
 func TestCreateGroup(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeader)
-	group2, err2 := accountManagement.CreateGroup(adminUser, adminPassword, groupName2, groupLeader2)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeader, groupUUID1)
+	group2, err2 := accountManagement.CreateGroup(adminUser, adminPassword, groupName2, groupLeader2, groupUUID2)
 
 	assert.Equal(t, group, groupName)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, group2, groupName2)
 	assert.Equal(t, err2, nil)
+}
+
+func TestFindTeamByUUID(t *testing.T) {
+	accountManagement := NewLDAPManagement()
+
+	resultName, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, groupUUID1)
+
+	assert.Equal(t, resultName, groupName)
+	assert.Equal(t, err, nil)
 }
 
 func TestGetGroups(t *testing.T) {
@@ -142,7 +155,7 @@ func TestGetGroups(t *testing.T) {
 func TestGroupNameDuplicate(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeader)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeader, groupUUID1)
 	duplicateError := errors.New("Duplicate Group Name")
 
 	assert.Equal(t, group, groupNull)
@@ -162,7 +175,7 @@ func TestSearchGroupLeader(t *testing.T) {
 func TestGroupLeaderNotExists(t *testing.T) {
 	accountManagement := NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupUUID1)
 	leaderError := errors.New("User does not exist")
 
 	assert.Equal(t, group, groupNull)

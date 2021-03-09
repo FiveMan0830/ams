@@ -163,9 +163,9 @@ func main() {
 	router.POST("/get/uuid", func(c *gin.Context) {
 		// reqbody := &GetUUIDByUsernameRequest{}
 		// c.Bind(reqbody)
-		x, err := ioutil.ReadAll(c.Request.Body)
-		log.Println(x)
-		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(x))
+		reqbody, err := ioutil.ReadAll(c.Request.Body)
+		log.Println(reqbody)
+		uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 		if err != nil {
 			c.JSON(500, err)
@@ -178,15 +178,26 @@ func main() {
 	router.POST("/get/teamUid", func(c *gin.Context) {
 		// reqbody := &GetUUIDByUsernameRequest{}
 		// c.Bind(reqbody)
-		x, err := ioutil.ReadAll(c.Request.Body)
-		log.Println(x)
-		uuid, err := accountManagement.SearchGroupUUID(config.GetAdminUser(), config.GetAdminPassword(), string(x))
+		reqbody, err := ioutil.ReadAll(c.Request.Body)
+		log.Println(reqbody)
+		uuid, err := accountManagement.SearchGroupUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 		if err != nil {
 			c.JSON(500, err)
 			return
 		}
 		c.JSON(200, uuid)
+	})
+
+	router.POST("/get/unitdto", func(c *gin.Context) {
+		reqbody, err := ioutil.ReadAll(c.Request.Body)
+		log.Println(reqbody)
+		name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+
+		if err != nil {
+			c.JSON(500, err)
+		}
+		c.JSON(200, name)
 	})
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
