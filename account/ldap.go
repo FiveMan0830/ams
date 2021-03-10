@@ -256,7 +256,7 @@ func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string
 		return "", errors.New("User not found")
 	}
 	user := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
-	return user, nil
+	return strings.Trim(user, "\""), nil
 }
 
 func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error) {
