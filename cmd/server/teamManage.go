@@ -196,6 +196,7 @@ func main() {
 
 		if err != nil {
 			c.JSON(500, err)
+			return
 		}
 		c.JSON(200, name)
 	})
