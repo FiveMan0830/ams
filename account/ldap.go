@@ -376,8 +376,13 @@ func (lm *LDAPManagement) GetUUIDByUsername(adminUser, adminPasswd, username str
 
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-		return "", err
+		return "", fmt.Errorf("failed to query LDAP: %w", err)
 	}
+
+	if len(result.Entries) < 1 {
+		return "", errors.New("User not found")
+	}
+
 	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
 	return user, nil
 }

@@ -3,11 +3,20 @@ package test
 import (
 	"testing"
 	"errors"
-	"fmt"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
+
+// func TestCreateGroupSuccess(t *testing.T) {
+// 	accountManagement := account.NewLDAPManagement()
+
+// 	group, createGroupError := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, groupLeaderUsername3)
+
+// 	assert.Equal(t, createGroupError, nil)
+	
+// 	assert.Equal(t, group, groupName3)
+// }
 
 func TestGetGroups(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
@@ -22,7 +31,7 @@ func TestGetGroups(t *testing.T) {
 func TestGroupNameDuplicate(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeader)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername)
 	duplicateError := errors.New("Duplicate Group Name")
 
 	assert.Equal(t, group, null)
@@ -35,7 +44,7 @@ func TestSearchGroupLeader(t *testing.T) {
 
 	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
 
-	assert.Equal(t, leader, groupLeader)
+	assert.Equal(t, leader, groupLeaderUsername)
 	assert.Equal(t, err, nil)
 }
 
@@ -58,12 +67,12 @@ func TestAddMemberToGroup(t *testing.T) {
 	result2, err2 := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username)
 	result2, err2 = accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username2)
 
-	assert.Contains(t, result, groupLeader)
+	assert.Contains(t, result, groupLeaderUsername)
 	assert.Contains(t, result, username)
 	assert.Contains(t, result, username2)
 	assert.Equal(t, err, nil)
 	
-	assert.Contains(t, result2, groupLeader2)
+	assert.Contains(t, result2, groupLeaderUsername2)
 	assert.Contains(t, result2, username)
 	assert.Contains(t, result2, username2)
 	assert.Equal(t, err2, nil)
@@ -104,7 +113,7 @@ func TestGetGroupMembers(t *testing.T) {
 
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
 
-	assert.Contains(t, result, groupLeader)
+	assert.Contains(t, result, groupLeaderUsername)
 	assert.Contains(t, result, username)
 	assert.Contains(t, result, username2)
 	assert.Equal(t, err, nil)
