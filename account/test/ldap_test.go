@@ -63,9 +63,11 @@ const groupLeaderNotExists string = "Ron"
 
 const groupName string = "OIS"
 const groupLeaderUsername string = "david93"
+const groupID string = "d23475kl-4862-7456-8473-2c53916648fn"
 
 const groupName2 string = "SSL"
 const groupLeaderUsername2 string = "george88"
+const groupID2 string = "e16987kl-9512-7424-9629-2c56884248lm"
 
 const groupName3 string = "KanBan"
 const groupLeaderUsername3 string = "sherry88"
@@ -91,8 +93,8 @@ func setup() {
 	accountManagement.CreateUser(adminUser, adminPassword, leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2)
 	accountManagement.CreateUser(adminUser, adminPassword, leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3)
 
-	accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername)
-	accountManagement.CreateGroup(adminUser, adminPassword, groupName2, groupLeaderUsername2)
+	accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
+	accountManagement.CreateGroup(adminUser, adminPassword, groupName2, groupLeaderUsername2, groupID2)
 
 	accountManagement.CreateOu(adminUser, adminPassword, ouName)
 

@@ -31,7 +31,7 @@ func TestGetGroups(t *testing.T) {
 func TestGroupNameDuplicate(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
 	duplicateError := errors.New("Duplicate Group Name")
 
 	assert.Equal(t, group, null)
@@ -51,7 +51,7 @@ func TestSearchGroupLeader(t *testing.T) {
 func TestGroupLeaderNotExists(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists)
+	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupID)
 	leaderError := errors.New("User does not exist")
 
 	assert.Equal(t, group, null)
