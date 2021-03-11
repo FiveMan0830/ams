@@ -2,10 +2,12 @@ package main
 
 import (
 	"log"
+
 	"github.com/google/uuid"
 
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 
@@ -174,7 +176,6 @@ func main() {
 		c.JSON(200, uuid)
 	})
 
-	
 	router.POST("/get/teamUid", func(c *gin.Context) {
 		// reqbody := &GetUUIDByUsernameRequest{}
 		// c.Bind(reqbody)
@@ -191,11 +192,12 @@ func main() {
 
 	router.POST("/get/unitdto", func(c *gin.Context) {
 		reqbody, err := ioutil.ReadAll(c.Request.Body)
-		log.Println(reqbody)
 		name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 		if err != nil {
 			c.JSON(500, err)
+			log.Println(err)
+			return
 		}
 		c.JSON(200, name)
 	})

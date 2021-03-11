@@ -1,8 +1,8 @@
 describe("Create Team", () => {
-    const inputTeam = 'TestCreate';
-    const inputLeader = 'Test';
+    const inputTeam = 'OIS';
+    const inputLeader = 'Patrick';
 
-    it("Create Team", ()=>{
+    it("Create Team Success", ()=>{
         cy.request({
         method : 'POST',
         url : "http://localhost:8080/create/team",
@@ -19,9 +19,9 @@ describe("Create Team", () => {
 })
 
 describe("Add Member To Team", () => {
-    const inputTeam = 'TestCreate';
-    const inputMember = 'user';
-    const expectedMember = ['Test','user'];
+    const inputTeam = 'OIS';
+    const inputMember = 'Richard';
+    const expectedMember = ['Patrick','Richard'];
 
     it("Add Member To Team", ()=>{
         cy.request({
@@ -54,8 +54,8 @@ describe("Add Member To Team", () => {
 });
 
 describe("Add Member To Team with Not Registered User", () => {
-    const inputTeam = 'TestCreate';
-    const inputMember = 'noOne';
+    const inputTeam = 'OIS';
+    const inputMember = 'Rebecca';
     it("Add Member To Team", ()=>{
         cy.request({
         method : 'POST',
@@ -73,8 +73,8 @@ describe("Add Member To Team with Not Registered User", () => {
 });
 
 describe("Add Member To Team with Not Registered Team", () => {
-    const inputTeam = 'TestCreateNotRegistered';
-    const inputMember = 'user';
+    const inputTeam = 'Sunbird';
+    const inputMember = 'Ron';
     it("Add Member To Team", ()=>{
         cy.request({
         method : 'POST',
@@ -92,9 +92,9 @@ describe("Add Member To Team with Not Registered Team", () => {
 });
 
 describe("Add Duplicate Member to Team", () => {
-    const inputTeam = 'TestCreate';
-    const inputMember = 'user';
-    const expectedMember = ['Test','user'];
+    const inputTeam = 'OIS';
+    const inputMember = 'Richard';
+    const expectedMember = ['Patrick','Richard'];
 
     it("Add Member To Team for The First Time", ()=>{
         cy.request({
@@ -145,7 +145,7 @@ describe("Add Duplicate Member to Team", () => {
 
 
 describe("Tear down", () => {
-    const inputTeam = 'TestCreate';
+    const inputTeam = 'OIS';
 
     it("Tear down", () => {
         cy.request({

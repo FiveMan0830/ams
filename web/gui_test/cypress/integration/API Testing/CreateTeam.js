@@ -1,6 +1,6 @@
 describe("Create Team Success", () => {
-    const inputTeam = 'TestCreate';
-    const inputLeader = 'Test';
+    const inputTeam = 'OIS';
+    const inputLeader = 'Patrick';
 
     it("Create Team", ()=>{
         cy.request({
@@ -31,8 +31,8 @@ describe("Create Team Success", () => {
 });
 
 describe("Create Team With Not Registered User as Leader", () => {
-    const inputTeam = 'TestCreate';
-    const notRegisterUser = 'noOne';
+    const inputTeam = 'OIS';
+    const notRegisterUser = 'Rebecca';
 
     it("Create Team", ()=>{
         cy.request({
@@ -53,8 +53,8 @@ describe("Create Team With Not Registered User as Leader", () => {
 
 
 describe("Create Team with Duplicate Team Name", () => {
-    const inputTeam = 'TestCreate';
-    const inputLeader = 'Test';
+    const inputTeam = 'OIS';
+    const inputLeader = 'Richard';
 
     it("Create First Team", ()=>{
         cy.request({
