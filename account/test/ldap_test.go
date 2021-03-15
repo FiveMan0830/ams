@@ -71,6 +71,7 @@ const groupID2 string = "e16987kl-9512-7424-9629-2c56884248lm"
 
 const groupName3 string = "KanBan"
 const groupLeaderUsername3 string = "sherry88"
+const groupID3 string = "f16846kl-7862-4539-1684-3a56884248lo"
 
 // Ou test data
 const ouName = "LabGroup"
@@ -93,10 +94,11 @@ func setup() {
 	accountManagement.CreateUser(adminUser, adminPassword, leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2)
 	accountManagement.CreateUser(adminUser, adminPassword, leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3)
 
+	accountManagement.CreateOu(adminUser, adminPassword, ouName)
+	accountManagement.CreateOu(adminUser, adminPassword, "OISGroup")
+
 	accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
 	accountManagement.CreateGroup(adminUser, adminPassword, groupName2, groupLeaderUsername2, groupID2)
-
-	accountManagement.CreateOu(adminUser, adminPassword, ouName)
 
 	fmt.Printf("\033[1;36m%s\033[0m", "> Setup completed\n")
 }
@@ -115,6 +117,7 @@ func teardown() {
 	accountManagement.DeleteGroup(adminUser, adminPassword, groupName2)
 
 	accountManagement.DeleteOu(adminUser, adminPassword, ouName)
+	accountManagement.DeleteOu(adminUser, adminPassword, "OISGroup")
 
 	fmt.Printf("\033[1;36m%s\033[0m", "> Teardown completed\n")
 }

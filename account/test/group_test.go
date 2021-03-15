@@ -8,17 +8,19 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
-// func TestCreateGroupSuccess(t *testing.T) {
-// 	accountManagement := account.NewLDAPManagement()
+func TestCreateGroupSuccess(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
 
-// 	group, createGroupError := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, groupLeaderUsername3)
+	group, createGroupError := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, leaderUsername3, groupID3)
+	deleteGroupErr := accountManagement.DeleteGroup(adminUser, adminPassword, groupName3)
 
-// 	assert.Equal(t, createGroupError, nil)
-	
-// 	assert.Equal(t, group, groupName3)
-// }
 
-func TestGetGroups(t *testing.T) {
+	assert.Equal(t, createGroupError, nil)
+	assert.Equal(t, deleteGroupErr, nil)
+	assert.Equal(t, group, groupName3)
+}
+
+func TestGetGroupSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	groupList, err := accountManagement.GetGroups(adminUser, adminPassword)
@@ -28,7 +30,7 @@ func TestGetGroups(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func TestGroupNameDuplicate(t *testing.T) {
+func TestCreateGroupDuplicateName(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
@@ -39,7 +41,7 @@ func TestGroupNameDuplicate(t *testing.T) {
 }
 
 
-func TestSearchGroupLeader(t *testing.T) {
+func TestSearchGroupLeaderSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
@@ -48,7 +50,7 @@ func TestSearchGroupLeader(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func TestGroupLeaderNotExists(t *testing.T) {
+func TestCreateGroupWithNotExistsLeader(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupID)
@@ -58,7 +60,7 @@ func TestGroupLeaderNotExists(t *testing.T) {
 	assert.Equal(t, err, leaderError)
 }
 
-func TestAddMemberToGroup(t *testing.T) {
+func TestAddMemberToGroupSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
@@ -88,7 +90,7 @@ func TestAddMemberToNotExistsGroup(t *testing.T) {
 	assert.Equal(t, err, groupNotExistsError)
 }
 
-func TestAddNotExistsMemberToGroup(t *testing.T) {
+func TestAddMemberToGroupWithNotExistsUser(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, usernameNotExists)
@@ -108,7 +110,7 @@ func TestAddDuplicateMemberToGroup(t *testing.T) {
 	assert.Equal(t, err, memberDuplicateError)
 }
 
-func TestGetGroupMembers(t *testing.T) {
+func TestGetGroupMembersSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
@@ -119,7 +121,7 @@ func TestGetGroupMembers(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func TestSearchUserMemberOf(t *testing.T) {
+func TestGetUserBelongedTeam(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPassword, username)
@@ -129,7 +131,7 @@ func TestSearchUserMemberOf(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func TestRemoveMemberFromGroup(t *testing.T) {
+func TestRemoveMemberFromGroupSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)

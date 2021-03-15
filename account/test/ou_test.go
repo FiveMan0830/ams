@@ -18,7 +18,7 @@ func TestCreateOUSuccess(t *testing.T) {
 	assert.Equal(t, deleteOuError, nil)
 }
 
-func TestOUNameDuplicate(t *testing.T) {
+func TestCreateOUDuplicateName(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	createOuError := accountManagement.CreateOu(adminUser, adminPassword, ouName)
