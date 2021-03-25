@@ -163,3 +163,12 @@ func TestRemoveNotExistsMemberFromGroup(t *testing.T) {
 	assert.Equal(t, result, []string([]string(nil)))
 	assert.Equal(t, err, userNotExistsError)
 }
+
+func TestGetGroupUUID(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
+
+	result, err := accountManagement.SearchGroupUUID(adminUser, adminPassword, groupName)
+
+	assert.Equal(t, result, "d23475kl-4862-7456-8473-2c53916648fn")
+	assert.Equal(t, err, nil)
+}
