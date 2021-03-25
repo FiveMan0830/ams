@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 	"fmt"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
@@ -22,7 +22,11 @@ func main() {
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\n", "")
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\r", "")
 
-	userID := uuid.New().String()
+	// userID := uuid.New().String()
+
+	userID, _ := reader.ReadString('\n')
+	userID = strings.ReplaceAll(userID, "\n", "")
+	userID = strings.ReplaceAll(userID, "\r", "")
 
 	username, _ := reader.ReadString('\n')
 	username = strings.ReplaceAll(username, "\n", "")
