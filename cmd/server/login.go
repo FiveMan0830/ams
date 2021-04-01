@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"log"
@@ -14,22 +14,44 @@ type LoginRequest struct {
 	Password string
 }
 
-func main() {
-	router := gin.Default()
-	accountManagement := account.NewLDAPManagement()
-	router.Static("/", "./web")
 
-	router.POST("/login", func(c *gin.Context) {
-		reqbody := &LoginRequest{}
-		c.Bind(reqbody)
-		log.Println(reqbody)
-		info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
+func login(rg *gin.RouterGroup) {
+	login := rg.Group("/")
 
-		if err != nil {
-			c.JSON(401, err)
-			return
-		}
-		c.JSON(200, info)
-	})
-	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	login.POST("/login", loginUser)
 }
+
+func loginUser(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &LoginRequest{}
+	c.Bind(reqbody)
+	log.Println(reqbody)
+	info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
+
+	if err != nil {
+		c.JSON(401, err)
+		return
+	}
+
+	c.JSON(200, info)
+}
+
+// func main() {
+// 	router := gin.Default()
+// 	accountManagement := account.NewLDAPManagement()
+// 	router.Static("/", "./web")
+
+// 	router.POST("/login", func(c *gin.Context) {
+// 		reqbody := &LoginRequest{}
+// 		c.Bind(reqbody)
+// 		log.Println(reqbody)
+// 		info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
+
+// 		if err != nil {
+// 			c.JSON(401, err)
+// 			return
+// 		}
+// 		c.JSON(200, info)
+// 	})
+// 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+// }

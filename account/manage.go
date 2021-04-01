@@ -20,5 +20,6 @@ type Management interface {
 	SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
 	DeleteUser(adminUser, adminPasswd, username string) error 
-	SearchGroupUUID(adminUser, adminPasswd, groupname string) (string, error)
+	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
+	UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader, previousLeader string) error
 }

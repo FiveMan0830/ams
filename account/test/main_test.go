@@ -102,7 +102,6 @@ func TestMain(m *testing.M) {
 func setup() {
 	user1 := user{"c61965be-8176-4419-b289-4d52617728fb", "fiveman123", "Richard", "Zheng", "richard123", "richardEmail@gmail.com"}
 	user2 := user{"c56515be-1654-7895-1564-1d52513528cf", "audi98", "Audi", "Wu", "audipm984", "audiEmail@gmail.com"}
-	//user3 := user{"a56515be-5783-8738-1564-1d52513528cz", "stella83", "Stella", "Chen", "stella423", "stellaEmail@gmail.com"}
 
 	leader1 := user{"a34531da-8563-9517-3578-3e38754896dg", "george88", "George", "Lim", "george189", "georgeEmail@gmail.com"}
 	leader2 := user{"b96875kl-6842-7539-8549-2c56482648fa", "david93", "David", "Wang", "david632", "davidEmail@gmail.com"}
@@ -115,6 +114,7 @@ func setup() {
 	accountManagement := account.NewLDAPManagement()
 	accountManagement.CreateUser(adminUser, adminPassword, user1.ID, user1.name, user1.givenName, user1.surname, user1.password, user1.email)
 	accountManagement.CreateUser(adminUser, adminPassword, user2.ID, user2.name, user2.givenName, user2.surname, user2.password, user2.email)
+	accountManagement.CreateUser(adminUser, adminPassword, userID3,  username3, givenName3, surname3, userPassword3, userEmail3)
 
 	accountManagement.CreateUser(adminUser, adminPassword, leader1.ID, leader1.name, leader1.givenName, leader1.surname, leader1.password, leader1.email)
 	accountManagement.CreateUser(adminUser, adminPassword, leader2.ID, leader2.name, leader2.givenName, leader2.surname, leader2.password, leader2.email)
@@ -134,6 +134,7 @@ func teardown() {
 
 	accountManagement.DeleteUser(adminUser, adminPassword, username)
 	accountManagement.DeleteUser(adminUser, adminPassword, username2)
+	accountManagement.DeleteUser(adminUser, adminPassword, username3)
 
 	accountManagement.DeleteUser(adminUser, adminPassword, leaderUsername)
 	accountManagement.DeleteUser(adminUser, adminPassword, leaderUsername2)

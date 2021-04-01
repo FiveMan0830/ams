@@ -8,19 +8,19 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
-func TestCreateUserSuccess(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+// func TestCreateUserSuccess(t *testing.T) {
+// 	accountManagement := account.NewLDAPManagement()
 
-	createUserErr := accountManagement.CreateUser(adminUser, adminPassword, userID3, username3, givenName3, surname3, userPassword3, userEmail3)
-	result, searchUserErr := accountManagement.SearchUser(adminUser, adminPassword, username3)
-	deleteUserErr := accountManagement.DeleteUser(adminUser, adminPassword, username3)
+// 	createUserErr := accountManagement.CreateUser(adminUser, adminPassword, userID3, username3, givenName3, surname3, userPassword3, userEmail3)
+// 	result, searchUserErr := accountManagement.SearchUser(adminUser, adminPassword, username3)
+// 	deleteUserErr := accountManagement.DeleteUser(adminUser, adminPassword, username3)
 
-	assert.Equal(t, createUserErr, nil)
-	assert.Equal(t, searchUserErr, nil)
-	assert.Equal(t, deleteUserErr, nil)
+// 	assert.Equal(t, createUserErr, nil)
+// 	assert.Equal(t, searchUserErr, nil)
+// 	assert.Equal(t, deleteUserErr, nil)
 	
-	assert.Equal(t, result, userID3)
-}
+// 	assert.Equal(t, result, userID3)
+// }
 
 func TestCreateDuplicateUser(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
