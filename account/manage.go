@@ -13,9 +13,10 @@ type Management interface {
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
 	SearchUser(adminUser, adminPasswd, username string) (string, error)
 	SearchNameByUUID(adminUser, adminPasswd, userID string) (string, error)
+	SearchUserDn(adminUser, adminPasswd, search string) (string, error)
 	DeleteGroup(adminUser, adminPasswd, cn string) error
 	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error)
-	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
+	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error) 
 	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)

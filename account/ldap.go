@@ -47,12 +47,12 @@ func (lm *LDAPManagement) DeleteUser(adminUser, adminPasswd, username string) er
 	baseDN := config.GetDC()
 	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,%s", username, baseDN), nil)
 	err := lm.ldapConn.Del(d)
-	
+
 	if err != nil {
 		log.Println("User could not be deleted :", err)
 		return err
-	} 
-	
+	}
+
 	return nil
 }
 
@@ -78,6 +78,32 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (str
 	}
 	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
 	return user, nil
+}
+
+// SearchUser is a function to search a user dn
+func (lm *LDAPManagement) SearchUserDn(adminUser, adminPasswd, search string) (string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		return "", errors.New("Search Failed")
+	} else if len(result.Entries) < 1 {
+		return "", errors.New("User not found")
+	}
+
+	// user := strings.Join(result.Entries[0], "")
+
+	return result.Entries[0].DN, nil
 }
 
 // SearchNameByUUID is for search name of user or group by their UUID
@@ -242,7 +268,7 @@ func NewLDAPManagement() Management {
 }
 
 // SearchUserNoConn is a function to search a user
-func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string) bool { 
+func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string) bool {
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
 	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
