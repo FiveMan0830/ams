@@ -121,7 +121,7 @@ func setup() {
 	accountManagement.CreateUser(adminUser, adminPassword, leader3.ID, leader3.name, leader3.givenName, leader3.surname, leader3.password, leader3.email)
 
 	accountManagement.CreateOu(adminUser, adminPassword, ouName)
-	accountManagement.CreateOu(adminUser, adminPassword, "OISGroup")
+	// accountManagement.CreateOu(adminUser, adminPassword, ouName2)
 
 	accountManagement.CreateGroup(adminUser, adminPassword, group1.name, group1.groupLeaderUsername, group1.ID)
 	accountManagement.CreateGroup(adminUser, adminPassword, group2.name, group2.groupLeaderUsername, group2.ID)
@@ -144,7 +144,7 @@ func teardown() {
 	accountManagement.DeleteGroup(adminUser, adminPassword, groupName2)
 
 	accountManagement.DeleteOu(adminUser, adminPassword, ouName)
-	accountManagement.DeleteOu(adminUser, adminPassword, "OISGroup")
+	// accountManagement.DeleteOu(adminUser, adminPassword, ouName2)
 
 	fmt.Printf("\033[1;36m%s\033[0m", "> Teardown completed\n")
 }

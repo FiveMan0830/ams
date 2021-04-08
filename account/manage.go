@@ -21,5 +21,5 @@ type Management interface {
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
 	DeleteUser(adminUser, adminPasswd, username string) error 
 	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
-	UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader, previousLeader string) error
+	UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader string) error
 }

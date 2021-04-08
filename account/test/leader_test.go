@@ -10,10 +10,8 @@ import (
 func TestHandoverLeader(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
-	// update group leader to new leader
-	accountManagement.UpdateGroupLeader(adminUser, adminPassword, "OIS", "stella83", "david93")
-
-	// check the leader of this team
+	accountManagement.UpdateGroupLeader(adminUser, adminPassword, "OIS", "stella83")
+	
 	result, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, "OIS")
 
 	assert.Equal(t, "stella83", result)

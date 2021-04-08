@@ -12,7 +12,7 @@ import (
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-type CreateGroupRequest struct {
+type GetGroupRequest struct {
 	GroupName string
 	Username  string
 }
@@ -46,11 +46,12 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/Name", getName)
 	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/add/member", addMember)
+	team.POST("/team/leader/handover", handoverLeader)
 }
 
 func createTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &CreateGroupRequest{}
+	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	teamID := uuid.New().String()
 	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username, teamID)
@@ -170,7 +171,17 @@ func addMember(c *gin.Context) {
 	c.JSON(200, memberList)
 }
 
+func handoverLeader(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &GetGroupRequest{}
+	c.Bind(reqbody)
+	err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+}
 
 // func main() {
 // 	router := gin.Default()

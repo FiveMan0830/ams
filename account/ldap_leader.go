@@ -10,16 +10,13 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-func (lm *LDAPManagement) UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader, previousLeader string) error {
+func (lm *LDAPManagement) UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
 		return errors.New("Group does not exist")
-	}
-	if !lm.SearchUserNoConn(adminUser, adminPasswd, previousLeader) {
-		return errors.New("User does not exist")
 	}
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, newLeader) {
 		return errors.New("User does not exist")
