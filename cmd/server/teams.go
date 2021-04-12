@@ -34,6 +34,12 @@ type AddMemberRequest struct {
 	Username  string
 }
 
+type RemoveMemberRequest struct {
+	GroupName string
+	Leader    string
+	Username  string
+}
+
 func teams(rg *gin.RouterGroup) {
 	team := rg.Group("/")
 
@@ -46,6 +52,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/Name", getName)
 	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/add/member", addMember)
+	team.POST("/team/remove/member", removeMember)
 	team.POST("/team/leader/handover", handoverLeader)
 }
 
@@ -161,26 +168,55 @@ func addMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &AddMemberRequest{}
 	c.Bind(reqbody)
-	memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
-	if err != nil {
-		c.JSON(500, err.Error())
+	if accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
+		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+		if err != nil {
+			c.JSON(500, err.Error())
+			return
+		}
+		c.JSON(200, memberList)
+	} else {
+		c.JSON(403, "User is not member of the team!")
 		return
 	}
+}
 
-	c.JSON(200, memberList)
+func removeMember(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &RemoveMemberRequest{}
+	c.Bind(reqbody)
+
+	if accountManagement.IsLeader(reqbody.GroupName, reqbody.Leader) {
+		memberList, err := accountManagement.RemoveMemberFromGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+		if err != nil {
+			c.JSON(500, err.Error())
+			return
+		}
+		c.JSON(200, memberList)
+	} else {
+		c.JSON(403, "User is not leader of the team!")
+		return
+	}
 }
 
 func handoverLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
-	err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 
-	if err != nil {
-		c.JSON(500, err.Error())
+	if accountManagement.IsLeader(reqbody.GroupName, reqbody.Username) {
+		err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+
+		if err != nil {
+			c.JSON(500, err.Error())
+			return
+		}
+	} else {
+		c.JSON(403, "User is not leader of the team!")
 		return
 	}
+
 }
 
 // func main() {

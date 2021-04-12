@@ -259,6 +259,7 @@ func (lm *LDAPManagement) bind(username, password string) error {
 		log.Println(err)
 		return err
 	}
+	
 	return nil
 }
 

@@ -17,22 +17,22 @@ const ObjectCategoryGroup string = "groupOfNames"
 // LDAPManagement implement Management interface to connect to LDAP
 
 // CreateGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error) {
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, username, teamID string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
-	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupname, config.GetDC()), []ldap.Control{})
+	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), []ldap.Control{})
 
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
 		return "", errors.New("User does not exist")
 	}
-	if lm.GroupExists(adminUser, adminPasswd, groupname) {
+	if lm.GroupExists(adminUser, adminPasswd, groupName) {
 		return "", errors.New("Duplicate Group Name")
 	}
 	addReq.Attribute("objectClass", []string{"top", ObjectCategoryGroup, "UidObject"})
-	addReq.Attribute("cn", []string{groupname})
+	addReq.Attribute("cn", []string{groupName})
 	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
 	addReq.Attribute("uid", []string{teamID})
@@ -42,7 +42,7 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupname, usernam
 		return "", err
 	}
 
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(groupname))
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(groupName))
 	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases, 0, 0, false,
 		filter,

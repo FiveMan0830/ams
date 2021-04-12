@@ -4,6 +4,8 @@ import "github.com/go-ldap/ldap/v3"
 
 // Management is a interface to help user manage accounts
 type Management interface {
+	IsMember(teamName, username string) bool
+	IsLeader(teamName, username string) bool
 	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error
 	CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error)
 	GetGroups(adminUser, adminPasswd string) ([]string, error)
