@@ -54,7 +54,7 @@ func (lm *LDAPManagement) IsProfessor(username string) bool {
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 
-	professorList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), username)
+	professorList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), "Professor")
 
 	if err != nil {
 		return false

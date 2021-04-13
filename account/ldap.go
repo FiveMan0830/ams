@@ -125,13 +125,13 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 	lm.bind(adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(ou=%s)", ldap.EscapeFilter(role))
+	filter := fmt.Sprintf("(&(objectClass=organizationalPerson)(ou:dn:=%s))", ldap.EscapeFilter(role))
 	request := ldap.NewSearchRequest(
-		baseDN, 
+		baseDN,
 		ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 
-		0, 
-		0, 
+		ldap.NeverDerefAliases,
+		0,
+		0,
 		false,
 		filter,
 		[]string{"cn"},
@@ -140,8 +140,10 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 	result, err := lm.ldapConn.Search(request)
 
 	if err != nil {
+		log.Println("Search Failed")
 		return nil, errors.New("Search Failed")
-	}	else if len(result.Entries) < 1 {
+	} else if len(result.Entries) < 1 {
+		log.Println("User not found")
 		return nil, errors.New("User not found")
 	}
 
@@ -331,7 +333,7 @@ func (lm *LDAPManagement) bind(username, password string) error {
 		log.Println(err)
 		return err
 	}
-	
+
 	return nil
 }
 
