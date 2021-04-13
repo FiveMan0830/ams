@@ -5,6 +5,7 @@ import (
 	// "errors"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/google/uuid"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
@@ -39,6 +40,19 @@ func TestUserIsNotLeaderOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	assert.False(t, accountManagement.IsLeader(groupName, usernameNotExists))
+}
+
+func TestUserIsProfessor(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
+	userID := uuid.New().String()
+
+	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
+	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
+	
+	assert.True(t, accountManagement.IsProfessor("Cheng134"))
+	
+	accountManagement.DeleteUserWithOu(adminUser, adminPassword, "Cheng134", "Professor")
+	accountManagement.DeleteOu(adminUser, adminPassword, "Professor")
 }
 
 

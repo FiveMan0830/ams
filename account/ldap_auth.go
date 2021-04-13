@@ -48,3 +48,41 @@ func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
 		return false
 	}
 }
+
+func (lm *LDAPManagement) IsProfessor(username string) bool {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
+
+	professorList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), username)
+
+	if err != nil {
+		return false
+	}
+
+	for _, professor := range professorList {
+		if professor == username {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (lm *LDAPManagement) IsStakeholder(username string) bool {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
+
+	stakeholder, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), username)
+
+	if err != nil {
+		return false
+	}
+
+	if stakeholder == username {
+		return true
+	} else {
+		return false
+	}
+}
