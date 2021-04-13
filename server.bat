@@ -1,2 +1,2 @@
 @echo off
-go run cmd\server\teamManage.go
+go run cmd\main.go
