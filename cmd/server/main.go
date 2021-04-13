@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	cors "github.com/gin-contrib/cors"
 )
 
 var (
@@ -9,6 +10,7 @@ var (
 )
 
 func Run() {
+	router.Use(cors.Default())
 	getRoutes()
 	router.Run()
 }
