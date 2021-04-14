@@ -1,0 +1,22 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 100px 250px;
+}
+
+.selector {
+  align-self: flex-end;
+}
+
+.team-name {
+  align-self: flex-start;
+  margin:20px 0px;
+  font-size: 30pt;
+}
+
+.table {
+  width: 100%;
+}

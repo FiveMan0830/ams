@@ -3,7 +3,15 @@ module ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams
 go 1.14
 
 require (
+<<<<<<< HEAD
 	github.com/gin-contrib/cors v1.3.1
+=======
+<<<<<<< Updated upstream
+	github.com/gin-contrib/cors v1.3.1 // indirect
+=======
+	github.com/gin-contrib/cors v1.3.1
+>>>>>>> Stashed changes
+>>>>>>> e7fb4a4c665306bbc15d33579809a81ff8906f42
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-asn1-ber/asn1-ber v1.5.1
 	github.com/go-ldap/ldap v3.0.3+incompatible

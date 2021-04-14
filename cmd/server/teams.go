@@ -42,11 +42,12 @@ func teams(rg *gin.RouterGroup) {
 
 	team.POST("/team/create", createTeam)
 	team.GET("/team", getTeam)
+	team.POST("/team/get/members", getTeamMember)
 	team.POST("/team/get/leader", getTeamLeader)
-	team.POST("/team/get/memberOf", getTeamMember)
+	team.POST("/team/get/memberOf", getTeamMemberOf)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
-	team.POST("/team/get/Name", getName)
+	team.POST("/team/get/name", getName)
 	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/add/member", addMember)
 	team.POST("/team/remove/member", removeMember)
@@ -80,6 +81,20 @@ func getTeam(c *gin.Context) {
 	c.JSON(200, GroupList)
 }
 
+func getTeamMember(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &GetGroupsRequest{}
+	c.Bind(reqbody)
+	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	c.JSON(200, memberList)
+}
+
 func getTeamLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &GetGroupRequest{}
@@ -94,7 +109,7 @@ func getTeamLeader(c *gin.Context) {
 	c.JSON(200, leaderList)
 }
 
-func getTeamMember(c *gin.Context) {
+func getTeamMemberOf(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &GetUsersRequest{}
 	c.Bind(reqbody)
