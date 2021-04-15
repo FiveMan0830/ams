@@ -13,7 +13,7 @@ import (
 )
 
 type GetGroupRequest struct {
-	GroupName string
+	GroupName     string
 	SelfUsername  string
 	InputUsername string
 }
@@ -44,6 +44,7 @@ func teams(rg *gin.RouterGroup) {
 	team.GET("/team", getTeam)
 	team.POST("/team/get/members", getTeamMember)
 	team.POST("/team/get/leader", getTeamLeader)
+	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/memberOf", getTeamMemberOf)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
@@ -83,7 +84,7 @@ func getTeam(c *gin.Context) {
 
 func getTeamMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupsRequest{}
+	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
@@ -107,6 +108,16 @@ func getTeamLeader(c *gin.Context) {
 	}
 
 	c.JSON(200, leaderList)
+}
+
+func isLeader(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &GetGroupRequest{}
+	c.Bind(reqbody)
+
+	result := accountManagement.IsLeader(reqbody.GroupName, reqbody.SelfUsername)
+
+	c.JSON(200, result)
 }
 
 func getTeamMemberOf(c *gin.Context) {
