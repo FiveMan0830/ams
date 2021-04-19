@@ -1,13 +1,13 @@
 import React, { Component, forwardRef } from "react";
 import MaterialTable from "material-table";
 import { AddBox, ArrowDownward, Check, ChevronLeft, ChevronRight,
-  Clear, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
+  Clear, ControlCameraOutlined, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
   MicNone,
   Remove, SaveAlt, Search, ViewColumn } from '@material-ui/icons';
 import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
-import addMember from './addMember';
 import axios from 'axios'
+import { indigo } from "@material-ui/core/colors";
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -32,58 +32,49 @@ import axios from 'axios'
 class TeamManage extends Component {
   constructor(props) {
     super(props)
-    this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
-    this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
     this.state = {
       personal: [{unitID: localStorage.getItem("uid"),unitName: "Personal" }],
       selectTeam: [],
       teamName : "",
       startTime: 0,
       endTime: 0,
-      addMemberOpen: false,
       columns: [
         { title: 'Display Name', field: 'name'},
         { title: 'Username', field: 'username'},
         
       ],
-      data: [
-        { name: 'Mehmet', username: 'Baran' },
-        { name: 'Zerya Betül', username: 'Baran'},
-      ]
+      memberList: [],
+      leaderName:""
     }
   }
-  handleAddMemberOpen() {
-    this.setState({addMemberOpen:true});
-  };
-
-  handleAddMemberClose() {
-    this.setState({addMemberOpen:false});
-  };
-
   componentWillMount() {
     const data = {
       GroupName: this.props.teamName
     }
     axios.post("http://localhost:8080/team/get/members", data)
         .then(res => {
-          console.log(res);
+          const result = []
+          for(var i = 0;i<res.data.length;i++){
+            result.push({name:res.data[i],username:res.data[i],isLeader:false})
+          }
+          this.setState({memberList:result})
         })
         .catch(err => {
             console.log(err);
         })
 
-    // axios.post("http://localhost:8080/team/get/name", String Team ID)
-    //     .then(res => {
-    //         this.setState({team: res.data})
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //     })
-    
-    
+    axios.post("http://localhost:8080/team/get/leader", data)
+        .then(res => {
+          this.setState({leaderName:res.data})
+        })
+        .catch(err => {
+            console.log(err);
+        })
   }
-
-
+  componentDidMount() {
+    console.log(this.state.memberList)
+    console.log(this.state.leaderName)
+  }
   render() {
     return (
       <div>
@@ -91,19 +82,19 @@ class TeamManage extends Component {
           icons={tableIcons}
           title="Member List"
           columns={this.state.columns}
-          data={this.state.data}
+          data={this.state.memberList}
           actions={[
-            {
+            rowData => ({
               icon: SwapHorizontalCircleOutlinedIcon,
               tooltip: 'Hand Over',
               onClick: (event, rowData) => alert("You saved " + rowData.name),
-              // disabled: leader,
-            },
+              disabled: rowData.name==this.state.leaderName? true:false,
+            }),
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
               onClick: (event, rowData) => alert("You want to delete " + rowData.name),
-              // disabled: leader,
+              disabled: rowData.name==this.state.leaderName? true:false,
             })
           ]}
           options={{
@@ -113,8 +104,6 @@ class TeamManage extends Component {
             // onRowAdd: this.handleAddMemberOpen()
           }}
         />
-        
-        {/* <addMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.data}></addMember> */}
       </div>
     );
   }
