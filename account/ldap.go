@@ -118,6 +118,29 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (str
 	return user, nil
 }
 
+func (lm *LDAPManagement) SearchUserDisplayname(adminUser, adminPasswd, search string) (string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"displayName"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		return "", errors.New("Search Failed")
+	} else if len(result.Entries) < 1 {
+		return "", errors.New("User not found")
+	}
+	user := strings.Join(result.Entries[0].GetAttributeValues("displayName"), "")
+	return user, nil
+}
+
 // SearchUser is a function to search a user that have a role
 func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) ([]string, error) {
 	lm.connectWithoutTLS()
