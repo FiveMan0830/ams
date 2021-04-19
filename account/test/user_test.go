@@ -69,10 +69,14 @@ func TestGetUUIDByUsernameNotFound(t *testing.T) {
 	assert.Equal(t, err, uuidError)
 }
 
-// func TestGetListOfMemberUsanameAndDisplaynameByTeamName(t *testing.T) {
-// 	accoutManagement := account.NewLDAPManagement()
+func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
+	accoutManagement := account.NewLDAPManagement()
 
-// 	resultList := [] string
+	result, err := accoutManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
 
-// 	assert.Equal(t, )
-// }
+	assert.Equal(t, "david93", result[0].Username)
+	assert.Equal(t, "David Wang", result[0].Displayname)
+	assert.Equal(t, "audi98", result[1].Username)
+	assert.Equal(t, "Audi Wu", result[1].Displayname)
+	assert.Equal(t, err, nil)
+}
