@@ -6,6 +6,8 @@ import { AddBox, ArrowDownward, Check, ChevronLeft, ChevronRight,
   Remove, SaveAlt, Search, ViewColumn } from '@material-ui/icons';
 import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
+import addMember from './addMember';
+import axios from 'axios'
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -28,27 +30,58 @@ import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutl
   };
 
 class TeamManage extends Component {
-
   constructor(props) {
     super(props)
+    this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
+    this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
     this.state = {
       personal: [{unitID: localStorage.getItem("uid"),unitName: "Personal" }],
       selectTeam: [],
       teamName : "",
       startTime: 0,
       endTime: 0,
+      addMemberOpen: false,
       columns: [
         { title: 'Display Name', field: 'name'},
-        { title: 'Username', field: 'surname'},
+        { title: 'Username', field: 'username'},
         
       ],
       data: [
-        { name: 'Mehmet', surname: 'Baran' },
-        { name: 'Zerya Betül', surname: 'Baran'},
+        { name: 'Mehmet', username: 'Baran' },
+        { name: 'Zerya Betül', username: 'Baran'},
       ]
     }
   }
+  handleAddMemberOpen() {
+    this.setState({addMemberOpen:true});
+  };
 
+  handleAddMemberClose() {
+    this.setState({addMemberOpen:false});
+  };
+
+  componentWillMount() {
+    const data = {
+      GroupName: this.props.teamName
+    }
+    axios.post("http://localhost:8080/team/get/members", data)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+    // axios.post("http://localhost:8080/team/get/name", String Team ID)
+    //     .then(res => {
+    //         this.setState({team: res.data})
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     })
+    
+    
+  }
 
 
   render() {
@@ -77,27 +110,11 @@ class TeamManage extends Component {
             actionsColumnIndex: -1
           }}
           editable={{
-            // onRowAdd: newData =>
-            //   new Promise((resolve, reject) => {
-            //     if (!newData.name || newData.name === ''){
-            //       alert("Activity Type name should not be empty.")
-            //       reject()
-            //     } else {
-            //       setTimeout(() => {
-            //         this.props.add(
-            //           this.state.id,
-            //           null,
-            //           newData.name,
-            //           newData.enable,
-            //           newData.private
-            //         )
-            //         resolve();
-            //       }, 1000)
-            //     }
-                
-            //   })
+            // onRowAdd: this.handleAddMemberOpen()
           }}
         />
+        
+        {/* <addMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.data}></addMember> */}
       </div>
     );
   }

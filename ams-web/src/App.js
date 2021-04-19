@@ -1,111 +1,123 @@
 import logo from './logo.svg';
 import './App.css';
 import TeamManage from './teamManage';
-import React, { useState, useEffect }  from 'react';
+import React, { Component, forwardRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import axios from 'axios'
-import moment from 'moment'
 import {Button} from '@material-ui/core'
-
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-}));
+import {TeamGetMemberOf} from './middleware';
+import axios from 'axios'
 
 
+// const useStyles = makeStyles((theme) => ({
+//   formControl: {
+//     margin: theme.spacing(1),
+//     minWidth: 120,
+//   },
+//   selectEmpty: {
+//     marginTop: theme.spacing(2),
+//   },
+// }));
+
+// const classes = useStyles();
 
 
-function App() {
-  const classes = useStyles();
-  const [team, setTeam] = React.useState('');
-  const [teamList, setTeamList] = React.useState([]);
-  const username = "ssl1321ois"
+class App extends Component{
+  constructor(props) {
+    super(props)
+    this.state = {
+      teamList: [],
+      team : 'OIS',
+      username : "ssl1321ois",
+    }
+    // this.getTeam = this.getTeam.bind(this);
+  }
+
+  componentWillMount() {
+    const data = {
+        Username: this.state.username
+    }
+    axios.post("http://localhost:8080/team/get/memberOf", data)
+        .then(res => {
+            this.setState({teamList: res.data})
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+    // axios.post("http://localhost:8080/team/get/name", String Team ID)
+    //     .then(res => {
+    //         this.setState({team: res.data})
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     })
+  }
 
 
-  const handleSelectTeam = (event) => {
-    setTeam(event.target.value);
-  };
 
-  // const getGroups = () => {
-  //   const data = {
-  //     Username: username
-  //   }
-  //   axios.post("http://localhost:8080/team/get/member", data)
-  //       .then(res => {
-  //           // const queryStr = decodeURIComponent(window.location.search.substring(1)).split("&")
-  //           //     const query = {}
-  //           //     queryStr.forEach((item, i) => {
-  //           //         itemPair = item.split("=")
-  //           //         query[itemPair[0]] = itemPair[1]
-  //           //     })
-  //           console.log(res);
-  //           setTeamList(res);
-  //           console.log(teamList);
-  //       })
-  //       .catch(err => {
-  //           console.log(err);
-  //       })
-  // }
+  // useEffect(() => {
+  //   let temp =  new Array();
+  //   const GetTeam = new Promise((resolve,reject) =>{
+  //     temp = TeamGetMemberOf(username);
+  //     console.log(temp);
+  //     resolve();
+  //   })
+  //   GetTeam.then(setTeamList(temp)).then(console.log(teamList));
+  // },[])
 
-  useEffect(() => {
-    fetch("http://localhost:8080/team/get/member")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          console.log(result);
-            setTeamList(result);
-            console.log(teamList);
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          console.log(error);
-        }
-      )
-  }, [])
+  // useEffect(() => {
+  //   // STEP 1：在 useEffect 中定義 async function 取名為 fetchData
+  //   const fetchData = async () => {
+  //     // STEP 2：使用 Promise.all 搭配 await 等待兩個 API 都取得回應後才繼續
+  //     const data = await Promise.all([
+  //       TeamGetMemberOf(username),
+  //     ]);
+  //     setTeamList(data);
+  //     console.log('data', data);
+  //   };
 
+  //   // STEP 5：呼叫 fetchData 這個方法
+  //   fetchData();
+  // }, []);
+
+
+render(){
+  // const { teamList } = this.state;
   return (
     <div className="App">
-      {/* <Button onClick={getGroups(username)}
-                >
-                Add Log
-              </Button> */}
       <div className="selector">
-         <FormControl className={classes.formControl}>
+         <FormControl>
           <InputLabel id="demo-simple-select-label">Team</InputLabel>
           <Select
-            value={team}
-            onChange={handleSelectTeam}
+            value={this.state.team}
+            onChange={(e) => {this.setState({team: e.target.value})}}
           >
-            {/* {
-              props.groupList.map((group,index) => {
+            {console.log(this.state.teamList)}
+            {
+              this.state.teamList.map((group,index) => {
                 return(
-                  <MenuItem key={index} value={group}>{group.teamName}</MenuItem>
+                  <MenuItem key={index} value={group}>{group}</MenuItem>
                 )
               })
-            } */}
+            }
           </Select>
         </FormControl>
       </div>
       <div className="team-name">
-        OIS
+        {this.state.team}
       </div>
       <div className="table">
-        <TeamManage />
+        <TeamManage twamName = {this.state.team}> </TeamManage>
       </div>
     </div>
   );
+}
+  
 }
 
 export default App;
