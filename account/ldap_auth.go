@@ -74,15 +74,17 @@ func (lm *LDAPManagement) IsStakeholder(username string) bool {
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 
-	stakeholder, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), username)
+	stakeholderList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), "Stakeholder")
 
 	if err != nil {
 		return false
 	}
 
-	if stakeholder == username {
-		return true
-	} else {
-		return false
+	for _, stakeholder := range stakeholderList {
+		if stakeholder == username {
+			return true
+		}
 	}
+
+	return false
 }

@@ -13,16 +13,13 @@ import (
 )
 
 type GetGroupRequest struct {
-	GroupName string
-	Username  string
+	GroupName     string
+	SelfUsername  string
+	InputUsername string
 }
 
 type GetGroupsListRequest struct {
 	GroupList []string
-}
-
-type GetGroupsRequest struct {
-	GroupName string
 }
 
 type GetUsersRequest struct {
@@ -44,9 +41,10 @@ func teams(rg *gin.RouterGroup) {
 	team := rg.Group("/")
 
 	team.POST("/team/create", createTeam)
-	team.POST("/team/get", getTeam)
+	team.GET("/team", getTeam)
 	team.POST("/team/get/members", getTeamMember)
 	team.POST("/team/get/leader", getTeamLeader)
+	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/memberOf", getTeamMemberOf)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
@@ -62,7 +60,7 @@ func createTeam(c *gin.Context) {
 	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	teamID := uuid.New().String()
-	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username, teamID)
+	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.SelfUsername, teamID)
 
 	if err != nil {
 		c.JSON(500, err.Error())
@@ -74,8 +72,6 @@ func createTeam(c *gin.Context) {
 
 func getTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupsRequest{}
-	c.Bind(reqbody)
 	GroupList, err := accountManagement.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
@@ -88,7 +84,7 @@ func getTeam(c *gin.Context) {
 
 func getTeamMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupsRequest{}
+	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
@@ -102,7 +98,7 @@ func getTeamMember(c *gin.Context) {
 
 func getTeamLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupsRequest{}
+	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
@@ -112,6 +108,16 @@ func getTeamLeader(c *gin.Context) {
 	}
 
 	c.JSON(200, leaderList)
+}
+
+func isLeader(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &GetGroupRequest{}
+	c.Bind(reqbody)
+
+	result := accountManagement.IsLeader(reqbody.GroupName, reqbody.SelfUsername)
+
+	c.JSON(200, result)
 }
 
 func getTeamMemberOf(c *gin.Context) {
@@ -169,7 +175,7 @@ func getName(c *gin.Context) {
 
 func deleteTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupsRequest{}
+	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 	err := accountManagement.DeleteGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
 
@@ -220,15 +226,15 @@ func handoverLeader(c *gin.Context) {
 	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 
-	if accountManagement.IsLeader(reqbody.GroupName, reqbody.Username) {
-		err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+	if accountManagement.IsLeader(reqbody.GroupName, reqbody.SelfUsername) || accountManagement.IsProfessor(reqbody.SelfUsername) {
+		err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.InputUsername)
 
 		if err != nil {
 			c.JSON(500, err.Error())
 			return
 		}
 	} else {
-		c.JSON(403, "User is not leader of the team!")
+		c.JSON(403, "User is not professor or leader of the team!")
 		return
 	}
 
