@@ -1,8 +1,8 @@
 package server
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	cors "github.com/gin-contrib/cors"
 )
 
 var (

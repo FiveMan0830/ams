@@ -1,11 +1,13 @@
 import React, { Component, forwardRef } from "react";
 import MaterialTable from "material-table";
 import { AddBox, ArrowDownward, Check, ChevronLeft, ChevronRight,
-  Clear, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
+  Clear, ControlCameraOutlined, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
   MicNone,
   Remove, SaveAlt, Search, ViewColumn } from '@material-ui/icons';
 import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
+import axios from 'axios'
+import { indigo } from "@material-ui/core/colors";
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -28,7 +30,6 @@ import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutl
   };
 
 class TeamManage extends Component {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -39,18 +40,41 @@ class TeamManage extends Component {
       endTime: 0,
       columns: [
         { title: 'Display Name', field: 'name'},
-        { title: 'Username', field: 'surname'},
+        { title: 'Username', field: 'username'},
         
       ],
-      data: [
-        { name: 'Mehmet', surname: 'Baran' },
-        { name: 'Zerya Betül', surname: 'Baran'},
-      ]
+      memberList: [],
+      leaderName:""
     }
   }
+  componentWillMount() {
+    const data = {
+      GroupName: this.props.teamName
+    }
+    axios.post("http://localhost:8080/team/get/members", data)
+        .then(res => {
+          const result = []
+          for(var i = 0;i<res.data.length;i++){
+            result.push({name:res.data[i],username:res.data[i],isLeader:false})
+          }
+          this.setState({memberList:result})
+        })
+        .catch(err => {
+            console.log(err);
+        })
 
-
-
+    axios.post("http://localhost:8080/team/get/leader", data)
+        .then(res => {
+          this.setState({leaderName:res.data})
+        })
+        .catch(err => {
+            console.log(err);
+        })
+  }
+  componentDidMount() {
+    console.log(this.state.memberList)
+    console.log(this.state.leaderName)
+  }
   render() {
     return (
       <div>
@@ -58,44 +82,26 @@ class TeamManage extends Component {
           icons={tableIcons}
           title="Member List"
           columns={this.state.columns}
-          data={this.state.data}
+          data={this.state.memberList}
           actions={[
-            {
+            rowData => ({
               icon: SwapHorizontalCircleOutlinedIcon,
               tooltip: 'Hand Over',
               onClick: (event, rowData) => alert("You saved " + rowData.name),
-              // disabled: leader,
-            },
+              disabled: rowData.name==this.state.leaderName? true:false,
+            }),
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
               onClick: (event, rowData) => alert("You want to delete " + rowData.name),
-              // disabled: leader,
+              disabled: rowData.name==this.state.leaderName? true:false,
             })
           ]}
           options={{
             actionsColumnIndex: -1
           }}
           editable={{
-            // onRowAdd: newData =>
-            //   new Promise((resolve, reject) => {
-            //     if (!newData.name || newData.name === ''){
-            //       alert("Activity Type name should not be empty.")
-            //       reject()
-            //     } else {
-            //       setTimeout(() => {
-            //         this.props.add(
-            //           this.state.id,
-            //           null,
-            //           newData.name,
-            //           newData.enable,
-            //           newData.private
-            //         )
-            //         resolve();
-            //       }, 1000)
-            //     }
-                
-            //   })
+            // onRowAdd: this.handleAddMemberOpen()
           }}
         />
       </div>
