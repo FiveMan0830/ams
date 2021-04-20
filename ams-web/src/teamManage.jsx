@@ -8,6 +8,8 @@ import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalC
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
 import axios from 'axios'
 import { indigo } from "@material-ui/core/colors";
+import {Button, Toolbar} from '@material-ui/core'
+import AddMember from './AddMember';
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -33,21 +35,18 @@ class TeamManage extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      personal: [{unitID: localStorage.getItem("uid"),unitName: "Personal" }],
-      selectTeam: [],
       teamName : "",
-      startTime: 0,
-      endTime: 0,
       columns: [
         { title: 'Display Name', field: 'name'},
         { title: 'Username', field: 'username'},
-        
       ],
       memberList: [],
-      leaderName:""
+      leaderName:"",
     }
+    this.initialize = this.initialize.bind(this)
   }
-  componentWillMount() {
+  
+  initialize(){
     const data = {
       GroupName: this.props.teamName
     }
@@ -71,10 +70,18 @@ class TeamManage extends Component {
             console.log(err);
         })
   }
-  componentDidMount() {
-    console.log(this.state.memberList)
-    console.log(this.state.leaderName)
+  componentWillMount() {
+    this.initialize();
   }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.teamName !== prevProps.teamName) {
+      this.initialize();
+      console.log(this.state.memberList)
+      console.log(this.state.leaderName)
+    }
+  }
+  
   render() {
     return (
       <div>
@@ -89,19 +96,23 @@ class TeamManage extends Component {
               tooltip: 'Hand Over',
               onClick: (event, rowData) => alert("You saved " + rowData.name),
               disabled: rowData.name==this.state.leaderName? true:false,
+              hidden: this.props.username==this.state.leaderName?false:true,
             }),
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
               onClick: (event, rowData) => alert("You want to delete " + rowData.name),
               disabled: rowData.name==this.state.leaderName? true:false,
+              hidden: this.props.username==this.state.leaderName?false:true,
             })
           ]}
           options={{
-            actionsColumnIndex: -1
+            actionsColumnIndex: -1,
           }}
-          editable={{
-            // onRowAdd: this.handleAddMemberOpen()
+          localization={{
+            header: {
+              actions: ''
+            },  
           }}
         />
       </div>

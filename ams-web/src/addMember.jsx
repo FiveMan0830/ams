@@ -16,7 +16,7 @@ import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
 import { blue } from '@material-ui/core/colors';
 
-class addMember extends Component {
+class AddMember extends Component {
   constructor(props) {
     super(props)
   }
@@ -24,18 +24,17 @@ class addMember extends Component {
   render() {
     return (
       <div>
-        {console.log("add member page " + this.props.open)}
         <Dialog 
-        onClose={this.props.handleClose()} 
+        onClose={this.props.handleClose} 
         aria-labelledby="simple-dialog-title" 
         open={this.props.open}>
-        <DialogTitle id="simple-dialog-title">Set backup account</DialogTitle>
+        <DialogTitle id="simple-dialog-title">Add Member</DialogTitle>
         <DialogContent>
             <List>
                 {this.props.memberList.map((member) => (
                 <ListItem button key={member.name}>
                     <ListItemAvatar>
-                    <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
+                        <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
                     </ListItemAvatar>
                     <ListItemText primary={member.name} />
                 </ListItem>
@@ -43,7 +42,7 @@ class addMember extends Component {
             </List>
         </DialogContent>
         <DialogActions>
-            <Button onClick={this.props.handleClose()} color="primary">
+            <Button onClick={this.props.handleClose} color="primary">
                 Submit
             </Button>
         </DialogActions>
@@ -53,4 +52,4 @@ class addMember extends Component {
   }
 }
 
-export default addMember
+export default AddMember

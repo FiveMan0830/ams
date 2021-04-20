@@ -9,8 +9,8 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import {Button} from '@material-ui/core'
+import AddMember from './AddMember';
 import {TeamGetMemberOf} from './middleware';
-import addMember from './addMember';
 import axios from 'axios'
 
 
@@ -32,10 +32,15 @@ class App extends Component{
     super(props)
     this.state = {
       teamList: [],
-      team : 'OIS',
-      username : "ssl1321ois",
+      teamName : 'SSL Lab',
+      username : "fiveman0830",
       addMemberOpen: false,
-      memberList : [],
+      memberList : [
+        { name: 'Audi Putra', username: 'audi'},
+        { name: 'Ellen Li', username: 'ellen'},
+        { name: 'Richard', username: 'richard'},
+        { name: 'Stella Stefalen', username: 'stella'},
+      ],
     }
     this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
     this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
@@ -65,12 +70,9 @@ class App extends Component{
 
   handleAddMemberOpen() {
     this.setState({addMemberOpen:true});
-    console.log("open " + this.state.addMemberOpen)
   };
   handleAddMemberClose() {
     this.setState({addMemberOpen:false});
-    console.log("close "+ this.state.addMemberOpen)
-
   };
   // useEffect(() => {
   //   let temp =  new Array();
@@ -106,8 +108,8 @@ render(){
          <FormControl>
           <InputLabel id="demo-simple-select-label">Team</InputLabel>
           <Select
-            value={this.state.team}
-            onChange={(e) => {this.setState({team: e.target.value})}}
+            value={this.state.teamName}
+            onChange={(e) => {this.setState({teamName: e.target.value})}}
           >
             {console.log(this.state.teamList)}
             {
@@ -121,12 +123,12 @@ render(){
         </FormControl>
       </div>
       <div className="team-name">
-        {this.state.team}
+        {this.state.teamName}
         <Button onClick = {this.handleAddMemberOpen}>ADD</Button>
-        <addMember open={this.state.addMemberOpen,console.log("status "+this.state.addMemberOpen)} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}></addMember>
+        <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/>
       </div>
       <div className="table">
-        <TeamManage teamName = {this.state.team}> </TeamManage>
+        <TeamManage teamName = {this.state.teamName} username = {this.state.username}> </TeamManage>
       </div>
     </div>
   );
