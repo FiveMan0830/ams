@@ -1,8 +1,6 @@
 package server
 
 import (
-	"encoding/json"
-
 	"github.com/google/uuid"
 
 	"io/ioutil"
@@ -255,14 +253,7 @@ func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
 		return
 	}
 
-	result, errJson := json.Marshal(memberList)
-
-	if errJson != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, result)
+	c.JSON(200, memberList)
 }
 
 // func main() {

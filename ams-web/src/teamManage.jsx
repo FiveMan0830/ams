@@ -37,6 +37,7 @@ class TeamManage extends Component {
     this.state = {
       teamName : "",
       columns: [
+        { title: '', field: 'isLeader'},
         { title: 'Display Name', field: 'name'},
         { title: 'Username', field: 'username'},
       ],
@@ -50,11 +51,12 @@ class TeamManage extends Component {
     const data = {
       GroupName: this.props.teamName
     }
-    axios.post("http://localhost:8080/team/get/members", data)
+    axios.post("http://localhost:8080/team/get/member/name", data)
         .then(res => {
           const result = []
           for(var i = 0;i<res.data.length;i++){
-            result.push({name:res.data[i],username:res.data[i],isLeader:false})
+            console.log(res.data)
+            result.push({username:res.data[i].username,name:res.data[i].displayname,isLeader:false})
           }
           this.setState({memberList:result})
         })
@@ -77,8 +79,6 @@ class TeamManage extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.teamName !== prevProps.teamName) {
       this.initialize();
-      console.log(this.state.memberList)
-      console.log(this.state.leaderName)
     }
   }
   
