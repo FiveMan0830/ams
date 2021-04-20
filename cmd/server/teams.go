@@ -54,6 +54,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/remove/member", removeMember)
 	team.POST("/team/leader/handover", handoverLeader)
 	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
+	team.GET("/all/username", getAllUsername)
 }
 
 func createTeam(c *gin.Context) {
@@ -254,6 +255,18 @@ func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
 	}
 
 	c.JSON(200, memberList)
+}
+
+func getAllUsername(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	userList, err := accountManagement.SearchAllUser(config.GetAdminUser(), config.GetAdminPassword())
+
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	c.JSON(200, userList)
 }
 
 // func main() {
