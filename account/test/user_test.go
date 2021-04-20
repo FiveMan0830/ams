@@ -80,3 +80,16 @@ func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
 	assert.Equal(t, "Audi Wu", result[1].Displayname)
 	assert.Equal(t, err, nil)
 }
+
+func TestGetAllUsername(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
+
+	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
+
+	assert.Contains(t, result, "fiveman123")
+	assert.Contains(t, result, "audi98")
+	assert.Contains(t, result, "george88")
+	assert.Contains(t, result, "david93")
+	assert.Contains(t, result, "sherry99")
+	assert.Equal(t, err, nil)
+}

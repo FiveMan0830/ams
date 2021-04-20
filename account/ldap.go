@@ -95,6 +95,35 @@ func (lm *LDAPManagement) DeleteUserWithOu(adminUser, adminPasswd, username, rol
 }
 
 // SearchUser is a function to search a user
+func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]string, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=organizationalPerson))",
+		[]string{"cn"},
+		[]ldap.Control{})
+	result, err := lm.ldapConn.Search(request)
+
+	if err != nil {
+		return nil, errors.New("Search Failed")
+	} else if len(result.Entries) < 1 {
+		return nil, errors.New("There is no user")
+	}
+
+	var userList []string
+	
+	for _, entry := range result.Entries {
+		userList = append(userList, entry.GetAttributeValue("cn"))
+	}
+
+	return userList, nil
+}
+
+// SearchUser is a function to search a user
 func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
