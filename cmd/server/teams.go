@@ -1,6 +1,8 @@
 package server
 
 import (
+	"encoding/json"
+
 	"github.com/google/uuid"
 
 	"io/ioutil"
@@ -53,6 +55,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/add/member", addMember)
 	team.POST("/team/remove/member", removeMember)
 	team.POST("/team/leader/handover", handoverLeader)
+	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 }
 
 func createTeam(c *gin.Context) {
@@ -238,6 +241,28 @@ func handoverLeader(c *gin.Context) {
 		return
 	}
 
+}
+
+func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &GetGroupRequest{}
+	c.Bind(reqbody)
+
+	memberList, err := accountManagement.GetGroupMembersUsernameAndDisplayname(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	result, errJson := json.Marshal(memberList)
+
+	if errJson != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+
+	c.JSON(200, result)
 }
 
 // func main() {

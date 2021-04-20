@@ -12,8 +12,8 @@ import (
 )
 
 type member struct {
-	Username string
-	Displayname string
+	Username string `json:"username"`
+	Displayname string `json:"displayname"`
 }
 
 // ObjectCategoryGroup is const for ldap attribute
