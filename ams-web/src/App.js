@@ -32,8 +32,8 @@ class App extends Component{
     super(props)
     this.state = {
       teamList: [],
-      teamName : 'SSL Lab',
-      username : "fiveman0830",
+      teamName : 'OIS',
+      username : "ssl1321ois",
       addMemberOpen: false,
       memberList : [
         { name: 'Audi Putra', username: 'audi'},
@@ -52,12 +52,12 @@ class App extends Component{
       Username: this.state.username
     }
     axios.post("http://localhost:8080/team/get/memberOf", data)
-        .then(res => {
-            this.setState({teamList: res.data})
-        })
-        .catch(err => {
-            console.log(err);
-        })
+      .then(res => {
+          this.setState({teamList: res.data})
+      })
+      .catch(err => {
+          console.log(err);
+      })
 
     // axios.post("http://localhost:8080/team/get/name", String Team ID)
     //     .then(res => {

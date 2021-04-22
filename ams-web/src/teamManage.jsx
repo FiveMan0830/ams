@@ -1,15 +1,14 @@
 import React, { Component, forwardRef } from "react";
 import MaterialTable from "material-table";
 import { AddBox, ArrowDownward, Check, ChevronLeft, ChevronRight,
-  Clear, ControlCameraOutlined, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
-  MicNone,
+  Clear, DeleteOutline, Edit, FilterList, FirstPage, LastPage,
+
   Remove, SaveAlt, Search, ViewColumn } from '@material-ui/icons';
 import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
 import axios from 'axios'
-import { indigo } from "@material-ui/core/colors";
-import {Button, Toolbar} from '@material-ui/core'
-import AddMember from './AddMember';
+
+import DeleteIcon from '@material-ui/icons/Delete';
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -37,7 +36,7 @@ class TeamManage extends Component {
     this.state = {
       teamName : "",
       columns: [
-        { title: '', field: 'isLeader'},
+        { title: '', field: 'isLeader',render: rowData => <DeleteIcon /> },
         { title: 'Display Name', field: 'name'},
         { title: 'Username', field: 'username'},
       ],
@@ -88,21 +87,25 @@ class TeamManage extends Component {
         <MaterialTable
           icons={tableIcons}
           title="Member List"
-          columns={this.state.columns}
+          columns={[
+            { title: '', field: 'isLeader',render: rowData =>rowData.username==this.state.leaderName?<DeleteIcon />:"" },
+            { title: 'Display Name', field: 'name'},
+            { title: 'Username', field: 'username'},
+          ]}
           data={this.state.memberList}
           actions={[
             rowData => ({
               icon: SwapHorizontalCircleOutlinedIcon,
               tooltip: 'Hand Over',
               onClick: (event, rowData) => alert("You saved " + rowData.name),
-              disabled: rowData.name==this.state.leaderName? true:false,
+              disabled: rowData.username==this.state.leaderName? true:false,
               hidden: this.props.username==this.state.leaderName?false:true,
             }),
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
               onClick: (event, rowData) => alert("You want to delete " + rowData.name),
-              disabled: rowData.name==this.state.leaderName? true:false,
+              disabled: rowData.username==this.state.leaderName? true:false,
               hidden: this.props.username==this.state.leaderName?false:true,
             })
           ]}
