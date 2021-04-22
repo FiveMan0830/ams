@@ -15,10 +15,32 @@ import PersonIcon from '@material-ui/icons/Person';
 import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
 import { blue } from '@material-ui/core/colors';
+import axios from 'axios'
+
 
 class AddMember extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      memberList : [],
+    }
+  }
+
+  componentWillMount(){
+    axios.get("http://localhost:8080/all/username")
+    .then(res => {
+      const result = []
+      console.log(res.data)
+      for(var i = 0;i<res.data.length;i++){
+        if(!this.props.memberList.includes({username:res.data[i].username,name:res.data[i].displayname})){
+          result.push({username:res.data[i].username,name:res.data[i].displayname,isSelect:false})
+        }
+      }
+      this.setState({memberList:result})
+    })
+    .catch(err => {
+        console.log(err);
+    })
   }
 
   render() {
@@ -31,12 +53,12 @@ class AddMember extends Component {
         <DialogTitle id="simple-dialog-title">Add Member</DialogTitle>
         <DialogContent>
             <List>
-                {this.props.memberList.map((member) => (
-                <ListItem button key={member.name}>
+                {this.state.memberList.map((member) => (
+                <ListItem button key={member.username}>
                     <ListItemAvatar>
-                        <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
+                        <Avatar className="avatar-name" alt={member.username} src="/broken-image.jpg"/>
                     </ListItemAvatar>
-                    <ListItemText primary={member.name} />
+                    <ListItemText primary={member.username} />
                 </ListItem>
                 ))}
             </List>

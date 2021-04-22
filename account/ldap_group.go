@@ -11,10 +11,10 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-type member struct {
-	Username string `json:"username"`
-	Displayname string `json:"displayname"`
-}
+// type member struct {
+// 	Username string `json:"username"`
+// 	Displayname string `json:"displayname"`
+// }
 
 // ObjectCategoryGroup is const for ldap attribute
 const ObjectCategoryGroup string = "groupOfNames"
