@@ -54,7 +54,6 @@ class TeamManage extends Component {
         .then(res => {
           const result = []
           for(var i = 0;i<res.data.length;i++){
-            console.log(res.data)
             result.push({username:res.data[i].username,name:res.data[i].displayname,isLeader:false})
           }
           this.setState({memberList:result})
@@ -70,6 +69,7 @@ class TeamManage extends Component {
         .catch(err => {
             console.log(err);
         })
+
   }
   componentWillMount() {
     this.initialize();

@@ -16,10 +16,10 @@ type LDAPManagement struct {
 	ldapConn *ldap.Conn
 }
 
-// type member struct {
-// 	Username string `json:"username"`
-// 	Displayname string `json:"displayname"`
-// }
+type member struct {
+	Username string `json:"username"`
+	Displayname string `json:"displayname"`
+}
 
 // CreateUser is a function for user to register
 func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error {
@@ -119,7 +119,7 @@ func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]*membe
 		return nil, errors.New("There is no user")
 	}
 
-	var userList []*member{}
+	userList := []*member{}
 	
 	for _, entry := range result.Entries {
 		mem := new(member)

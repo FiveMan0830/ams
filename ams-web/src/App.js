@@ -35,12 +35,7 @@ class App extends Component{
       teamName : 'OIS',
       username : "ssl1321ois",
       addMemberOpen: false,
-      memberList : [
-        { name: 'Audi Putra', username: 'audi'},
-        { name: 'Ellen Li', username: 'ellen'},
-        { name: 'Richard', username: 'richard'},
-        { name: 'Stella Stefalen', username: 'stella'},
-      ],
+      memberList : [],
     }
     this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
     this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
@@ -111,11 +106,10 @@ render(){
             value={this.state.teamName}
             onChange={(e) => {this.setState({teamName: e.target.value})}}
           >
-            {console.log(this.state.teamList)}
             {
-              this.state.teamList.map((group,index) => {
+              this.state.teamList.map((team,index) => {
                 return(
-                  <MenuItem key={index} value={group}>{group}</MenuItem>
+                  <MenuItem key={index} value={team}>{team}</MenuItem>
                 )
               })
             }
