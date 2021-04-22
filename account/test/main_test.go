@@ -23,6 +23,11 @@ type group struct {
 	ID string
 }
 
+type member struct {
+	Username string `json:"username"`
+	Displayname string `json:"displayname"`
+}
+
 const adminUser string = "admin"
 const adminPassword string = "admin"
 
@@ -121,6 +126,7 @@ func setup() {
 	accountManagement.CreateUser(adminUser, adminPassword, leader3.ID, leader3.name, leader3.givenName, leader3.surname, leader3.password, leader3.email)
 
 	accountManagement.CreateOu(adminUser, adminPassword, ouName)
+	accountManagement.CreateOu(adminUser, adminPassword, "OISGroup")
 	// accountManagement.CreateOu(adminUser, adminPassword, ouName2)
 
 	accountManagement.CreateGroup(adminUser, adminPassword, group1.name, group1.groupLeaderUsername, group1.ID)
