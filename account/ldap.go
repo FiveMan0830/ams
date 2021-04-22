@@ -16,6 +16,11 @@ type LDAPManagement struct {
 	ldapConn *ldap.Conn
 }
 
+// type member struct {
+// 	Username string `json:"username"`
+// 	Displayname string `json:"displayname"`
+// }
+
 // CreateUser is a function for user to register
 func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error {
 	lm.connectWithoutTLS()
@@ -95,7 +100,7 @@ func (lm *LDAPManagement) DeleteUserWithOu(adminUser, adminPasswd, username, rol
 }
 
 // SearchUser is a function to search a user
-func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]string, error) {
+func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]*member, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -114,10 +119,13 @@ func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]string
 		return nil, errors.New("There is no user")
 	}
 
-	var userList []string
+	var userList []*member{}
 	
 	for _, entry := range result.Entries {
-		userList = append(userList, entry.GetAttributeValue("cn"))
+		mem := new(member)
+		mem.Displayname = entry.GetAttributeValue("displayName")
+		mem.Username = entry.GetAttributeValue("cn")
+		userList = append(userList, mem)
 	}
 
 	return userList, nil

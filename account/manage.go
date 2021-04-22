@@ -16,7 +16,7 @@ type Management interface {
 	DeleteOu(adminUser, adminPasswd, ouname string) error
 	AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
-	SearchAllUser(adminUser, adminPasswd string) ([]string, error)
+	SearchAllUser(adminUser, adminPasswd string) ([]*member, error)
 	SearchUser(adminUser, adminPasswd, username string) (string, error)
 	SearchUserDisplayname(adminUser, adminPasswd, search string) (string, error)
 	SearchUserWithOu(adminUser, adminPasswd, role string) ([]string, error)
