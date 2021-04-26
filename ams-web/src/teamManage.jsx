@@ -10,7 +10,7 @@ import axios from 'axios'
 import StarIcon from '@material-ui/icons/Star';
 import {Button} from '@material-ui/core';
 import AddMember from './addMember';
-
+import AddIcon from '@material-ui/icons/Add';
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -43,11 +43,13 @@ class TeamManage extends Component {
       ],
       memberList: [],
       leaderName:"",
+      addMemberOpen:false,
     }
     this.initialize = this.initialize.bind(this)
     this.handoverRole = this.handoverRole.bind(this)
     this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
     this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
+    this.removeItem = this.removeItem.bind(this);
 
   }
   
@@ -56,8 +58,11 @@ class TeamManage extends Component {
   };
   handleAddMemberClose() {
     this.setState({addMemberOpen:false});
+
+    this.initialize();
   };
   handoverRole(username){
+    this.setState({leaderName:username})
     const groupRquest = {
       GroupName: this.props.teamName,
       SelfUsername: this.props.username,
@@ -72,12 +77,26 @@ class TeamManage extends Component {
         })
   }
 
-  deleteMember(username){
+  removeItem(array, item){
+    for(var i in array){
+        if(array[i]==item){
+            array.splice(i,1);
+            break;
+        }
+    }
+  }
+
+  deleteMember(user){
+    console.log(this.state.memberList)
+    this.removeItem(this.state.memberList,user)
+    this.setState({memberList:this.state.memberList})
+
     const removeMemberRquest = {
       GroupName: this.props.teamName,
-      Username: username,
+      Username: user.username,
+      Leader: this.props.username,
     }
-    axios.post("http://localhost:8080/remove/member",removeMemberRquest)
+    axios.post("http://localhost:8080/team/remove/member",removeMemberRquest)
         .then(res => {
           console.log(res);
         })
@@ -87,16 +106,16 @@ class TeamManage extends Component {
   }
 
   initialize(){
-    console.log(this.props.teamName)
+    console.log("init")
     const data = {
       GroupName: this.props.teamName
     }
     axios.post("http://localhost:8080/team/get/member/name", data)
         .then(res => {
           const result = []
-          for(var i = 0;i<res.data.length;i++){
-            result.push({username:res.data[i].username,name:res.data[i].displayname})
-          }
+          res.data.map((member)=>{
+            result.push({username:member.username,name:member.displayname})
+          })
           this.setState({memberList:result})
         })
         .catch(err => {
@@ -126,8 +145,8 @@ class TeamManage extends Component {
       <div>
         <div className="team-name">
         {this.state.teamName}
-          <Button onClick = {this.handleAddMemberOpen}>ADD</Button>
-          <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/>
+          <AddIcon onClick = {this.handleAddMemberOpen}/>
+          <AddMember teamName={this.props.teamName} open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/>
         </div>
         <MaterialTable
           icons={tableIcons}
@@ -149,7 +168,7 @@ class TeamManage extends Component {
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
-              onClick: (event, rowData) => this.deleteMember(rowData.username),
+              onClick: (event, rowData) => this.deleteMember(rowData),
               disabled: rowData.username==this.state.leaderName? true:false,
               hidden: this.props.username==this.state.leaderName?false:true,
             })

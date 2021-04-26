@@ -16,6 +16,8 @@ import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
 import { blue } from '@material-ui/core/colors';
 import axios from 'axios'
+import Checkbox from '@material-ui/core/Checkbox';
+
 
 
 class AddMember extends Component {
@@ -23,45 +25,82 @@ class AddMember extends Component {
     super(props)
     this.state = {
       memberList : [],
+      open : false,
     }
+    this.handleSelectMember= this.handleSelectMember.bind(this);
+    this.initialize= this.initialize.bind(this);
+    this.addMember= this.addMember.bind(this);
+
   }
 
-  componentWillMount(){
+  initialize(){
     axios.get("http://localhost:8080/all/username")
     .then(res => {
       const result = []
-      console.log(res.data)
-      for(var i = 0;i<res.data.length;i++){
+      res.data.map((user)=>{
         var flag = false
-        for(var j = 0; j<this.props.memberList.length;j++){
-          if(this.props.memberList[j].username == res.data[i].username ){
+        this.props.memberList.map((member)=>{
+          if(member.username == user.username ){
             flag = true;
           }
-        }
+        })
         if(!flag){
-          result.push({username:res.data[i].username,name:res.data[i].displayname, isSelect:false})
+          result.push({username:user.username,name:user.displayname, isSelect:false})
         }
-      }
-      this.setState({memberList:result})
+        this.setState({memberList:result})
+      })
     })
     .catch(err => {
         console.log(err);
     })
   }
+  componentWillMount(){
+    this.initialize();
+  }
 
-  addMember(memberList){
-    
-    const addMemberRquest = {
-      GroupName: this.props.teamName,
-      Username: username,
+  addMember(){
+    this.state.memberList.map((member)=>{
+      if(member.isSelect === true){
+        member.isSelect = false;
+        const addMemberRquest = {
+          GroupName: this.props.teamName,
+          Username: member.username,
+        }
+        axios.post("http://localhost:8080/team/add/member",addMemberRquest)
+            .then(res => {
+              console.log(res);
+              this.props.handleClose()
+            })
+            .catch(err => {
+              console.log(err);
+              this.props.handleClose()
+            })
+      }
+    })
+    // this.props.handleClose()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.teamName !== prevProps.teamName) {
+      this.initialize();
+    }    
+    if(this.props.open === true && this.state.open === false){
+      this.setState({open: true});
+      this.initialize();
     }
-    axios.post("http://localhost:8080/team/add/member",addMemberRquest)
-        .then(res => {
-          console.log(res);
-        })
-        .catch(err => {
-          console.log(err);
-        })
+    if(this.props.open === false && this.state.open === true){
+      this.setState({open: false});
+    }
+  }
+
+  handleSelectMember(event) {   
+    this.state.memberList.map((member)=>{
+      if( member.username === event.target.value) {
+        member.isSelect = event.target.checked;
+      }
+    })
+    this.setState({ memberList: this.state.memberList});
+    console.log(this.state.memberList)
   }
 
   render() {
@@ -76,6 +115,7 @@ class AddMember extends Component {
             <List>
                 {this.state.memberList.map((member) => (
                 <ListItem button key={member.name}>
+                  <Checkbox  value={member.username} checked={member.isSelect} onChange={this.handleSelectMember}></Checkbox>
                     <ListItemAvatar>
                         <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
                     </ListItemAvatar>
@@ -85,7 +125,7 @@ class AddMember extends Component {
             </List>
         </DialogContent>
         <DialogActions>
-            <Button onClick={this.props.handleClose} color="primary">
+            <Button onClick={this.addMember} color="primary">
                 Submit
             </Button>
         </DialogActions>

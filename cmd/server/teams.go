@@ -192,7 +192,7 @@ func addMember(c *gin.Context) {
 	reqbody := &AddMemberRequest{}
 	c.Bind(reqbody)
 
-	if accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
+	if !accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
 		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
 		if err != nil {
 			c.JSON(500, err.Error())
