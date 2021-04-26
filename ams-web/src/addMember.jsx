@@ -32,9 +32,14 @@ class AddMember extends Component {
       const result = []
       console.log(res.data)
       for(var i = 0;i<res.data.length;i++){
-        console.log(this.props.memberList);  // true
-        if(!this.props.memberList.includes({username:res.data[i].username,name:res.data[i].displayname})){
-          result.push({username:res.data[i].username,name:res.data[i].displayname,isSelect:false})
+        var flag = false
+        for(var j = 0; j<this.props.memberList.length;j++){
+          if(this.props.memberList[j].username == res.data[i].username ){
+            flag = true;
+          }
+        }
+        if(!flag){
+          result.push({username:res.data[i].username,name:res.data[i].displayname, isSelect:false})
         }
       }
       this.setState({memberList:result})
@@ -44,7 +49,8 @@ class AddMember extends Component {
     })
   }
 
-  addMember(username){
+  addMember(memberList){
+    
     const addMemberRquest = {
       GroupName: this.props.teamName,
       Username: username,
@@ -73,7 +79,7 @@ class AddMember extends Component {
                     <ListItemAvatar>
                         <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
                     </ListItemAvatar>
-                    <ListItemText primary={member.name} />
+                    <ListItemText primary={member.name} secondary={member.username}/>
                 </ListItem>
                 ))}
             </List>

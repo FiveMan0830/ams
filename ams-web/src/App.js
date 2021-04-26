@@ -118,11 +118,11 @@ render(){
       </div>
       <div className="team-name">
         {this.state.teamName}
-        <Button onClick = {this.handleAddMemberOpen}>ADD</Button>
-        <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/>
+        {/* <Button onClick = {this.handleAddMemberOpen}>ADD</Button>
+        <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/> */}
       </div>
       <div className="table">
-        <TeamManage teamName = {this.state.teamName} username = {this.state.username} > </TeamManage>
+        <TeamManage teamName = {this.state.teamName} username = {this.state.username}> </TeamManage>
       </div>
     </div>
   );

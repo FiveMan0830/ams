@@ -25,20 +25,12 @@ func main() {
 	username = strings.ReplaceAll(username, "\n", "")
 	username = strings.ReplaceAll(username, "\r", "")
 
-	surname, _ := reader.ReadString('\n')
-	surname = strings.ReplaceAll(surname, "\n", "")
-	surname = strings.ReplaceAll(surname, "\r", "")
-
-	givenname, _ := reader.ReadString('\n')
-	givenname = strings.ReplaceAll(givenname, "\n", "")
-	givenname = strings.ReplaceAll(givenname, "\r", "")
-
 	fmt.Println(" username: " + username)
-	result, err := accountManagement.CreateGroup(adminUser, adminPasswd, username, surname, givenname)
+	err := accountManagement.DeleteUser(adminUser, adminPasswd, username)
 
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(result)
+		// fmt.Println(result)
 	}
 }
