@@ -235,6 +235,7 @@ func handoverLeader(c *gin.Context) {
 			c.JSON(500, err.Error())
 			return
 		}
+		
 	} else {
 		c.JSON(403, "User is not professor or leader of the team!")
 		return
