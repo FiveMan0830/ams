@@ -32,6 +32,7 @@ class AddMember extends Component {
       const result = []
       console.log(res.data)
       for(var i = 0;i<res.data.length;i++){
+        console.log(this.props.memberList);  // true
         if(!this.props.memberList.includes({username:res.data[i].username,name:res.data[i].displayname})){
           result.push({username:res.data[i].username,name:res.data[i].displayname,isSelect:false})
         }
@@ -41,6 +42,20 @@ class AddMember extends Component {
     .catch(err => {
         console.log(err);
     })
+  }
+
+  addMember(username){
+    const addMemberRquest = {
+      GroupName: this.props.teamName,
+      Username: username,
+    }
+    axios.post("http://localhost:8080/team/add/member",addMemberRquest)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        })
   }
 
   render() {
@@ -54,11 +69,11 @@ class AddMember extends Component {
         <DialogContent>
             <List>
                 {this.state.memberList.map((member) => (
-                <ListItem button key={member.username}>
+                <ListItem button key={member.name}>
                     <ListItemAvatar>
-                        <Avatar className="avatar-name" alt={member.username} src="/broken-image.jpg"/>
+                        <Avatar className="avatar-name" alt={member.name} src="/broken-image.jpg"/>
                     </ListItemAvatar>
-                    <ListItemText primary={member.username} />
+                    <ListItemText primary={member.name} />
                 </ListItem>
                 ))}
             </List>

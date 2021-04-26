@@ -9,7 +9,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import {Button} from '@material-ui/core'
-import AddMember from './AddMember';
+import AddMember from './addMember';
 import {TeamGetMemberOf} from './middleware';
 import axios from 'axios'
 
@@ -32,7 +32,7 @@ class App extends Component{
     super(props)
     this.state = {
       teamList: [],
-      teamName : 'OIS',
+      teamName : 'SSL LAB',
       username : "ssl1321ois",
       addMemberOpen: false,
       memberList : [],
@@ -122,7 +122,7 @@ render(){
         <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/>
       </div>
       <div className="table">
-        <TeamManage teamName = {this.state.teamName} username = {this.state.username}> </TeamManage>
+        <TeamManage teamName = {this.state.teamName} username = {this.state.username} > </TeamManage>
       </div>
     </div>
   );

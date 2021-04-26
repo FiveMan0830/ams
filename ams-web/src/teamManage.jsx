@@ -7,8 +7,7 @@ import { AddBox, ArrowDownward, Check, ChevronLeft, ChevronRight,
 import SwapHorizontalCircleOutlinedIcon from '@material-ui/icons/SwapHorizontalCircleOutlined';
 import RemoveCircleOutlineOutlinedIcon from '@material-ui/icons/RemoveCircleOutlineOutlined';
 import axios from 'axios'
-
-import DeleteIcon from '@material-ui/icons/Delete';
+import StarIcon from '@material-ui/icons/Star';
 
   const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -36,7 +35,7 @@ class TeamManage extends Component {
     this.state = {
       teamName : "",
       columns: [
-        { title: '', field: 'isLeader',render: rowData => <DeleteIcon /> },
+        { title: '', field: 'isLeader',render: rowData => <StarIcon /> },
         { title: 'Display Name', field: 'name'},
         { title: 'Username', field: 'username'},
       ],
@@ -44,9 +43,41 @@ class TeamManage extends Component {
       leaderName:"",
     }
     this.initialize = this.initialize.bind(this)
+    this.handoverRole = this.handoverRole.bind(this)
+
   }
   
+  handoverRole(username){
+    const groupRquest = {
+      GroupName: this.props.teamName,
+      SelfUsername: this.props.username,
+      InputUsername: username,
+    }
+    axios.post("http://localhost:8080/team/leader/handover",groupRquest)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+  }
+
+  deleteMember(username){
+    const removeMemberRquest = {
+      GroupName: this.props.teamName,
+      Username: username,
+    }
+    axios.post("http://localhost:8080/remove/member",removeMemberRquest)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+  }
+
   initialize(){
+    console.log(this.props.teamName)
     const data = {
       GroupName: this.props.teamName
     }
@@ -54,7 +85,7 @@ class TeamManage extends Component {
         .then(res => {
           const result = []
           for(var i = 0;i<res.data.length;i++){
-            result.push({username:res.data[i].username,name:res.data[i].displayname,isLeader:false})
+            result.push({username:res.data[i].username,name:res.data[i].displayname})
           }
           this.setState({memberList:result})
         })
@@ -69,7 +100,6 @@ class TeamManage extends Component {
         .catch(err => {
             console.log(err);
         })
-
   }
   componentWillMount() {
     this.initialize();
@@ -88,7 +118,7 @@ class TeamManage extends Component {
           icons={tableIcons}
           title="Member List"
           columns={[
-            { title: '', field: 'isLeader',render: rowData =>rowData.username==this.state.leaderName?<DeleteIcon />:"" },
+            { title: '', field: 'isLeader',render: rowData =>rowData.username==this.state.leaderName?<StarIcon />:"" },
             { title: 'Display Name', field: 'name'},
             { title: 'Username', field: 'username'},
           ]}
@@ -97,14 +127,14 @@ class TeamManage extends Component {
             rowData => ({
               icon: SwapHorizontalCircleOutlinedIcon,
               tooltip: 'Hand Over',
-              onClick: (event, rowData) => alert("You saved " + rowData.name),
+              onClick: (event, rowData) => this.handoverRole(rowData.username),
               disabled: rowData.username==this.state.leaderName? true:false,
               hidden: this.props.username==this.state.leaderName?false:true,
             }),
             rowData => ({
               icon: RemoveCircleOutlineOutlinedIcon,
               tooltip: 'Delete User',
-              onClick: (event, rowData) => alert("You want to delete " + rowData.name),
+              onClick: (event, rowData) => this.deleteMember(rowData.username),
               disabled: rowData.username==this.state.leaderName? true:false,
               hidden: this.props.username==this.state.leaderName?false:true,
             })
