@@ -40,7 +40,6 @@ func TestCreateGroupDuplicateName(t *testing.T) {
 	assert.Equal(t, err, duplicateError)
 }
 
-
 func TestSearchGroupLeaderSuccess(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
@@ -78,6 +77,15 @@ func TestAddMemberToGroupSuccess(t *testing.T) {
 	assert.Contains(t, result2, username)
 	assert.Contains(t, result2, username2)
 	assert.Equal(t, err2, nil)
+}
+
+func TestAddGroupToGroup(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
+
+	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, groupName2)
+
+	assert.Contains(t, result, groupName2)
+	assert.Equal(t, err, nil)
 }
 
 func TestAddMemberToNotExistsGroup(t *testing.T) {
@@ -126,8 +134,8 @@ func TestGetUserBelongedTeam(t *testing.T) {
 
 	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPassword, username)
 
-	assert.Contains(t, result, groupName)
-	assert.Contains(t, result, groupName2)
+	assert.Contains(t, result, groupID)
+	assert.Contains(t, result, groupID2)
 	assert.Equal(t, err, nil)
 }
 

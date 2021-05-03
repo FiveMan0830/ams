@@ -286,7 +286,7 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 		0,
 		false,
 		filter,
-		[]string{"dn", "cn"},
+		[]string{"dn", "uid"},
 		[]ldap.Control{})
 
 	sr, err := lm.ldapConn.Search(searchRequest)
@@ -298,7 +298,7 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 
 	var groupsList []string
 	for _, entry := range sr.Entries {
-		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
+		groupsList = append(groupsList, entry.GetAttributeValue("uid"))
 	}
 	return groupsList, nil
 }

@@ -87,10 +87,10 @@ func TestGetAllUsername(t *testing.T) {
 	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
 
 	member1 := new(member)
-	member1.Displayname = "Richard Zheng"
-	member1.Username = "fiveman123"
+	member1.Displayname = "test"
+	member1.Username = "test"
 
-	assert.Contains(t, result, member1)
+	assert.Equal(t, result[0].Username, member1.Username)
 	// assert.Contains(t, result, "audi98")
 	// assert.Contains(t, result, "george88")
 	// assert.Contains(t, result, "david93")
