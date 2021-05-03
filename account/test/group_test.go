@@ -123,9 +123,9 @@ func TestGetGroupMembersSuccess(t *testing.T) {
 
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
 
-	assert.Contains(t, result, groupLeaderUsername)
-	assert.Contains(t, result, username)
-	assert.Contains(t, result, username2)
+	assert.Contains(t, result, leaderID2)
+	assert.Contains(t, result, userID)
+	assert.Contains(t, result, userID2)
 	assert.Equal(t, err, nil)
 }
 

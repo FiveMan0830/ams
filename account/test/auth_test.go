@@ -14,7 +14,7 @@ func TestUserIsMemberOfGroup(t *testing.T) {
 
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
 	
-	assert.True(t, accountManagement.IsMember(groupName, username))
+	assert.True(t, accountManagement.IsMember(groupName, userID))
 
 	accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
 }
@@ -33,7 +33,7 @@ func TestUserIsLeaderOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	assert.True(t, accountManagement.IsLeader(groupName, leaderUsername2))
-	assert.True(t, accountManagement.IsMember(groupName, leaderUsername2))
+	assert.True(t, accountManagement.IsMember(groupName, leaderID2))
 }
 
 func TestUserIsNotLeaderOfGroup(t *testing.T) {

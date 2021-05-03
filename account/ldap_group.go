@@ -121,17 +121,29 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 		[]string{"member"},
 		nil,
 	)
+
 	sr, err := lm.ldapConn.Search(searchRequest)
+
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
+
 	var memberIDList []string
+
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
+
 	for _, memberDN := range memberDnList {
 		memberDN = strings.Replace(memberDN, "cn=", "", -1)
 		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
-		memberIDList = append(memberIDList, memberDN)
+		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
+
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+
+		memberIDList = append(memberIDList, memberUUID)
 	}
 	return memberIDList, nil
 }
