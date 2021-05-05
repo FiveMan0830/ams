@@ -21,6 +21,11 @@ type member struct {
 	Displayname string `json:"displayname"`
 }
 
+type team struct {
+	Name string `json:"name:"`
+	UUID string `json:"id:"`
+}
+
 // CreateUser is a function for user to register
 func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error {
 	lm.connectWithoutTLS()
@@ -271,7 +276,7 @@ func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string
 }
 
 // SearchUserMemberOf is for search group that user belong
-func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]string, error) {
+func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]*team, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -286,7 +291,7 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 		0,
 		false,
 		filter,
-		[]string{"dn", "uid"},
+		[]string{"dn", "cn", "uid"},
 		[]ldap.Control{})
 
 	sr, err := lm.ldapConn.Search(searchRequest)
@@ -296,11 +301,18 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 		return nil, err
 	}
 
-	var groupsList []string
+	teams := []*team{}
+
 	for _, entry := range sr.Entries {
-		groupsList = append(groupsList, entry.GetAttributeValue("uid"))
+		tm := new(team)
+		tm.Name = entry.GetAttributeValue("cn")
+		tm.UUID = entry.GetAttributeValue("uid")
+		fmt.Println(tm.Name + ", " + tm.UUID)
+		
+		teams = append(teams, tm)
 	}
-	return groupsList, nil
+
+	return teams, nil
 }
 
 // GetUUIDByUsername is a function to get username to get UUID

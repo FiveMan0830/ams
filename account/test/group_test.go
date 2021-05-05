@@ -134,8 +134,10 @@ func TestGetUserBelongedTeam(t *testing.T) {
 
 	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPassword, username)
 
-	assert.Contains(t, result, groupID)
-	assert.Contains(t, result, groupID2)
+	assert.Equal(t, groupName, result[0].Name)
+	assert.Equal(t, groupID, result[0].UUID)
+	assert.Equal(t, groupName2, result[1].Name)
+	assert.Equal(t, groupID2, result[1].UUID)
 	assert.Equal(t, err, nil)
 }
 
