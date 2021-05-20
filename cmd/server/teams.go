@@ -88,9 +88,9 @@ func getTeam(c *gin.Context) {
 
 func getTeamMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
+	reqbody,err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)
@@ -102,9 +102,9 @@ func getTeamMember(c *gin.Context) {
 
 func getTeamLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
+	reqbody,err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+	leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)
@@ -167,6 +167,7 @@ func getUUIDOfTeam(c *gin.Context) {
 func getName(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
+	
 	name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
