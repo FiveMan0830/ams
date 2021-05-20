@@ -22,8 +22,8 @@ type member struct {
 }
 
 type team struct {
-	Name string `json:"name:"`
-	UUID string `json:"id:"`
+	Name string `json:"name"`
+	UUID string `json:"id"`
 }
 
 // CreateUser is a function for user to register

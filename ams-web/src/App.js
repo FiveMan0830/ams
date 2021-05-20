@@ -17,7 +17,7 @@ class App extends Component{
     super(props)
     this.state = {
       teamList: [],
-      teamName : 'SSL Lab',
+      teamName : 'SSL LAB',
       username : "ssl1321ois",
       addMemberOpen: false,
       memberList : [],
@@ -30,8 +30,9 @@ class App extends Component{
     const data = {
       Username: this.state.username
     }
-    axios.post("http://localhost:8080/team/get/memberOf", data)
+    axios.post("http://localhost:8080/team/get/memberOf", this.state.username)
       .then(res => {
+          console.log(res)
           this.setState({teamList: res.data})
       })
       .catch(err => {
@@ -67,7 +68,7 @@ render(){
             {
               this.state.teamList.map((team,index) => {
                 return(
-                  <MenuItem key={index} value={team}>{team}</MenuItem>
+                  <MenuItem key={index} value={team.name}>{team.name}</MenuItem>
                 )
               })
             }
