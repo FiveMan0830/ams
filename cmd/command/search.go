@@ -26,7 +26,7 @@ func main() {
 	username = strings.ReplaceAll(username, "\r", "")
 
 	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " username: " + username)
-	result, err := accountManagement.SearchUserDn(adminUser, adminPasswd, username)
+	result, err := accountManagement.GetUUIDByUsername(adminUser, adminPasswd, username)
 
 	if err != nil {
 		fmt.Println(err)

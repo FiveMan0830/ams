@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/google/uuid"
-
 	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
@@ -127,9 +126,9 @@ func isLeader(c *gin.Context) {
 
 func getTeamMemberOf(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetUsersRequest{}
+	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	GroupList, err := accountManagement.SearchUserMemberOf(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+	GroupList, err := accountManagement.SearchUserMemberOf(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)

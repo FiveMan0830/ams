@@ -112,6 +112,7 @@ class TeamManage extends Component {
     }
     axios.post("http://localhost:8080/team/get/member/name", data)
         .then(res => {
+          console.log(res)
           const result = []
           res.data.map((member)=>{
             result.push({username:member.username,name:member.displayname})
@@ -124,6 +125,7 @@ class TeamManage extends Component {
 
     axios.post("http://localhost:8080/team/get/leader", data)
         .then(res => {
+          console.log(res)
           this.setState({leaderName:res.data})
         })
         .catch(err => {
