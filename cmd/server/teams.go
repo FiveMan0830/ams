@@ -54,6 +54,9 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/leader/handover", handoverLeader)
 	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 	team.GET("/all/username", getAllUsername)
+
+	// Richard requested API
+	team.POST("/get/name", getName)
 }
 
 func createTeam(c *gin.Context) {

@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+
 import './App.css';
 import TeamManage from './teamManage';
 import React, { Component, forwardRef } from "react";
