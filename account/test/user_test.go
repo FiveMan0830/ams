@@ -99,3 +99,17 @@ func TestGetAllUsername(t *testing.T) {
 	
 	assert.Equal(t, err, nil)
 }
+
+func TestGetNameByUUID(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
+
+	result, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, "c61965be-8176-4419-b289-4d52617728fb")
+
+	assert.Equal(t, "fiveman123", result)
+	assert.Equal(t, nil, err)
+
+	group, err2 := accountManagement.SearchNameByUUID(adminUser, adminPassword, "d23475kl-4862-7456-8473-2c53916648fn")
+
+	assert.Equal(t, "OIS", group)
+	assert.Equal(t, nil, err2)
+}
