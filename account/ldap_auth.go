@@ -1,13 +1,6 @@
 package account
 
 import (
-	// "errors"
-	// "fmt"
-	// "log"
-	// "strings"
-
-	// ldap "github.com/go-ldap/ldap/v3"
-
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 

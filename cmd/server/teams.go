@@ -1,8 +1,9 @@
 package server
 
 import (
-	"github.com/google/uuid"
 	"io/ioutil"
+
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
@@ -37,7 +38,7 @@ type RemoveMemberRequest struct {
 }
 
 func teams(rg *gin.RouterGroup) {
-	team := rg.Group("/")
+	team := rg
 
 	team.POST("/team/create", createTeam)
 	team.GET("/team", getTeam)
@@ -88,7 +89,7 @@ func getTeam(c *gin.Context) {
 
 func getTeamMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody,err := ioutil.ReadAll(c.Request.Body)
+	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
 	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
@@ -102,7 +103,7 @@ func getTeamMember(c *gin.Context) {
 
 func getTeamLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody,err := ioutil.ReadAll(c.Request.Body)
+	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
 	leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
@@ -167,7 +168,7 @@ func getUUIDOfTeam(c *gin.Context) {
 func getName(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	
+
 	name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
@@ -238,7 +239,7 @@ func handoverLeader(c *gin.Context) {
 			c.JSON(500, err.Error())
 			return
 		}
-		
+
 	} else {
 		c.JSON(403, "User is not professor or leader of the team!")
 		return
