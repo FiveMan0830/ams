@@ -9,11 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockConfig struct {
-	tokenSecret string
-	expiredDays int
-}
-
 func (mc *mockConfig) GetTokenSecret() string {
 	return mc.tokenSecret
 }

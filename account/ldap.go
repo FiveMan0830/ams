@@ -73,6 +73,46 @@ func (lm *LDAPManagement) CreateUserWithOu(adminUser, adminPasswd, userID, usern
 
 }
 
+// GetUserByID is for getting user's info from ldap
+func (lm *LDAPManagement) GetUserByID(adminUser, adminPasswd, userID string) (*User, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(userID))
+	log.Println(userID)
+	
+	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		0, 0, 0, false, filter,
+		[]string{"uid", "cn", "displayname",  "mail"},
+		[]ldap.Control{})
+
+	result, err := lm.ldapConn.Search(searchReq)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return nil, err
+	}
+
+	if len(result.Entries) < 1 {
+		return nil, errors.New("User not found")
+	}
+
+	if len(result.Entries) > 1 {
+		return nil, errors.New("Too many entries returned")
+	}
+
+	user := &User{
+		UserID: userID,
+		Username: result.Entries[0].GetAttributeValue("cn"),
+		DisplayName: result.Entries[0].GetAttributeValue("displayName"),
+		Email: result.Entries[0].GetAttributeValue("mail"),
+	}
+
+	return user, nil
+}
+
 // DeleteUser is for removing user from ldap
 func (lm *LDAPManagement) DeleteUser(adminUser, adminPasswd, username string) error {
 	lm.connectWithoutTLS()
@@ -344,7 +384,7 @@ func (lm *LDAPManagement) GetUUIDByUsername(adminUser, adminPasswd, username str
 }
 
 // Login is a function for user to login and get information
-func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error) {
+func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password string) (*ldap.Entry, error) {
 	if err := lm.connectWithoutTLS(); err != nil {
 		return nil, err
 	}
@@ -390,7 +430,7 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 		return nil, err
 	}
 
-	return result.Entries[0].Attributes, nil
+	return result.Entries[0], nil
 }
 
 func (lm *LDAPManagement) connectWithoutTLS() error {

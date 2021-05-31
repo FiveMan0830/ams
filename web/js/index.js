@@ -19,11 +19,8 @@ window.onload = () => {
                 console.log(res)
                 if (!!query.redirect_url) {
                     var redirectURL = query.redirect_url + "?"
-                    res.forEach( data => {
-                      if (data.Name !== "userPassword")
-                          redirectURL += data.Name + "=" + data.Values[0] + "&"
-                    });
-                    console.log(redirectURL.substring(0, redirectURL.length-1))
+                    redirectURL += "accessToken=" + res.accessToken + "&"
+                    console.log(redirectURL)
                     window.location.replace(redirectURL.substring(0, redirectURL.length-1))
                 } else {
                     throw "redirect_url not defined"

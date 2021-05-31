@@ -37,39 +37,24 @@ func loginUser(c *gin.Context) {
 	reqbody := &LoginRequest{}
 	c.Bind(reqbody)
 	log.Println(reqbody)
-	_, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
+	info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
 
 	if err != nil {
 		c.JSON(401, err)
 		return
 	}
 
+	userID := info.GetAttributeValue("uid")
+
 	jwtGenerator := authorization.NewJWTGenerator(authConfig)
-	token, err := jwtGenerator.CreateToken(reqbody.Username)
+	token, err := jwtGenerator.CreateToken(userID)
+
+	log.Println("access token: " + token)
 
 	if err != nil {
 		log.Println("login failed: generate token failed -> ", err.Error())
 		c.JSON(500, "login failed")
 	}
 
-	c.JSON(200, loginResponse{token})
+	c.JSON(200, gin.H{"accessToken": token})
 }
-
-// func main() {
-// 	router := gin.Default()
-// accountManagement := account.NewLDAPManagement()
-
-// 	router.POST("/login", func(c *gin.Context) {
-// 		reqbody := &LoginRequest{}
-// 		c.Bind(reqbody)
-// 		log.Println(reqbody)
-// 		info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
-
-// 		if err != nil {
-// 			c.JSON(401, err)
-// 			return
-// 		}
-// 		c.JSON(200, info)
-// 	})
-// 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-// }

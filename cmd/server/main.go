@@ -19,4 +19,5 @@ func getRoutes() {
 	v1 := router.Group("/")
 	login(v1)
 	teams(v1)
+	auth(v1)
 }
