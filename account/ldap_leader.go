@@ -19,10 +19,12 @@ func (lm *LDAPManagement) UpdateGroupLeader(adminUser, adminPasswd, groupName, n
 		log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("Group does not exist")))
 		return errors.New("Group does not exist")
 	}
+
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, newLeader) {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("User does not exist")))
 		return errors.New("User does not exist")
 	}
+
 	// if !lm.IsMember(groupName, newLeader) {
 	// 	log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("User is not a member of group")))
 	// 	return errors.New("User is not a member of group")
@@ -33,8 +35,6 @@ func (lm *LDAPManagement) UpdateGroupLeader(adminUser, adminPasswd, groupName, n
 	modify.Replace("o", []string{fmt.Sprintf(newLeader)})
 	err := lm.ldapConn.Modify(modify)
 	
-
-
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 		return errors.New("Failed to update new leader!")

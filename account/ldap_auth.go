@@ -1,13 +1,6 @@
 package account
 
 import (
-	// "errors"
-	// "fmt"
-	// "log"
-	// "strings"
-
-	// ldap "github.com/go-ldap/ldap/v3"
-
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
@@ -47,6 +40,26 @@ func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
 	} else {
 		return false
 	}
+}
+
+func (lm *LDAPManagement) IsTeam(teamName string) bool {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
+
+	teamList, err := lm.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
+
+	if err != nil {
+		return false;
+	}
+
+	for _, team := range teamList {
+		if team == teamName {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (lm *LDAPManagement) IsProfessor(username string) bool {

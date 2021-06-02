@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	ldap "github.com/go-ldap/ldap/v3"
-
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
@@ -19,6 +18,7 @@ type LDAPManagement struct {
 type member struct {
 	Username string `json:"username"`
 	Displayname string `json:"displayname"`
+	// Role int `json:"role"`
 }
 
 type team struct {
@@ -162,7 +162,9 @@ func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (str
 	} else if len(result.Entries) < 1 {
 		return "", errors.New("User not found")
 	}
+
 	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
+
 	return user, nil
 }
 
@@ -185,7 +187,9 @@ func (lm *LDAPManagement) SearchUserDisplayname(adminUser, adminPasswd, search s
 	} else if len(result.Entries) < 1 {
 		return "", errors.New("User not found")
 	}
+
 	user := strings.Join(result.Entries[0].GetAttributeValues("displayName"), "")
+
 	return user, nil
 }
 
@@ -219,9 +223,11 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 	}
 
 	var userList []string
+
 	for _, entry := range result.Entries {
 		userList = append(userList, entry.GetAttributeValue("cn"))
 	}
+
 	return userList, nil
 }
 
@@ -271,7 +277,9 @@ func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string
 	} else if len(result.Entries) < 1 {
 		return "", errors.New("User not found")
 	}
+
 	user := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
+
 	return user, nil
 }
 
@@ -440,3 +448,5 @@ func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string
 
 	return true
 }
+
+

@@ -16,6 +16,12 @@ import (
 // 	Displayname string `json:"displayname"`
 // }
 
+type memberRole struct {
+	Username string `json:"username"`
+	Displayname string `json:"displayname"`
+	Role string `json:"role"`
+}
+
 // ObjectCategoryGroup is const for ldap attribute
 const ObjectCategoryGroup string = "groupOfNames"
 
@@ -33,9 +39,11 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
 		return "", errors.New("User does not exist")
 	}
+
 	if lm.GroupExists(adminUser, adminPasswd, groupName) {
 		return "", errors.New("Duplicate Group Name")
 	}
+
 	addReq.Attribute("objectClass", []string{"top", ObjectCategoryGroup, "UidObject"})
 	addReq.Attribute("cn", []string{groupName})
 	addReq.Attribute("o", []string{username})
@@ -54,10 +62,12 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 		[]string{"cn"},
 		[]ldap.Control{})
 	result, err := lm.ldapConn.Search(request)
+
 	if err != nil {
 		log.Println("error searching group:", request, err)
 		return "", err
 	}
+
 	group := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
 	return group, nil
 }
@@ -107,6 +117,8 @@ func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, admin
 	return memberResult, nil
 }
 
+
+
 // GetGroupMembers is to get members inside of group
 func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error) {
 	lm.connectWithoutTLS()
@@ -145,6 +157,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 
 		memberIDList = append(memberIDList, memberUUID)
 	}
+
 	return memberIDList, nil
 }
 
@@ -168,6 +181,7 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 		return "", err
 	}
+
 	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
 
 	return leader, nil
@@ -193,8 +207,10 @@ func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string)
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 		return "", err
 	}
+
 	teamID := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
 	log.Println("team id : " + teamID)
+
 	return teamID, nil
 
 }
@@ -208,12 +224,14 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
 		return nil, errors.New("Group does not exist")
 	}
+
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
 		return nil, errors.New("User does not exist")
 	}
 
 	memberExists := false
 	membersIDList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+
 	for _, memberUsername := range membersIDList {
 		if memberUsername == username {
 			memberExists = true
@@ -226,6 +244,7 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 		modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN), []ldap.Control{})
 		modify.Add("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
 		err := lm.ldapConn.Modify(modify)
+
 		if err != nil {
 			return membersIDList, errors.New("Failed to add user to group")
 		}
@@ -235,6 +254,7 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, us
 	}
 
 	memberList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+
 	return memberList, nil
 }
 
@@ -247,14 +267,17 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
 		return nil, errors.New("Group does not exist")
 	}
+
 	memberExists := false
 	membersIDList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+	
 	for _, memberUsername := range membersIDList {
 		if memberUsername == username {
 			memberExists = true
 			break
 		}
 	}
+
 	if memberExists {
 		baseDN := config.GetDC()
 		modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN), []ldap.Control{})
@@ -267,7 +290,9 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 	} else {
 		return nil, errors.New("User is not a member of group")
 	}
+
 	membersList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+
 	return membersList, nil
 }
 
@@ -277,9 +302,11 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 	ou := "test"
+
 	if ou == "" {
 		log.Fatal("ou is a required paramater for getting a list of groups")
 	}
+
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(objectClass=%s)", ldap.EscapeFilter(ObjectCategoryGroup))
 	searchRequest := ldap.NewSearchRequest(
@@ -290,10 +317,13 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 		[]ldap.Control{},
 	)
 	sr, err := lm.ldapConn.Search(searchRequest)
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var groupsList []string
+
 	for _, entry := range sr.Entries {
 		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
 	}
@@ -310,6 +340,7 @@ func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) 
 	// ou := "OISGroup"
 	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), nil)
 	err := lm.ldapConn.Del(d)
+
 	if err != nil {
 		log.Println("Group entry could not be deleted :", d, err)
 		return err
@@ -329,16 +360,21 @@ func (lm *LDAPManagement) GetMemberNoConn(adminUser, adminPasswd, groupName stri
 		nil,
 	)
 	sr, err := lm.ldapConn.Search(searchRequest)
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var memberIDList []string
+
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
+
 	for _, memberDN := range memberDnList {
 		memberDN = strings.Replace(memberDN, "cn=", "", -1)
 		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
 		memberIDList = append(memberIDList, memberDN)
 	}
+
 	return memberIDList
 }
 
@@ -356,6 +392,7 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
 	}
+
 	if len(result.Entries) < 1 {
 		return false
 	}

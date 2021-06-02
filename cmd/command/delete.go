@@ -21,13 +21,18 @@ func main() {
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\n", "")
 	adminPasswd = strings.ReplaceAll(adminPasswd, "\r", "")
 
+	username, _ := reader.ReadString('\n')
+	username = strings.ReplaceAll(username, "\n", "")
+	username = strings.ReplaceAll(username, "\r", "")
 
-	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd )
-	result, err := accountManagement.SearchAllUser(adminUser, adminPasswd)
+	role, _ := reader.ReadString('\n')
+	role = strings.ReplaceAll(role, "\n", "")
+	role = strings.ReplaceAll(role, "\r", "")
+
+	fmt.Println("adminUser: " + adminUser + " adminPasswd: " + adminPasswd + " username: " + username)
+	err := accountManagement.DeleteUserWithOu(adminUser, adminPasswd, username, role)
 
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println(result)
 	}
 }

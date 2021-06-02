@@ -9,20 +9,26 @@ import (
 )
 
 func TestCreateOUSuccess(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	createOuError := accountManagement.CreateOu(adminUser, adminPassword, ouName2)
 	deleteOuError := accountManagement.DeleteOu(adminUser, adminPassword, ouName2)
 
-	assert.Equal(t, createOuError, nil)
-	assert.Equal(t, deleteOuError, nil)
+	assert.Equal(t, nil, createOuError)
+	assert.Equal(t, nil, deleteOuError)
 }
 
 func TestCreateOUDuplicateName(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	createOuError := accountManagement.CreateOu(adminUser, adminPassword, ouName)
 	duplicateOuError := errors.New("This Organization Unit already exists")
 
-	assert.Equal(t, createOuError, duplicateOuError)
+	assert.Equal(t, duplicateOuError, createOuError)
 }

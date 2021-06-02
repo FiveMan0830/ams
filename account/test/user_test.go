@@ -23,65 +23,88 @@ import (
 // }
 
 func TestCreateDuplicateUser(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	duplicateUser := accountManagement.CreateUser(adminUser, adminPassword, userID, username, givenName, surname, userPassword, userEmail)
 	duplicateError := errors.New("User already exist")
 
-	assert.Equal(t, duplicateUser, duplicateError)
+	assert.Equal(t, duplicateError, duplicateUser)
 }
 
 func TestSearchUserSuccess(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.SearchUser(adminUser, adminPassword, username)
 
-	assert.Equal(t, result, userID)
-	assert.Equal(t, err, nil)
+	assert.Equal(t, userID, result)
+	assert.Equal(t, nil, err)
 }
 
 func TestSearchUserNotFound(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.SearchUser(adminUser, adminPassword, usernameNotExists)
 	searchError := errors.New("User not found")
 
-	assert.Equal(t, result, null)
-	assert.Equal(t, err, searchError)
+	assert.Equal(t, null, result)
+	assert.Equal(t, searchError, err)
 }
 
 func TestGetUUIDByUsername(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
-	uuid, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, username)
+	result, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, username)
 
-	assert.Equal(t, uuid, userID)
-	assert.Equal(t, err, nil)
+	assert.Equal(t, userID, result)
+	assert.Equal(t, nil, err)
 }
 
 func TestGetUUIDByUsernameNotFound(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	uuid, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, usernameNotExists)
 	uuidError := errors.New("User not found")
 
-	assert.Equal(t, uuid, null)
-	assert.Equal(t, err, uuidError)
+	assert.Equal(t, null, uuid)
+	assert.Equal(t, uuidError, err)
 }
 
 func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
-	accoutManagement := account.NewLDAPManagement()
+	defer teardown()
+	setup()
 
-	result, err := accoutManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
+	accountManagement := account.NewLDAPManagement()
+
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+
+	result, err := accountManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
 
 	assert.Equal(t, "david93", result[0].Username)
 	assert.Equal(t, "David Wang", result[0].Displayname)
 	assert.Equal(t, "audi98", result[1].Username)
 	assert.Equal(t, "Audi Wu", result[1].Displayname)
-	assert.Equal(t, err, nil)
+	assert.Equal(t, nil, err)
 }
 
 func TestGetAllUsername(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
@@ -91,16 +114,13 @@ func TestGetAllUsername(t *testing.T) {
 	member1.Username = "test"
 
 	assert.Equal(t, result[0].Username, member1.Username)
-	// assert.Contains(t, result, "audi98")
-	// assert.Contains(t, result, "george88")
-	// assert.Contains(t, result, "david93")
-	// assert.Contains(t, result, "sherry99")
-
-	
-	assert.Equal(t, err, nil)
+	assert.Equal(t, nil, err)
 }
 
 func TestGetNameByUUID(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	result, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, "c61965be-8176-4419-b289-4d52617728fb")

@@ -6,6 +6,7 @@ import "github.com/go-ldap/ldap/v3"
 type Management interface {
 	IsMember(teamName, username string) bool
 	IsLeader(teamName, username string) bool
+	IsTeam(teamName string) bool
 	IsProfessor(username string) bool
 	IsStakeholder(username string) bool
 	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error
@@ -33,4 +34,5 @@ type Management interface {
 	DeleteUserWithOu(adminUser, adminPasswd, username, role string) error
 	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
 	UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader string) error
+	SearchUserRole(teamName, username string) (Role, error)
 }

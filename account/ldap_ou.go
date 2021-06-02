@@ -36,6 +36,7 @@ func (lm *LDAPManagement) DeleteOu(adminUser, adminPasswd, ouname string) error 
 	baseDN := config.GetDC()
 	d := ldap.NewDelRequest(fmt.Sprintf("ou=%s,%s", ouname, baseDN), nil)
 	err := lm.ldapConn.Del(d)
+	
 	if err != nil {
 		log.Println("Organization Unit entry could not be deleted :", err)
 		return err

@@ -8,6 +8,9 @@ import (
 )
 
 func TestHandoverLeader(t *testing.T) {
+	defer teardown()
+	setup()
+
 	accountManagement := account.NewLDAPManagement()
 
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, "OIS", "stella83")
@@ -15,6 +18,6 @@ func TestHandoverLeader(t *testing.T) {
 	
 	result, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, "OIS")
 
-	assert.Equal(t, err, nil)
+	assert.Equal(t, nil, err)
 	assert.Equal(t, "stella83", result)
 }
