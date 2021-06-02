@@ -15,7 +15,7 @@ func auth(rg *gin.RouterGroup) {
 }
 
 func authorize(c *gin.Context) {
-	verifyTokenService := authorization.NewVerifyTokenService(config.NewAuthConfig())
+	verifyTokenService := authorization.NewVerifyJWTService(config.NewAuthConfig())
 	userID, err := verifyTokenService.ExtractAccessTokenToUserID(c.Request)
 
 	if err != nil {
