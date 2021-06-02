@@ -18,7 +18,7 @@ func TestAuthorizeWithToken(t *testing.T) {
 	}
 	req.Header.Add("Authorization" , "Bearer " + token)
 
-	service := NewVerifyTokenService(&mockConfig{
+	service := NewVerifyJWTService(&mockConfig{
 		tokenSecret: "tokenSecret",
 		expiredDays: 30,
 	})
@@ -37,7 +37,7 @@ func TestExtractAccessTokenToUserID(t *testing.T) {
 	}
 	req.Header.Add("Authorization" , "Bearer " + token)
 
-	service := NewVerifyTokenService(&mockConfig{
+	service := NewVerifyJWTService(&mockConfig{
 		tokenSecret: "tokenSecret",
 		expiredDays: 30,
 	})

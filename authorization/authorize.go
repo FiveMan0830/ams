@@ -9,15 +9,15 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-type verifyTokenService struct {
+type verifyJWTService struct {
    config config.AuthConfig
 }
 
-func NewVerifyTokenService(config config.AuthConfig) VerifyTokenService {
-   return &verifyTokenService{config: config}
+func NewVerifyJWTService(config config.AuthConfig) VerifyTokenService {
+   return &verifyJWTService{config: config}
 }
 
-func (vts *verifyTokenService) extractToken(r *http.Request) string {
+func (vts *verifyJWTService) extractToken(r *http.Request) string {
   bearToken := r.Header.Get("Authorization")
   
   strArr := strings.Split(bearToken, " ")
@@ -27,7 +27,7 @@ func (vts *verifyTokenService) extractToken(r *http.Request) string {
   return ""
 }
 
-func (vts *verifyTokenService) verifyToken(r *http.Request) (*jwt.Token, error) {
+func (vts *verifyJWTService) verifyToken(r *http.Request) (*jwt.Token, error) {
   tokenString := vts.extractToken(r)
   token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
      if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -41,7 +41,7 @@ func (vts *verifyTokenService) verifyToken(r *http.Request) (*jwt.Token, error) 
   return token, nil
 }
 
-func (vts *verifyTokenService) TokenValid(r *http.Request) error {
+func (vts *verifyJWTService) TokenValid(r *http.Request) error {
   token, err := vts.verifyToken(r)
   if err != nil {
      return err
@@ -52,7 +52,7 @@ func (vts *verifyTokenService) TokenValid(r *http.Request) error {
   return nil
 }
 
-func (vts *verifyTokenService) ExtractAccessTokenToUserID(r *http.Request) (string, error) {
+func (vts *verifyJWTService) ExtractAccessTokenToUserID(r *http.Request) (string, error) {
   token, err := vts.verifyToken(r)
   if err != nil {
      return "", err
