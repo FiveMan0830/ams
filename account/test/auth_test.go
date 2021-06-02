@@ -2,10 +2,11 @@ package test
 
 import (
 	"testing"
+
 	// "errors"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
@@ -19,7 +20,7 @@ func TestUserIsMemberOfGroup(t *testing.T) {
 
 	setup()
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	
+
 	assert.True(t, accountManagement.IsMember(groupName, userID))
 }
 
@@ -33,7 +34,7 @@ func TestUserIsNotMemberOfGroup(t *testing.T) {
 
 	setup()
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	
+
 	assert.False(t, accountManagement.IsMember(groupName, usernameNotExists))
 }
 
@@ -87,7 +88,7 @@ func TestUserIsProfessor(t *testing.T) {
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
-	
+
 	assert.True(t, accountManagement.IsProfessor("Cheng134"))
 }
 
@@ -104,7 +105,7 @@ func TestUserIsNotProfessor(t *testing.T) {
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
-	
+
 	assert.False(t, accountManagement.IsProfessor(usernameNotExists))
 }
 
@@ -121,7 +122,7 @@ func TestUserIsStakeholder(t *testing.T) {
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
-	
+
 	assert.True(t, accountManagement.IsStakeholder("Wang134"))
 }
 
@@ -138,9 +139,6 @@ func TestUserIsNotStakeholder(t *testing.T) {
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
-	
+
 	assert.False(t, accountManagement.IsStakeholder(usernameNotExists))
 }
-
-
-

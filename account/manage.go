@@ -24,7 +24,7 @@ type Management interface {
 	SearchNameByUUID(adminUser, adminPasswd, userID string) (string, error)
 	SearchUserDn(adminUser, adminPasswd, search string) (string, error)
 	DeleteGroup(adminUser, adminPasswd, cn string) error
-	Login(adminUser, adminPasswd, username, password string) ([]*ldap.EntryAttribute, error)
+	Login(adminUser, adminPasswd, username, password string) (*ldap.Entry, error)
 	GetGroupMembersUsernameAndDisplayname(adminUser, adminPasswd, groupName string) ([]*member, error)
 	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error) 
 	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
@@ -35,4 +35,12 @@ type Management interface {
 	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
 	UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader string) error
 	SearchUserRole(teamName, username string) (Role, error)
+	GetUserByID(adminUser, adminPasswd, userID string) (*User, error)
+}
+
+type User struct {
+	UserID string
+	Username string
+	DisplayName string
+	Email string
 }

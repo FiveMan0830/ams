@@ -5,6 +5,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  height: 55vw;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+ 
+  background: -webkit-linear-gradient(45deg, #fdf9c3, #f6aa94);
+  background: -o-linear-gradient(45deg, #fdf9c3, #f6aa94);
+  background: -moz-linear-gradient(45deg, #fdf9c3, #f6aa94);
+  background: linear-gradient(45deg, #fdf9c3, #f6aa94);
 }
 
 code {
