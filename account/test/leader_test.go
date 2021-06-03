@@ -19,5 +19,5 @@ func TestHandoverLeader(t *testing.T) {
 	result, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, "OIS")
 
 	assert.Equal(t, nil, err)
-	assert.Equal(t, "stella83", result)
+	assert.Equal(t, "a56515be-5783-8738-1564-1d52513528cz", result)
 }

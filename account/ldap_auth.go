@@ -4,7 +4,7 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-func (lm *LDAPManagement) IsMember(teamName, username string) bool {
+func (lm *LDAPManagement) IsMember(teamName, userID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -16,7 +16,7 @@ func (lm *LDAPManagement) IsMember(teamName, username string) bool {
 	}
 
 	for _, teamMember := range teamMemberList {
-		if teamMember == username {
+		if teamMember == userID {
 			return true
 		}
 	}
@@ -24,7 +24,7 @@ func (lm *LDAPManagement) IsMember(teamName, username string) bool {
 	return false
 }
 
-func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
+func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -35,7 +35,7 @@ func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
 		return false
 	}
 
-	if leader == username {
+	if leader == userID {
 		return true
 	} else {
 		return false
@@ -62,7 +62,7 @@ func (lm *LDAPManagement) IsTeam(teamName string) bool {
 	return false
 }
 
-func (lm *LDAPManagement) IsProfessor(username string) bool {
+func (lm *LDAPManagement) IsProfessor(userID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -74,7 +74,7 @@ func (lm *LDAPManagement) IsProfessor(username string) bool {
 	}
 
 	for _, professor := range professorList {
-		if professor == username {
+		if professor == userID {
 			return true
 		}
 	}
@@ -82,7 +82,7 @@ func (lm *LDAPManagement) IsProfessor(username string) bool {
 	return false
 }
 
-func (lm *LDAPManagement) IsStakeholder(username string) bool {
+func (lm *LDAPManagement) IsStakeholder(userID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -94,7 +94,7 @@ func (lm *LDAPManagement) IsStakeholder(username string) bool {
 	}
 
 	for _, stakeholder := range stakeholderList {
-		if stakeholder == username {
+		if stakeholder == userID {
 			return true
 		}
 	}

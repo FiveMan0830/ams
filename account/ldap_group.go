@@ -19,7 +19,7 @@ import (
 type memberRole struct {
 	Username string `json:"username"`
 	Displayname string `json:"displayname"`
-	Role string `json:"role"`
+	// Role string `json:"role"`
 }
 
 // ObjectCategoryGroup is const for ldap attribute
@@ -183,8 +183,10 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 	}
 
 	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
+	leaderID, err := lm.SearchUser(adminUser, adminPasswd, leader)
 
-	return leader, nil
+
+	return leaderID, nil
 }
 
 // SearchGroupUUID is for searching the group UUID by using group name

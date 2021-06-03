@@ -29,7 +29,7 @@ func TestGetUserRoleLeader(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.SearchUserRole(groupName, groupLeaderUsername)
+	result, err := accountManagement.SearchUserRole(groupName, leaderID2)
 
 	assert.Equal(t, 2, result.EnumIndex())
 	assert.Equal(t, nil, err)
@@ -62,7 +62,7 @@ func TestGetUserRoleProfessor(t *testing.T) {
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
 	
 
-	result, err := accountManagement.SearchUserRole("", "Cheng134")
+	result, err := accountManagement.SearchUserRole("", userID)
 
 	assert.Equal(t, 3, result.EnumIndex())
 	assert.Equal(t, nil, err)
@@ -82,7 +82,7 @@ func TestGetUserRoleStakeholder(t *testing.T) {
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wang", "Stakeholder", "9865", "eric@gmail.com")
 	
-	result, err := accountManagement.SearchUserRole("", "Wang134")
+	result, err := accountManagement.SearchUserRole("", userID)
 
 	assert.Equal(t, 4, result.EnumIndex())
 	assert.Equal(t, nil, err)

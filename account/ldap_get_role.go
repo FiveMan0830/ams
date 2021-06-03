@@ -25,23 +25,23 @@ func (r Role) EnumIndex() int {
 	return int(r)
 }
 
-func (lm *LDAPManagement) SearchUserRole(teamName, username string) (Role, error) {
+func (lm *LDAPManagement) SearchUserRole(teamName, userID string) (Role, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 	
 	accountManagement := NewLDAPManagement()
 
-	if accountManagement.IsProfessor(username) && teamName == "" {
+	if accountManagement.IsProfessor(userID) && teamName == "" {
 		return Professor, nil
-	} else if accountManagement.IsStakeholder(username) && teamName == "" {
+	} else if accountManagement.IsStakeholder(userID) && teamName == "" {
 		return Stakeholder, nil
-	} else if accountManagement.IsTeam(teamName) && username == "" {
+	} else if accountManagement.IsTeam(teamName) && userID == "" {
 		return Team, nil 
-	} else if accountManagement.IsMember(teamName, username) {
-		return Member, nil
-	} else if accountManagement.IsLeader(teamName, username) {
+	} else if accountManagement.IsLeader(teamName, userID) {
 		return Leader, nil
+	} else if accountManagement.IsMember(teamName, userID) {
+		return Member, nil
 	} else {
 		return 0, errors.New("Role didn't get!")
 	}

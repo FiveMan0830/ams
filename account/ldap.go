@@ -249,7 +249,7 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 		0,
 		false,
 		filter,
-		[]string{"cn"},
+		[]string{"uid"},
 		[]ldap.Control{})
 
 	result, err := lm.ldapConn.Search(request)
@@ -265,7 +265,7 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 	var userList []string
 
 	for _, entry := range result.Entries {
-		userList = append(userList, entry.GetAttributeValue("cn"))
+		userList = append(userList, entry.GetAttributeValue("uid"))
 	}
 
 	return userList, nil

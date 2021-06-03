@@ -56,7 +56,7 @@ func TestSearchGroupLeaderSuccess(t *testing.T) {
 
 	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
 
-	assert.Equal(t, groupLeaderUsername, leader)
+	assert.Equal(t, leaderID2, leader)
 	assert.Equal(t, nil, err)
 }
 
@@ -93,7 +93,7 @@ func TestAddMemberToGroupSuccess(t *testing.T) {
 	assert.Contains(t, result2, groupLeaderUsername2)
 	assert.Contains(t, result2, username)
 	assert.Contains(t, result2, username2)
-	assert.Equal(t, nil, err2,)
+	assert.Equal(t, nil, err2)
 }
 
 func TestAddGroupToGroup(t *testing.T) {

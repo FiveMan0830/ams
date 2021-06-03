@@ -44,7 +44,7 @@ func TestUserIsLeaderOfGroup(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	assert.True(t, accountManagement.IsLeader(groupName, leaderUsername2))
+	assert.True(t, accountManagement.IsLeader(groupName, leaderID2))
 	assert.True(t, accountManagement.IsMember(groupName, leaderID2))
 }
 
@@ -89,7 +89,7 @@ func TestUserIsProfessor(t *testing.T) {
 	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
 
-	assert.True(t, accountManagement.IsProfessor("Cheng134"))
+	assert.True(t, accountManagement.IsProfessor(userID))
 }
 
 func TestUserIsNotProfessor(t *testing.T) {
@@ -123,7 +123,7 @@ func TestUserIsStakeholder(t *testing.T) {
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
 	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
 
-	assert.True(t, accountManagement.IsStakeholder("Wang134"))
+	assert.True(t, accountManagement.IsStakeholder(userID))
 }
 
 func TestUserIsNotStakeholder(t *testing.T) {
