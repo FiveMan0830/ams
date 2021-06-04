@@ -40,6 +40,7 @@ func loginUser(c *gin.Context) {
 	info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
 
 	if err != nil {
+		log.Println("Login failed: authorization failed: ", err.Error())
 		c.JSON(401, err)
 		return
 	}

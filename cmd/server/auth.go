@@ -38,6 +38,6 @@ func authorize(c *gin.Context) {
 		"userId": user.UserID,
 		"username": user.Username,
 		"displayName": user.DisplayName,
-		"Email": user.Email,
+		"email": user.Email,
 	})
 }
