@@ -16,10 +16,10 @@ type GetRoleRequest struct {
 func role(rg *gin.RouterGroup) {
 	role := rg
 
-	role.POST("/role", getRole)
+	role.POST("/roleFromAMS", getRoleFromAMS)
 }
 
-func getRole(c *gin.Context) {
+func getRoleFromAMS(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &GetRoleRequest{}
 
