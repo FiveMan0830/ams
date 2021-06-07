@@ -1,9 +1,10 @@
 package server
 
 import (
-
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/database"
 
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
@@ -16,16 +17,18 @@ type GetRoleRequest struct {
 func role(rg *gin.RouterGroup) {
 	role := rg
 
-	role.POST("/role", getRole)
+	role.POST("/roleFromAMS", getRoleFromAMS)
 }
 
-func getRole(c *gin.Context) {
+func getRoleFromAMS(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &GetRoleRequest{}
 
 	c.Bind(reqbody)
 
-	result, err := accountManagement.SearchUserRole(reqbody.TeamName, reqbody.InputUserID)
+	teamUUID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.TeamName)
+
+	result, err := database.GetRole(reqbody.InputUserID, teamUUID)
 
 	if err != nil {
 		c.JSON(500, err)

@@ -21,5 +21,5 @@ func getRoutes() {
 	teams(v1)
 	auth(v1)
 	role(v1)
-	database(v1)
+	mySQL(v1)
 }
