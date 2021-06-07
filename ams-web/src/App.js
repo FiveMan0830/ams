@@ -30,7 +30,7 @@ class App extends Component{
     const data = {
       Username: this.state.username
     }
-    axios.post("http://localhost:8080/team/get/memberOf", this.state.username)
+    axios.post("http://localhost:8080/team/get/belonging-teams", this.state.username)
       .then(res => {
           console.log(res)
           this.setState({teamList: res.data})

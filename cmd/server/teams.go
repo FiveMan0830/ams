@@ -45,7 +45,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/members", getTeamMember)
 	team.POST("/team/get/leader", getTeamLeader)
 	team.POST("/team/isleader", isLeader)
-	team.POST("/team/get/memberOf", getTeamMemberOf)
+	team.POST("/team/get/belonging-teams", getBelongingTeams)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
 	team.POST("/team/get/name", getName)
@@ -125,7 +125,7 @@ func isLeader(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func getTeamMemberOf(c *gin.Context) {
+func getBelongingTeams(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
