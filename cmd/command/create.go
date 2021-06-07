@@ -49,7 +49,7 @@ func main() {
 	email = strings.ReplaceAll(email, "\r", "")
 
 	fmt.Println("admin: " + adminUser + ", adminPasswd: " + adminPasswd + ", userName: " + username + ", surname: " + surname + ", password: " + password)
-	err := accountManagement.CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email)
+	err := accountManagement.CreateGr(adminUser, adminPasswd, userID, username, givenname, surname, password, email)
 
 	if(err != nil) {
 		fmt.Println(err)
