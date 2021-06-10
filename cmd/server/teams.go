@@ -105,14 +105,14 @@ func getTeamLeader(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	leaderList, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+	leader, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)
 		return
 	}
 
-	c.JSON(200, leaderList)
+	c.JSON(200, leader)
 }
 
 func isLeader(c *gin.Context) {
