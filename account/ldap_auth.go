@@ -42,7 +42,7 @@ func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 	}
 }
 
-func (lm *LDAPManagement) IsTeam(teamName string) bool {
+func (lm *LDAPManagement) IsTeam(teamID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -54,7 +54,7 @@ func (lm *LDAPManagement) IsTeam(teamName string) bool {
 	}
 
 	for _, team := range teamList {
-		if team == teamName {
+		if team == teamID {
 			return true
 		}
 	}

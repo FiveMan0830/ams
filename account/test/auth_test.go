@@ -63,7 +63,7 @@ func TestIsTeam(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	assert.True(t, accountManagement.IsTeam(groupName))
+	assert.True(t, accountManagement.IsTeam(groupID))
 }
 
 func TestIsNotTeam(t *testing.T) {

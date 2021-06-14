@@ -27,6 +27,7 @@ type Management interface {
 	Login(adminUser, adminPasswd, username, password string) (*ldap.Entry, error)
 	GetGroupMembersUsernameAndDisplayname(adminUser, adminPasswd, groupName string) ([]*member, error)
 	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error) 
+	GetGroupMembersRole(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
 	RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error)
 	SearchUserMemberOf(adminUser, adminPasswd, user string) ([]*team, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)

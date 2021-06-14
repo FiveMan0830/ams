@@ -38,21 +38,3 @@ func GetRole(userID, teamID string) (int, error) {
 
 	return role, nil
 }
-
-// func connectDatabase() (*DB, error) {
-// 	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
-
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-
-// 	defer db.Close()
-
-// 	err = db.Ping()
-
-// 	if err != nil {
-// 		panic(err.Error())
-// 	}
-
-// 	return db, nil
-// }
