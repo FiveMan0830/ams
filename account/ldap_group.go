@@ -9,17 +9,16 @@ import (
 	ldap "github.com/go-ldap/ldap/v3"
 
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/database"
 )
 
 // type member struct {
 // 	Username string `json:"username"`
 // 	Displayname string `json:"displayname"`
 // }
-
 type memberRole struct {
-	Username string `json:"username"`
-	Displayname string `json:"displayname"`
-	// Role string `json:"role"`
+	UserID string `json:"id"`
+	Role string `json:"role"`
 }
 
 // ObjectCategoryGroup is const for ldap attribute
@@ -117,7 +116,52 @@ func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, admin
 	return memberResult, nil
 }
 
+// GetGroupMembers is to get members inside of group
+func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName string) ([]*memberRole, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
 
+	baseDN := config.GetDC()
+	searchRequest := ldap.NewSearchRequest(
+		fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(objectClass=groupOfNames))",
+		[]string{"member"},
+		nil,
+	)
+
+	sr, err := lm.ldapConn.Search(searchRequest)
+
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	memberResult := []*memberRole{}
+	memberDnList := sr.Entries[0].GetAttributeValues("member")
+
+	for _, memberDN := range memberDnList {
+		memberDN = strings.Replace(memberDN, "cn=", "", -1)
+		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
+		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
+		teamID, err := lm.SearchGroupUUID(adminUser,adminPasswd, groupName)
+		role, err := database.GetRole(memberUUID, teamID)
+
+		if err != nil {
+			log.Fatal(err)
+			return nil, err
+		}
+
+		mem := new(memberRole)
+		mem.UserID = memberUUID
+		mem.Role = MemberRole(role)
+
+		memberResult = append(memberResult, mem)
+	}
+
+	return memberResult, nil
+}
 
 // GetGroupMembers is to get members inside of group
 func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error) {
@@ -315,7 +359,7 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 		baseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		filter,
-		[]string{"cn"},
+		[]string{"cn", "uid"},
 		[]ldap.Control{},
 	)
 	sr, err := lm.ldapConn.Search(searchRequest)
@@ -327,7 +371,7 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	var groupsList []string
 
 	for _, entry := range sr.Entries {
-		groupsList = append(groupsList, entry.GetAttributeValue("cn"))
+		groupsList = append(groupsList, entry.GetAttributeValue("uid"))
 	}
 
 	return groupsList, err
@@ -400,4 +444,18 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	}
 
 	return true
+}
+
+func MemberRole(roleID int) string {
+	if roleID == 0 {
+		return "MEMBER"
+	} else if roleID == 1 {
+		return "LEADER"
+	} else if roleID == 2 {
+		return "PROFESSOR"
+	} else if roleID == 3 {
+		return "STAKEHOLDER"
+	} else {
+		return "NO_ROLE"
+	}
 }

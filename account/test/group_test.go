@@ -30,8 +30,8 @@ func TestGetGroupSuccess(t *testing.T) {
 
 	groupList, err := accountManagement.GetGroups(adminUser, adminPassword)
 
-	assert.Contains(t,groupList, groupName)
-	assert.Contains(t, groupList, groupName2)
+	assert.Contains(t,groupList, groupID)
+	assert.Contains(t, groupList, groupID2)
 	assert.Equal(t, nil, err)
 }
 

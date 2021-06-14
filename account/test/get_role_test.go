@@ -41,7 +41,7 @@ func TestGetUserRoleTeam(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.SearchUserRole(groupName, "")
+	result, err := accountManagement.SearchUserRole(groupID, "")
 
 	assert.Equal(t, 5, result.EnumIndex())
 	assert.Equal(t, nil, err)
@@ -98,4 +98,21 @@ func TestGetUserRoleException(t *testing.T) {
 
 	assert.Equal(t, 0, result.EnumIndex())
 	assert.Equal(t,  errors.New("Role didn't get!"), err)
+}
+
+func TestGetMemberRoleFromDatabase(t *testing.T) {
+	defer teardown()
+	setup()
+
+	accountManagement := account.NewLDAPManagement()
+
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+
+	result, err := accountManagement.GetGroupMembersRole(adminUser, adminPassword, groupName)
+
+	assert.Equal(t, leaderID2, result[0].UserID)
+	assert.Equal(t, "LEADER", result[0].Role)
+	assert.Equal(t, userID, result[1].UserID)
+	assert.Equal(t, "MEMBER", result[1].Role)
+	assert.Equal(t, err, nil)
 }

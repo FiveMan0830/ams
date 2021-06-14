@@ -55,6 +55,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/leader/handover", handoverLeader)
 	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 	team.GET("/all/username", getAllUsername)
+	team.POST("/team/member/role", getRoleOfTeamMembers)
 
 	// Richard requested API
 	team.POST("/get/name", getName)
@@ -272,4 +273,21 @@ func getAllUsername(c *gin.Context) {
 	}
 
 	c.JSON(200, userList)
+}
+
+// input is unitID of team 
+func getRoleOfTeamMembers(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody, err := ioutil.ReadAll(c.Request.Body)
+	c.Bind(reqbody)
+
+	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
+
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	c.JSON(200, memberList)
 }
