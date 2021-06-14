@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 
 	ldap "github.com/go-ldap/ldap/v3"
@@ -156,7 +155,7 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 
 		mem := new(memberRole)
 		mem.UserID = memberUUID
-		mem.Role = strconv.Itoa(role)
+		mem.Role = MemberRole(role)
 
 		memberResult = append(memberResult, mem)
 	}
@@ -445,4 +444,18 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	}
 
 	return true
+}
+
+func MemberRole(roleID int) string {
+	if roleID == 0 {
+		return "MEMBER"
+	} else if roleID == 1 {
+		return "LEADER"
+	} else if roleID == 2 {
+		return "PROFESSOR"
+	} else if roleID == 3 {
+		return "STAKEHOLDER"
+	} else {
+		return "NO_ROLE"
+	}
 }

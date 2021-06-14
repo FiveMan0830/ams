@@ -111,8 +111,8 @@ func TestGetMemberRoleFromDatabase(t *testing.T) {
 	result, err := accountManagement.GetGroupMembersRole(adminUser, adminPassword, groupName)
 
 	assert.Equal(t, leaderID2, result[0].UserID)
-	assert.Equal(t, "1", result[0].Role)
+	assert.Equal(t, "LEADER", result[0].Role)
 	assert.Equal(t, userID, result[1].UserID)
-	assert.Equal(t, "0", result[1].Role)
+	assert.Equal(t, "MEMBER", result[1].Role)
 	assert.Equal(t, err, nil)
 }
