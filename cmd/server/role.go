@@ -17,7 +17,7 @@ type GetRoleRequest struct {
 func role(rg *gin.RouterGroup) {
 	role := rg
 
-	role.POST("/roleFromAMS", getRoleFromAMS)
+	role.POST("/role/from/ams", getRoleFromAMS)
 }
 
 func getRoleFromAMS(c *gin.Context) {

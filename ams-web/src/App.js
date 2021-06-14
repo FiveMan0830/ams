@@ -10,79 +10,41 @@ import Select from '@material-ui/core/Select';
 import {Button} from '@material-ui/core'
 import AddMember from './addMember';
 import axios from 'axios'
-
+import Home from './home';
 
 class App extends Component{
   constructor(props) {
     super(props)
     this.state = {
-      teamList: [],
-      teamName : 'SSL LAB',
-      username : "ssl1321ois",
-      addMemberOpen: false,
-      memberList : [],
+      teamName : '',
+      username : "",
     }
-    this.handleAddMemberClose = this.handleAddMemberClose.bind(this);
-    this.handleAddMemberOpen = this.handleAddMemberOpen.bind(this);
+   
   }
 
-  componentWillMount() {
-    const data = {
-      Username: this.state.username
+  componentDidMount() {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (searchParams.get('cn') !== null) {
+      localStorage.setItem('cn', searchParams.get('cn'))
+      localStorage.setItem('displayName', searchParams.get('displayName'))
+      localStorage.setItem('teamName', searchParams.get('teamName'))
+      // this.setState({teamName : searchParams.get('teamName')});
+    } else {
+      if (!!!localStorage.getItem('cn')) {
+        var amsURL = process.env.REACT_APP_AMS_LOGIN_URL
+        amsURL += '?' + encodeURIComponent('redirect_url=' + window.location.href)
+        window.location.replace(amsURL)
+        return
+      }
     }
-    axios.post("http://localhost:8080/team/get/memberOf", this.state.username)
-      .then(res => {
-          console.log(res)
-          this.setState({teamList: res.data})
-      })
-      .catch(err => {
-          console.log(err);
-      })
-
-    // axios.post("http://localhost:8080/team/get/name", String Team ID)
-    //     .then(res => {
-    //         this.setState({team: res.data})
-    //     })
-    //     .catch(err => {
-    //         console.log(err);
-    //     })
+    
   }
-
-  handleAddMemberOpen() {
-    this.setState({addMemberOpen:true});
-  };
-  handleAddMemberClose() {
-    this.setState({addMemberOpen:false});
-  };
 
 render(){
   return (
     <div className="App">
-      <div className="selector">
-         <FormControl>
-          <InputLabel id="demo-simple-select-label">Team</InputLabel>
-          <Select
-            value={this.state.teamName}
-            onChange={(e) => {this.setState({teamName: e.target.value})}}
-          >
-            {
-              this.state.teamList.map((team,index) => {
-                return(
-                  <MenuItem key={index} value={team.name}>{team.name}</MenuItem>
-                )
-              })
-            }
-          </Select>
-        </FormControl>
-      </div>
-      <div className="team-name">
-        {this.state.teamName}
-        {/* <Button onClick = {this.handleAddMemberOpen}>ADD</Button>
-        <AddMember open={this.state.addMemberOpen} handleClose={this.handleAddMemberClose} memberList={this.state.memberList}/> */}
-      </div>
-      <div className="table">
-        <TeamManage teamName = {this.state.teamName} username = {this.state.username}> </TeamManage>
-      </div>
+       {/* <Home teamName = {this.state.teamName}  username = {localStorage.getItem("cn")}  ></Home> */}
+       <Home teamName = {localStorage.getItem("teamName")}   username = {localStorage.getItem("cn")}  ></Home>
     </div>
   );
 }

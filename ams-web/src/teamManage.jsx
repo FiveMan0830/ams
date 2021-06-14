@@ -125,8 +125,14 @@ class TeamManage extends Component {
 
     axios.post("http://localhost:8080/team/get/leader", this.props.teamName)
         .then(res => {
-          console.log(res)
-          this.setState({leaderName:res.data})
+          axios.post("http://localhost:8080/get/name", res.data)
+              .then(result => {
+                console.log(result)
+                this.setState({leaderName:result.data})
+              })
+              .catch(err => {
+                  console.log(err);
+              })
         })
         .catch(err => {
             console.log(err);
