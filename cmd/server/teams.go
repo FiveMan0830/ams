@@ -48,7 +48,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
-	team.POST("/team/get/name", getName)
+	team.POST("/team/", getName)
 	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/add/member", addMember)
 	team.POST("/team/remove/member", removeMember)
