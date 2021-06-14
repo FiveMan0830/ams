@@ -18,7 +18,7 @@ import { blue } from '@material-ui/core/colors';
 import axios from 'axios'
 import Checkbox from '@material-ui/core/Checkbox';
 
-
+const API_HOST = process.env.REACT_APP_HOST;
 
 class AddMember extends Component {
   constructor(props) {
@@ -34,7 +34,7 @@ class AddMember extends Component {
   }
 
   initialize(){
-    axios.get("http://localhost:8080/all/username")
+    axios.get(API_HOST+'/all/username')
     .then(res => {
       const result = []
       res.data.map((user)=>{
@@ -66,7 +66,7 @@ class AddMember extends Component {
           GroupName: this.props.teamName,
           Username: member.username,
         }
-        axios.post("http://localhost:8080/team/add/member",addMemberRquest)
+        axios.post(API_HOST + "/team/add/member",addMemberRquest)
             .then(res => {
               console.log(res);
               this.props.handleClose()

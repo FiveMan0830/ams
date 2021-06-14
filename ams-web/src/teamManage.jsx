@@ -31,6 +31,8 @@ import AddIcon from '@material-ui/icons/Add';
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   };
 
+  const API_HOST = process.env.REACT_APP_HOST;
+
 class TeamManage extends Component {
   constructor(props) {
     super(props)
@@ -68,7 +70,7 @@ class TeamManage extends Component {
       SelfUsername: this.props.username,
       InputUsername: username,
     }
-    axios.post("http://localhost:8080/team/leader/handover",groupRquest)
+    axios.post(API_HOST + "/team/leader/handover",groupRquest)
         .then(res => {
           console.log(res);
         })
@@ -96,7 +98,7 @@ class TeamManage extends Component {
       Username: user.username,
       Leader: this.props.username,
     }
-    axios.post("http://localhost:8080/team/remove/member",removeMemberRquest)
+    axios.post(API_HOST + "/team/remove/member",removeMemberRquest)
         .then(res => {
           console.log(res);
         })
@@ -110,7 +112,7 @@ class TeamManage extends Component {
     const data = {
       GroupName: this.props.teamName
     }
-    axios.post("http://localhost:8080/team/get/member/name", data)
+    axios.post(API_HOST + "/team/get/member/name", data)
         .then(res => {
           console.log(res)
           const result = []
@@ -123,9 +125,10 @@ class TeamManage extends Component {
             console.log(err);
         })
 
-    axios.post("http://localhost:8080/team/get/leader", this.props.teamName)
+    axios.post(API_HOST + "/team/get/leader", this.props.teamName)
         .then(res => {
-          axios.post("http://localhost:8080/get/name", res.data)
+          console.log(res.data);
+          axios.post(API_HOST + "/get/name", res.data)
               .then(result => {
                 console.log(result)
                 this.setState({leaderName:result.data})

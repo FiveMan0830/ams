@@ -10,7 +10,7 @@ import Select from '@material-ui/core/Select';
 import {Button} from '@material-ui/core'
 import AddMember from './addMember';
 import axios from 'axios'
-
+const API_HOST = process.env.REACT_APP_HOST;
 
 class Home extends Component{
   constructor(props) {
@@ -30,10 +30,15 @@ class Home extends Component{
     const data = {
       Username: this.state.username
     }
-    axios.post("http://localhost:8080/team/get/belonging-teams", this.state.username)
+    axios.post(API_HOST + "/team/get/belonging-teams", this.state.username)
       .then(res => {
           console.log(res)
           this.setState({teamList: res.data})
+          if(this.state.teamName == null) {
+            this.setState({teamName : this.state.teamList[0].name});
+            localStorage.setItem('teamName', this.state.teamList[0].name)
+            
+          }
       })
       .catch(err => {
           console.log(err);
