@@ -1,6 +1,7 @@
 package account
 
 import (
+	"fmt"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
@@ -24,17 +25,22 @@ func (lm *LDAPManagement) IsMember(teamName, userID string) bool {
 	return false
 }
 
-func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
+func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 
-	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
-
+	userID, err := lm.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(),username)
 	if err != nil {
 		return false
 	}
 
+	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
+	
+	if err != nil {
+		return false
+	}
+	
 	if leader == userID {
 		return true
 	} else {
