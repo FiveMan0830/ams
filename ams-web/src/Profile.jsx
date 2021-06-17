@@ -13,7 +13,10 @@ function Profile(props) {
 
   const logout = () => {
     localStorage.clear();
-    window.location.href = '/';
+
+    var amsURL = process.env.REACT_APP_AMS_LOGIN_URL
+    amsURL += '?' + encodeURIComponent('redirect_url=' + process.env.REACT_APP_WEB)
+    window.location.replace(amsURL);
   }
 
   const timelog = () => {
