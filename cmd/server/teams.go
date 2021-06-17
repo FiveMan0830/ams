@@ -1,13 +1,16 @@
 package server
 
 import (
+	// "encoding/json"
 	"io/ioutil"
+	// "os"
 
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/database"
 
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
@@ -67,11 +70,14 @@ func createTeam(c *gin.Context) {
 	c.Bind(reqbody)
 	teamID := uuid.New().String()
 	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.SelfUsername, teamID)
-
+	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+	
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
 	}
+
+	database.InsertRole(leaderID, teamID, 1)
 
 	c.JSON(200, info)
 }
@@ -199,10 +205,18 @@ func addMember(c *gin.Context) {
 
 	if !accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
 		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+
 		if err != nil {
 			c.JSON(500, err.Error())
 			return
 		}
+
+		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		role, err := accountManagement.SearchUserRole(reqbody.GroupName, userID)
+
+		database.InsertRole(userID, teamID, role.EnumIndex())
+
 		c.JSON(200, memberList)
 	} else {
 		c.JSON(403, "User is not member of the team!")
@@ -283,6 +297,9 @@ func getRoleOfTeamMembers(c *gin.Context) {
 
 	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
+
+	// nullResult := []*GetGroupRequest{}
+	// enc := json.NewEncoder(os.Stdout)
 
 	if err != nil {
 		c.JSON(500, nil)
