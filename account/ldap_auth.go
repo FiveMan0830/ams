@@ -1,7 +1,6 @@
 package account
 
 import (
-	"fmt"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
@@ -40,7 +39,7 @@ func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
 	if err != nil {
 		return false
 	}
-	
+
 	if leader == userID {
 		return true
 	} else {
