@@ -285,7 +285,7 @@ func getRoleOfTeamMembers(c *gin.Context) {
 	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
 
 	if err != nil {
-		c.JSON(500, err)
+		c.JSON(500, nil)
 		return
 	}
 
