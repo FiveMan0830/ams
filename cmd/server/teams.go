@@ -108,17 +108,16 @@ func getTeamMember(c *gin.Context) {
 }
 
 func getTeamLeader(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	leader, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+	leaderID, err := database.GetTeamLeader(string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)
 		return
 	}
 
-	c.JSON(200, leader)
+	c.JSON(200, leaderID)
 }
 
 func isLeader(c *gin.Context) {
@@ -126,7 +125,14 @@ func isLeader(c *gin.Context) {
 	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 
-	result := accountManagement.IsLeader(reqbody.GroupName, reqbody.SelfUsername)
+	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+	
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	result := accountManagement.IsLeader(reqbody.GroupName, leaderID)
 
 	c.JSON(200, result)
 }
@@ -195,6 +201,10 @@ func deleteTeam(c *gin.Context) {
 		c.JSON(500, err)
 		return
 	}
+
+	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+	database.DeleteTeam(teamID)
 }
 
 func addMember(c *gin.Context) {
@@ -212,9 +222,8 @@ func addMember(c *gin.Context) {
 
 		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
 		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-		role, err := accountManagement.SearchUserRole(reqbody.GroupName, userID)
-
-		database.InsertRole(userID, teamID, role.EnumIndex())
+		
+		database.InsertRole(userID, teamID, 0)
 
 		c.JSON(200, memberList)
 	} else {
@@ -234,6 +243,12 @@ func removeMember(c *gin.Context) {
 			c.JSON(500, err.Error())
 			return
 		}
+
+		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		
+		database.DeleteRole(userID, teamID)
+
 		c.JSON(200, memberList)
 	} else {
 		c.JSON(403, "User is not leader of the team!")
@@ -254,6 +269,13 @@ func handoverLeader(c *gin.Context) {
 			return
 		}
 
+		oldLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+		newLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.InputUsername)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		
+		database.UpdateLeader(oldLeaderID, newLeaderID, teamID)
+
+		c.JSON(200, "")
 	} else {
 		c.JSON(403, "User is not professor or leader of the team!")
 		return
@@ -293,11 +315,9 @@ func getRoleOfTeamMembers(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
+
 	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
-
-	// nullResult := []*GetGroupRequest{}
-	// enc := json.NewEncoder(os.Stdout)
 
 	if err != nil {
 		c.JSON(500, nil)

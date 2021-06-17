@@ -22,6 +22,34 @@ func InsertRole(userID string, teamID string, role int) {
 	db.Exec("INSERT INTO `role_relation` VALUE(?, ?, ?)", teamID, userID, role)
 }
 
+func GetTeamLeader(teamID string) (string, error){
+	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+
+	if err != nil {
+		log.Println("error :", err)
+	}
+
+	defer db.Close()
+
+	stmt, err := db.Prepare("SELECT `unit_id` FROM `role_relation` WHERE `team_id` = ? AND `role` = 1")
+
+	if err != nil {
+		log.Println("error :", err)
+	}
+
+	defer stmt.Close()
+
+	var leaderID string
+
+	err = stmt.QueryRow(teamID).Scan(&leaderID)
+
+	if err != nil {
+		log.Println("error :", err)
+	}
+
+	return leaderID, nil
+}
+
 func UpdateLeader(oldLeaderID, newLeaderID, teamID string) {
 	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
 
@@ -68,6 +96,17 @@ func UpdateLeader(oldLeaderID, newLeaderID, teamID string) {
 	}
 }
 
+func DeleteTeam( teamID string) {
+	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+
+	if err != nil {
+		log.Println("error :", err)
+	}
+
+	defer db.Close()
+
+	db.Exec("DELETE `role_relation` WHERE `team_id` = ?", teamID)
+}
 
 func DeleteRole(userID, teamID string) {
 	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
