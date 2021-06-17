@@ -345,7 +345,7 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 		return nil, err
 	}
 

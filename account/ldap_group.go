@@ -89,7 +89,7 @@ func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, admin
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, admin
 		memberDisplayname, err := lm.SearchUserDisplayname(adminUser, adminPasswd, memberEntry)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error :", err)
 			return nil, err
 		}
 
@@ -134,7 +134,7 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 		return nil, err
 	}
 
@@ -149,7 +149,7 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 		role, err := database.GetRole(memberUUID, teamID)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error :", err)
 			return nil, err
 		}
 
@@ -181,7 +181,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 		return nil, err
 	}
 
@@ -195,7 +195,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error :", err)
 			return nil, err
 		}
 
@@ -365,7 +365,7 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 	}
 
 	var groupsList []string
@@ -408,7 +408,7 @@ func (lm *LDAPManagement) GetMemberNoConn(adminUser, adminPasswd, groupName stri
 	sr, err := lm.ldapConn.Search(searchRequest)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println("error :", err)
 	}
 
 	var memberIDList []string
