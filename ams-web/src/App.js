@@ -2,8 +2,11 @@
 import './App.css';
 import React, { Component, forwardRef } from "react";
 import axios from 'axios'
-import Home from './home';
+import Home from './Home';
+import GroupManage from './GroupManage';
 import MyAppBar from './Appbar';
+
+import { Router, Route } from 'react-router-dom'
 
 const API_HOST = process.env.REACT_APP_HOST;
 
@@ -59,15 +62,14 @@ class App extends Component{
 render(){
   return (
     <div className="App">
-       <MyAppBar></MyAppBar>
-       {console.log("render state: " + this.state.teamName )}
-       {console.log("local: " + localStorage.getItem("teamName") )}
-       {console.log("local boolean: " + (localStorage.getItem("teamName") == "null") )}
-       {localStorage.getItem("teamName") == "null" ? 
+      <MyAppBar></MyAppBar>
+      <Route path="/" exact component={Home} />
+      <Route path="/groupManage" component={GroupManage} />
+       {/* {localStorage.getItem("teamName") == "null" ? 
         null
        :  
          <Home teamName = {localStorage.getItem("teamName")} username = {localStorage.getItem("cn")}></Home>
-      }
+      } */}
     </div>
   );
 }
@@ -75,3 +77,4 @@ render(){
 }
 
 export default App;
+

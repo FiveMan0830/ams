@@ -1,5 +1,5 @@
 
-import './home.css';
+import './Home.css';
 import TeamManage from './teamManage';
 import React, { Component, forwardRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,8 +17,8 @@ class Home extends Component{
     super(props)
     this.state = {
       teamList: [],
-      teamName : this.props.teamName,
-      username : this.props.username,
+      teamName : localStorage.getItem("teamName"),
+      username : localStorage.getItem("cn"),
       addMemberOpen: false,
       memberList : [],
     }

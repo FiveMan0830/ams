@@ -9,6 +9,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Profile from './Profile';
 import { Component } from 'react';
 import { withStyles } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+
 
 const useStyles = (theme) => ({
   root: {
@@ -51,7 +53,6 @@ class MyAppBar extends Component {
   constructor(props) {
     super(props)
     this.handleDrawerToggle = this.handleDrawerToggle.bind(this)
-    this.goToWelcome = this.goToWelcome.bind(this)
     this.handleProfileClick = this.handleProfileClick.bind(this)
     this.handleProfileClose = this.handleProfileClose.bind(this)
     this.state = { 
@@ -64,10 +65,6 @@ class MyAppBar extends Component {
 
   handleDrawerToggle = () => {
     this.props.handleDrawerToggle();
-  };
-
-  goToWelcome = () => {
-    this.props.history.push("/")
   };
 
   handleProfileClick = (event) => {
@@ -94,8 +91,19 @@ class MyAppBar extends Component {
             >
             <MenuIcon />
             </IconButton>
-            <div className="appbar-LOGO">
-              <p>HOME</p>
+            <div className="collapse navbar-collapse" id="navbarContent">
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/">
+                    Home
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/groupManage">
+                    GroupManage
+                  </Link>
+                </li>
+              </ul>
             </div>
             <div className="profile-btn" >
               <Avatar className={classes.iconColor}  alt={this.state.displayName} src="/broken-image.jpg" onClick={this.handleProfileClick} id="profile-icon"/>
@@ -128,6 +136,4 @@ class MyAppBar extends Component {
 }
 
 export default withStyles(useStyles,{withTheme: true})(MyAppBar)
-
-
 

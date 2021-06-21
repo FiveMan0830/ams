@@ -21,9 +21,12 @@ function Profile(props) {
 
   const timelog = () => {
     var redirectURL = process.env.REACT_APP_TIMELOG + "?";
-    redirectURL += "cn=" + username + "&";
-    redirectURL += "displayName=" + displayName + "&"; 
-    redirectURL += "teamName=" + teamName; 
+    redirectURL += "uid=" + localStorage.getItem('uid') + "&";
+    redirectURL += "cn=" + localStorage.getItem('cn') + "&";
+    redirectURL += "sn=" + localStorage.getItem('sn') + "&";
+    redirectURL += "givenName=" + localStorage.getItem('givenName') + "&";
+    redirectURL += "displayName=" + localStorage.getItem('displayName') + "&";
+    redirectURL += "mail=" + localStorage.getItem('mail');
     window.open(redirectURL);
   }
 
