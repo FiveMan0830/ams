@@ -229,7 +229,6 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
 	leaderID, err := lm.SearchUser(adminUser, adminPasswd, leader)
 
-
 	return leaderID, nil
 }
 

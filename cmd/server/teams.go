@@ -1,12 +1,15 @@
 package server
 
 import (
+	// "encoding/json"
 	"io/ioutil"
+	// "os"
 
 	"github.com/google/uuid"
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/database"
 
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
@@ -66,11 +69,14 @@ func createTeam(c *gin.Context) {
 	c.Bind(reqbody)
 	teamID := uuid.New().String()
 	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.SelfUsername, teamID)
-
+	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+	
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
 	}
+
+	database.InsertRole(leaderID, teamID, 1)
 
 	c.JSON(200, info)
 }
@@ -102,17 +108,16 @@ func getTeamMember(c *gin.Context) {
 }
 
 func getTeamLeader(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	leader, err := accountManagement.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+	leaderID, err := database.GetTeamLeader(string(reqbody))
 
 	if err != nil {
 		c.JSON(500, err)
 		return
 	}
 
-	c.JSON(200, leader)
+	c.JSON(200, leaderID)
 }
 
 func isLeader(c *gin.Context) {
@@ -120,7 +125,14 @@ func isLeader(c *gin.Context) {
 	reqbody := &GetGroupRequest{}
 	c.Bind(reqbody)
 
-	result := accountManagement.IsLeader(reqbody.GroupName, reqbody.SelfUsername)
+	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+	
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	result := accountManagement.IsLeader(reqbody.GroupName, leaderID)
 
 	c.JSON(200, result)
 }
@@ -189,6 +201,10 @@ func deleteTeam(c *gin.Context) {
 		c.JSON(500, err)
 		return
 	}
+
+	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+
+	database.DeleteTeam(teamID)
 }
 
 func addMember(c *gin.Context) {
@@ -198,10 +214,17 @@ func addMember(c *gin.Context) {
 
 	if !accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
 		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+
 		if err != nil {
 			c.JSON(500, err.Error())
 			return
 		}
+
+		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		
+		database.InsertRole(userID, teamID, 0)
+
 		c.JSON(200, memberList)
 	} else {
 		c.JSON(403, "User is not member of the team!")
@@ -220,6 +243,12 @@ func removeMember(c *gin.Context) {
 			c.JSON(500, err.Error())
 			return
 		}
+
+		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		
+		database.DeleteRole(userID, teamID)
+
 		c.JSON(200, memberList)
 	} else {
 		c.JSON(403, "User is not leader of the team!")
@@ -240,6 +269,13 @@ func handoverLeader(c *gin.Context) {
 			return
 		}
 
+		oldLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
+		newLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.InputUsername)
+		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
+		
+		database.UpdateLeader(oldLeaderID, newLeaderID, teamID)
+
+		c.JSON(200, "")
 	} else {
 		c.JSON(403, "User is not professor or leader of the team!")
 		return
@@ -279,6 +315,7 @@ func getRoleOfTeamMembers(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
+
 	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
 

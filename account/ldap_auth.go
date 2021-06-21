@@ -24,15 +24,10 @@ func (lm *LDAPManagement) IsMember(teamName, userID string) bool {
 	return false
 }
 
-func (lm *LDAPManagement) IsLeader(teamName, username string) bool {
+func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
-
-	userID, err := lm.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(),username)
-	if err != nil {
-		return false
-	}
 
 	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
 	

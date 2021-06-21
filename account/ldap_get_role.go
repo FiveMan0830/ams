@@ -10,7 +10,7 @@ import (
 type Role int
 
 const (
-	Member Role = iota + 1
+	Member Role = iota 
 	Leader
 	Professor
 	Stakeholder
@@ -32,17 +32,11 @@ func (lm *LDAPManagement) SearchUserRole(teamName, userID string) (Role, error) 
 	
 	accountManagement := NewLDAPManagement()
 
-	if accountManagement.IsProfessor(userID) && teamName == "" {
-		return Professor, nil
-	} else if accountManagement.IsStakeholder(userID) && teamName == "" {
-		return Stakeholder, nil
-	} else if accountManagement.IsTeam(teamName) && userID == "" {
-		return Team, nil 
-	} else if accountManagement.IsLeader(teamName, userID) {
+	if accountManagement.IsLeader(teamName, userID) {
 		return Leader, nil
 	} else if accountManagement.IsMember(teamName, userID) {
 		return Member, nil
 	} else {
-		return 0, errors.New("Role didn't get!")
+		return 5, errors.New("Role didn't get!")
 	}
 }
