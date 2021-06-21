@@ -91,7 +91,11 @@ class MyAppBar extends Component {
             >
             <MenuIcon />
             </IconButton>
-            <div className="collapse navbar-collapse" id="navbarContent">
+            <div className="appbar-LOGO">
+              
+            </div>
+            {localStorage.getItem("cn") == "admin" ? 
+             <div className="collapse navbar-collapse" id="navbarContent">
               <ul className="navbar-nav">
                 <li className="nav-item">
                   <Link className="nav-link" to="/">
@@ -99,12 +103,17 @@ class MyAppBar extends Component {
                   </Link>
                 </li>
                 <li className="nav-item">
+                  
                   <Link className="nav-link" to="/groupManage">
                     GroupManage
                   </Link>
                 </li>
               </ul>
-            </div>
+             </div>
+            :
+              null
+            }
+           
             <div className="profile-btn" >
               <Avatar className={classes.iconColor}  alt={this.state.displayName} src="/broken-image.jpg" onClick={this.handleProfileClick} id="profile-icon"/>
               <Popover

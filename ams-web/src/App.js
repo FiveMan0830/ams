@@ -63,13 +63,13 @@ render(){
   return (
     <div className="App">
       <MyAppBar></MyAppBar>
-      <Route path="/" exact component={Home} />
       <Route path="/groupManage" component={GroupManage} />
-       {/* {localStorage.getItem("teamName") == "null" ? 
+      {localStorage.getItem("teamName") == "null" ? 
         null
        :  
-         <Home teamName = {localStorage.getItem("teamName")} username = {localStorage.getItem("cn")}></Home>
-      } */}
+        //  <Home teamName = {localStorage.getItem("teamName")} username = {localStorage.getItem("cn")}></Home>
+        <Route path="/" exact component={Home } />
+      }
     </div>
   );
 }

@@ -46,7 +46,7 @@ func GetTeamLeader(teamID string) (string, error){
 	if err != nil {
 		log.Println("error :", err)
 	}
-
+	
 	return leaderID, nil
 }
 
@@ -99,13 +99,14 @@ func UpdateLeader(oldLeaderID, newLeaderID, teamID string) {
 func DeleteTeam( teamID string) {
 	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
 
+	log.Println(teamID)
 	if err != nil {
 		log.Println("error :", err)
 	}
 
 	defer db.Close()
 
-	db.Exec("DELETE `role_relation` WHERE `team_id` = ?", teamID)
+	db.Exec("DELETE FROM `role_relation` WHERE `team_id` = ?", teamID)
 }
 
 func DeleteRole(userID, teamID string) {
@@ -117,7 +118,7 @@ func DeleteRole(userID, teamID string) {
 
 	defer db.Close()
 
-	db.Exec("DELETE `role_relation` WHERE `team_id` = ? AND `unit_id` = ?", teamID, userID)
+	db.Exec("DELETE FROM `role_relation` WHERE `team_id` = ? AND `unit_id` = ?", teamID, userID)
 }
 
 func GetRole(userID, teamID string) (int, error) {

@@ -42,15 +42,19 @@ function Profile(props) {
         </div>
         <div className="profile-split"></div>
         <div className="btn-div">
-          <Button 
-            className = "ams-btn" 
-            variant="contained" 
-            color="primary" 
-            style = {{minWidth : "6vw"}}
-            onClick = {timelog}
-            >
-              TIMELOG
-          </Button>
+            {localStorage.getItem("cn") == "admin" ? 
+              null
+            :
+              <Button 
+                className = "ams-btn" 
+                variant="contained" 
+                color="primary" 
+                style = {{minWidth : "6vw"}}
+                onClick = {timelog}
+                >
+                  TIMELOG
+              </Button>
+            }
           <Button 
             className = "logout-btn" 
             variant="contained" 

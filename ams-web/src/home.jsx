@@ -27,6 +27,8 @@ class Home extends Component{
   }
 
   componentWillMount() {
+
+    console.log(localStorage.getItem("teamName"))
     const data = {
       Username: this.state.username
     }
