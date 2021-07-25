@@ -18,9 +18,9 @@ func NewVerifyJWTService(config config.AuthConfig) VerifyTokenService {
 }
 
 func (vts *verifyJWTService) extractToken(r *http.Request) string {
-  bearToken := r.Header.Get("Authorization")
+  bearerToken := r.Header.Get("Authorization")
   
-  strArr := strings.Split(bearToken, " ")
+  strArr := strings.Split(bearerToken, " ")
   if len(strArr) == 2 {
      return strArr[1]
   }
