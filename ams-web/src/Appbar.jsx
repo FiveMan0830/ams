@@ -18,9 +18,11 @@ const useStyles = (theme) => ({
   },
   appBar: {
     [theme.breakpoints.up('sm')]: {
+      padding: '10px',
       width: `calc(100%)`,
       zIndex: theme.zIndex.drawer + 1,
-      background:'#303030',
+      background:'#ffffff00',
+      boxShadow: '#FFF 0px 0px'
     },
   },
   menuButton: {
@@ -30,8 +32,9 @@ const useStyles = (theme) => ({
     },
   },
   iconColor: {
-    color: '#fff' ,
-    backgroundColor: '#00C6CF' ,
+    color: '#f6aa94' ,
+    backgroundColor: '#FFF' ,
+    boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px'
   },
   toolbar: theme.mixins.toolbar,
   toolBar: {
@@ -92,7 +95,7 @@ class MyAppBar extends Component {
             <MenuIcon />
             </IconButton>
             <div className="appbar-LOGO">
-              
+
             </div>
             {localStorage.getItem("cn") == "admin" ? 
              <div className="collapse navbar-collapse" id="navbarContent">

@@ -48,7 +48,7 @@ function Profile(props) {
               <Button 
                 className = "ams-btn" 
                 variant="contained" 
-                color="primary" 
+                color="#f6aa94" 
                 style = {{minWidth : "6vw"}}
                 onClick = {timelog}
                 >
@@ -58,7 +58,7 @@ function Profile(props) {
           <Button 
             className = "logout-btn" 
             variant="contained" 
-            color="primary" 
+            color="#f6aa94" 
             style = {{minWidth : "6vw", margin : "10px"}}
             onClick = {logout}
             >

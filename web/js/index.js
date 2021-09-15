@@ -1,7 +1,7 @@
 window.onload = () => {
     function login() {
         const username = $("#username-field").val()
-        const password = $("#password-field").val()
+        const password = $("#password-field").val() 
         $.ajax({
             type: "POST",
             url: "http://localhost:8080/login",
@@ -19,9 +19,15 @@ window.onload = () => {
                 console.log(res)
                 if (!!query.redirect_url) {
                     var redirectURL = query.redirect_url + "?"
-                    redirectURL += "accessToken=" + res.accessToken + "&"
-                    console.log(redirectURL)
-                    window.location.replace(redirectURL.substring(0, redirectURL.length-1))
+                    // redirectURL += "accessToken=" + res.accessToken + "&"
+                    // console.log(redirectURL)
+                    // window.location.replace(redirectURL.substring(0, redirectURL.length-1))
+                    res.Attributes.forEach(attribute => {
+                        if (attribute.Name !== "userPassword")
+                            redirectURL += attribute.Name + "=" + attribute.Values[0] + "&"
+                    });
+                    console.log(redirectURL.substring(0, redirectURL.length - 1))
+                    window.location.replace(redirectURL.substring(0, redirectURL.length - 1))
                 } else {
                     throw "redirect_url not defined"
                 }

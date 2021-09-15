@@ -28,11 +28,12 @@ type loginResponse struct {
 
 func login(rg *gin.RouterGroup) {
 	login := rg
+
 	login.Static("/login", "./web")
 	login.POST("/login", loginUser)
 }
 
-func loginUser(c *gin.Context) {
+func loginUserByAccessToken(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody := &LoginRequest{}
 	c.Bind(reqbody)
@@ -58,4 +59,19 @@ func loginUser(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"accessToken": token})
+}
+
+func loginUser(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement()
+	reqbody := &LoginRequest{}
+	c.Bind(reqbody)
+	log.Println(reqbody)
+	info, err := accountManagement.Login(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username, reqbody.Password)
+
+	if err != nil {
+		c.JSON(401, err)
+		return
+	}
+
+	c.JSON(200, info)
 }
