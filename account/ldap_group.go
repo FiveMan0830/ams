@@ -18,7 +18,7 @@ import (
 // }
 type memberRole struct {
 	UserID string `json:"id"`
-	Role string `json:"role"`
+	Role   string `json:"role"`
 }
 
 // ObjectCategoryGroup is const for ldap attribute
@@ -141,11 +141,14 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 	memberResult := []*memberRole{}
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
 
+	fmt.Println(memberDnList)
+
 	for _, memberDN := range memberDnList {
 		memberDN = strings.Replace(memberDN, "cn=", "", -1)
 		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
+		fmt.Println(memberDN)
 		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
-		teamID, err := lm.SearchGroupUUID(adminUser,adminPasswd, groupName)
+		teamID, err := lm.SearchGroupUUID(adminUser, adminPasswd, groupName)
 		role, err := database.GetRole(memberUUID, teamID)
 
 		if err != nil {
@@ -254,10 +257,8 @@ func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string)
 	}
 
 	teamID := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
-	log.Println("team id : " + teamID)
 
 	return teamID, nil
-
 }
 
 // AddMemberToGroup is for adding member to group
@@ -315,7 +316,7 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupNam
 
 	memberExists := false
 	membersIDList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
-	
+
 	for _, memberUsername := range membersIDList {
 		if memberUsername == username {
 			memberExists = true
@@ -423,7 +424,7 @@ func (lm *LDAPManagement) GetMemberNoConn(adminUser, adminPasswd, groupName stri
 	return memberIDList
 }
 
-// GroupExists is for checking the group is exists or not in ldap  
+// GroupExists is for checking the group is exists or not in ldap
 func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) bool {
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))

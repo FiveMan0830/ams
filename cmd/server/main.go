@@ -11,11 +11,11 @@ var (
 
 func Run() {
 	router.Use(cors.Default())
-	getRoutes()
+	registerRoutes()
 	router.Run()
 }
 
-func getRoutes() {
+func registerRoutes() {
 	v1 := router.Group("/")
 	login(v1)
 	teams(v1)

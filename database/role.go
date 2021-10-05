@@ -11,7 +11,7 @@ import (
 )
 
 func InsertRole(userID string, teamID string, role int) {
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
@@ -22,8 +22,8 @@ func InsertRole(userID string, teamID string, role int) {
 	db.Exec("INSERT INTO `role_relation` VALUE(?, ?, ?)", teamID, userID, role)
 }
 
-func GetTeamLeader(teamID string) (string, error){
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+func GetTeamLeader(teamID string) (string, error) {
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
@@ -46,12 +46,12 @@ func GetTeamLeader(teamID string) (string, error){
 	if err != nil {
 		log.Println("error :", err)
 	}
-	
+
 	return leaderID, nil
 }
 
 func UpdateLeader(oldLeaderID, newLeaderID, teamID string) {
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
@@ -96,8 +96,8 @@ func UpdateLeader(oldLeaderID, newLeaderID, teamID string) {
 	}
 }
 
-func DeleteTeam( teamID string) {
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+func DeleteTeam(teamID string) {
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	log.Println(teamID)
 	if err != nil {
@@ -110,7 +110,7 @@ func DeleteTeam( teamID string) {
 }
 
 func DeleteRole(userID, teamID string) {
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
@@ -122,11 +122,11 @@ func DeleteRole(userID, teamID string) {
 }
 
 func GetRole(userID, teamID string) (int, error) {
-	db, err := sql.Open("mysql",config.DbURL(config.BuildDBConfig()))
+	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err;
+		return 5, err
 	}
 
 	defer db.Close()
@@ -135,7 +135,7 @@ func GetRole(userID, teamID string) (int, error) {
 
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err;
+		return 5, err
 	}
 
 	defer stmt.Close()
@@ -144,11 +144,11 @@ func GetRole(userID, teamID string) (int, error) {
 
 	err = stmt.QueryRow(userID, teamID).Scan(&role)
 
-	fmt.Println(strconv.Itoa(role))
+	fmt.Printf("in team %s, user %s is a %s\n", teamID, userID, strconv.Itoa(role))
 
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err;
+		return 5, err
 		// panic(err.Error())
 	}
 
