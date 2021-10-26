@@ -13,9 +13,9 @@ func TestHandoverLeader(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, "OIS", "stella83")
-	accountManagement.UpdateGroupLeader(adminUser, adminPassword, "OIS", "stella83")
-	
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, "OIS", "stella83")
+	accountManagement.UpdateGroupLeaderDepre(adminUser, adminPassword, "OIS", "stella83")
+
 	result, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, "OIS")
 
 	assert.Equal(t, nil, err)

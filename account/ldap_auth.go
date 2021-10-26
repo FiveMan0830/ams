@@ -30,7 +30,7 @@ func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 
 	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
-	
+
 	if err != nil {
 		return false
 	}
@@ -50,7 +50,7 @@ func (lm *LDAPManagement) IsTeam(teamID string) bool {
 	teamList, err := lm.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
-		return false;
+		return false
 	}
 
 	for _, team := range teamList {

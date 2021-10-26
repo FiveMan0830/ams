@@ -13,7 +13,7 @@ func TestGetUserRoleMember(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
 
 	result, err := accountManagement.SearchUserRole(groupName, userID)
 

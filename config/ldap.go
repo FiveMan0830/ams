@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 var (
 	dc      string
@@ -10,6 +13,7 @@ var (
 func init() {
 	dc = os.Getenv("LDAP_DC")
 	ldapURL = os.Getenv("LDAP_URL")
+	fmt.Println(ldapURL)
 }
 
 // GetDC is a getter for dc config. dc is the domain component of users in the LDAP server.

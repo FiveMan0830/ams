@@ -1,8 +1,8 @@
 package test
 
 import (
-	"testing"
 	"errors"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
@@ -18,7 +18,7 @@ import (
 // 	assert.Equal(t, createUserErr, nil)
 // 	assert.Equal(t, searchUserErr, nil)
 // 	assert.Equal(t, deleteUserErr, nil)
-	
+
 // 	assert.Equal(t, result, userID3)
 // }
 
@@ -90,7 +90,7 @@ func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username2)
 
 	result, err := accountManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
 

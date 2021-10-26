@@ -35,9 +35,9 @@ func authorize(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"userId": user.UserID,
-		"username": user.Username,
+		"userId":      user.UserId,
+		"username":    user.Username,
 		"displayName": user.DisplayName,
-		"email": user.Email,
+		"email":       user.Email,
 	})
 }

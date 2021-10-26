@@ -1,8 +1,8 @@
 package test
 
 import (
-	"testing"
 	"errors"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
@@ -14,8 +14,8 @@ func TestCreateGroupSuccess(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	group, createGroupError := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, leaderUsername3, groupID3)
-	deleteGroupErr := accountManagement.DeleteGroup(adminUser, adminPassword, groupName3)
+	group, createGroupError := accountManagement.CreateGroupDepre(adminUser, adminPassword, groupName3, leaderUsername3, groupID3)
+	deleteGroupErr := accountManagement.DeleteGroupDepre(adminUser, adminPassword, groupName3)
 
 	assert.Equal(t, nil, createGroupError)
 	assert.Equal(t, nil, deleteGroupErr)
@@ -30,7 +30,7 @@ func TestGetGroupSuccess(t *testing.T) {
 
 	groupList, err := accountManagement.GetGroups(adminUser, adminPassword)
 
-	assert.Contains(t,groupList, groupID)
+	assert.Contains(t, groupList, groupID)
 	assert.Contains(t, groupList, groupID2)
 	assert.Equal(t, nil, err)
 }
@@ -41,7 +41,7 @@ func TestCreateGroupDuplicateName(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
+	group, err := accountManagement.CreateGroupDepre(adminUser, adminPassword, groupName, groupLeaderUsername, groupID)
 	duplicateError := errors.New("Duplicate Group Name")
 
 	assert.Equal(t, null, group)
@@ -66,30 +66,30 @@ func TestCreateGroupWithNotExistsLeader(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupID)
+	group, err := accountManagement.CreateGroupDepre(adminUser, adminPassword, groupName, groupLeaderNotExists, groupID)
 	leaderError := errors.New("User does not exist")
 
 	assert.Equal(t, null, group)
 	assert.Equal(t, leaderError, err)
 }
 
-func TestAddMemberToGroupSuccess(t *testing.T) {
+func TestAddMemberToGroupDepreSuccess(t *testing.T) {
 	defer teardown()
 	setup()
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	result, err = accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	result, err := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
+	result, err = accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username2)
 
-	result2, err2 := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username)
-	result2, err2 = accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username2)
+	result2, err2 := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName2, username)
+	result2, err2 = accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName2, username2)
 
 	assert.Contains(t, result, groupLeaderUsername)
 	assert.Contains(t, result, username)
 	assert.Contains(t, result, username2)
 	assert.Equal(t, nil, err)
-	
+
 	assert.Contains(t, result2, groupLeaderUsername2)
 	assert.Contains(t, result2, username)
 	assert.Contains(t, result2, username2)
@@ -102,7 +102,7 @@ func TestAddGroupToGroup(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, groupName2)
+	result, err := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, groupName2)
 
 	assert.Contains(t, result, groupName2)
 	assert.Equal(t, nil, err)
@@ -114,20 +114,20 @@ func TestAddMemberToNotExistsGroup(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupNameNotExists, username)
+	result, err := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupNameNotExists, username)
 	groupNotExistsError := errors.New("Group does not exist")
 
 	assert.Equal(t, []string([]string(nil)), result)
 	assert.Equal(t, groupNotExistsError, err)
 }
 
-func TestAddMemberToGroupWithNotExistsUser(t *testing.T) {
+func TestAddMemberToGroupDepreWithNotExistsUser(t *testing.T) {
 	defer teardown()
 	setup()
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, usernameNotExists)
+	result, err := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, usernameNotExists)
 	memberNotExistsError := errors.New("User does not exist")
 
 	assert.Equal(t, []string([]string(nil)), result)
@@ -140,10 +140,10 @@ func TestAddDuplicateMemberToGroup(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username2)
 
-	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+	result, err := accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
 	memberDuplicateError := errors.New("User already member of the group")
 
 	assert.Equal(t, []string([]string(nil)), result)
@@ -156,8 +156,8 @@ func TestGetGroupMembersSuccess(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username2)
 
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
 
@@ -173,8 +173,8 @@ func TestGetUserBelongedTeam(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName2, username)
 
 	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPassword, username)
 
@@ -191,11 +191,11 @@ func TestRemoveMemberFromGroupSuccess(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName, username2)
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName2, username2)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName2, username)
+	accountManagement.AddMemberToGroupDepre(adminUser, adminPassword, groupName2, username2)
 
 	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
 	result2, err2 := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName2, username2)
