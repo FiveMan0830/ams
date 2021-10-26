@@ -12,7 +12,7 @@ var (
 func Run() {
 	router.Use(cors.Default())
 	registerRoutes()
-	router.Run()
+	router.Run(":13243")
 }
 
 func registerRoutes() {
