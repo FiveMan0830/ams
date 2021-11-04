@@ -15,11 +15,13 @@ func main() {
 	db := pkg.NewMysqlClient()
 
 	userRepo := repository.NewUserRepository(db)
+	teamRepo := repository.NewTeamRepository(db)
 
 	v2 := router.Group("/v2")
 
-	controller.RegisterUserApi(v2, userRepo)
-	controller.RegisterTeamApi(v2)
+	logger := pkg.NewLoggerClient()
+	controller.RegisterUserApi(v2, userRepo, logger)
+	controller.RegisterTeamApi(v2, teamRepo, logger)
 
 	router.Run(":10000")
 }

@@ -4,7 +4,7 @@ excluded_paths:
   - web/
   - bin/
 
-cmd_args:
+envs:
   - AMS_MYSQL_HOST=140.124.181.94
   - AMS_MYSQL_PORT=3306
   - AMS_MYSQL_USER=admin
