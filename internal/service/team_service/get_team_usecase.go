@@ -1,7 +1,7 @@
 package team_service
 
 import (
-	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/model"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 )
 
@@ -10,32 +10,30 @@ type GetTeamUseCaseInput struct {
 }
 
 type GetTeamUseCaseOuptut struct {
-	Id      string             `json:"id"`
-	Name    string             `json:"name"`
-	Members []*internal.Member `json:"members"`
+	Team *model.Team `json:"team"`
 }
 
 type GetTeamUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewGetTeamUseCase(teamRepo repository.TeamRepository) GetTeamUseCase {
-	return GetTeamUseCase{
-		teamRepo: teamRepo,
-	}
+func NewGetTeamUseCase(teamRepo repository.TeamRepository) *GetTeamUseCase {
+	return &GetTeamUseCase{teamRepo}
 }
 
-func (uc GetTeamUseCase) Execute(input GetTeamUseCaseInput, output *GetTeamUseCaseOuptut) error {
+func (uc *GetTeamUseCase) Execute(input GetTeamUseCaseInput, output *GetTeamUseCaseOuptut) error {
 	team, err := uc.teamRepo.GetTeam(input.Id)
-	members, err := uc.teamRepo.GetTeamMembersWithRole(input.Id)
-
 	if err != nil {
 		return err
 	}
 
-	output.Id = team.ID
-	output.Name = team.Name
-	output.Members = members
+	members, err := uc.teamRepo.GetTeamMembersWithRole(input.Id)
+	if err != nil {
+		return err
+	}
+
+	team.Members = members
+	output.Team = team
 
 	return nil
 }

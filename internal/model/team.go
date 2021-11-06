@@ -1,9 +1,15 @@
 package model
 
+type Member struct {
+	User User  `json:"user"`
+	Role int64 `json:"role"`
+}
+
 type Team struct {
-	ID      string  `gorm:"primaryKey;column:id;type:varchar(36)"`
-	Name    string  `gorm:"type:varchar(255)"`
-	Members []*User `gorm:"many2many:role_relation"`
+	ID       string    `gorm:"primaryKey;column:id;type:varchar(36)"`
+	Name     string    `gorm:"type:varchar(255)"`
+	Members  []*Member `gorm:"-"`
+	Subteams []*Team   `gorm:"many2many:team_relation;-"`
 }
 
 func (Team) TableName() string {

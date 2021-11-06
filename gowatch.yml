@@ -11,4 +11,4 @@ envs:
   - AMS_MYSQL_PASSWORD=lab1321
   - AMS_MYSQL_DATABASE=ams_test
 
-output: bin/ams_server.exe
+output: bin/ams_serverr.exe

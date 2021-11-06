@@ -10,7 +10,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/model"
 )
 
 func NewMysqlClient() *gorm.DB {
@@ -40,17 +39,14 @@ func NewMysqlClient() *gorm.DB {
 			log.New(os.Stdout, "\r\n", log.LstdFlags),
 			logger.Config{
 				SlowThreshold: time.Second,
-				LogLevel: logger.Info,
-				Colorful: true,
+				LogLevel:      logger.Info,
+				Colorful:      true,
 			},
 		),
 	})
 	if err != nil {
 		panic(err)
 	}
-
-	// create relational table
-	db.SetupJoinTable(&model.Team{}, "Members", &model.RoleRelation{})
 
 	return db
 }

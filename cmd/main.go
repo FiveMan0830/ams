@@ -17,11 +17,11 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	teamRepo := repository.NewTeamRepository(db)
 
-	v2 := router.Group("/v2")
+	v2 := router.Group("/api/v2")
 
 	logger := pkg.NewLoggerClient()
 	controller.RegisterUserApi(v2, userRepo, logger)
-	controller.RegisterTeamApi(v2, teamRepo, logger)
+	controller.RegisterTeamApi(v2, teamRepo, userRepo, logger)
 
 	router.Run(":10000")
 }

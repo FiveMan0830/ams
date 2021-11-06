@@ -14,13 +14,11 @@ type AddTeamUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewAddTeamUseCase(teamRepo repository.TeamRepository) AddTeamUseCase {
-	return AddTeamUseCase{
-		teamRepo: teamRepo,
-	}
+func NewAddTeamUseCase(teamRepo repository.TeamRepository) *AddTeamUseCase {
+	return &AddTeamUseCase{teamRepo}
 }
 
-func (uc AddTeamUseCase) Execute(input AddTeamUseCaseInput) error {
+func (uc *AddTeamUseCase) Execute(input AddTeamUseCaseInput) error {
 	id := uuid.New()
 	team := model.Team{
 		ID:   id.String(),
