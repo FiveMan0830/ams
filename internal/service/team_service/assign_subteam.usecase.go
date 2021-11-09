@@ -5,20 +5,20 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 )
 
-type AddSubteamUseCaseInput struct {
+type AssignSubteamUseCaseInput struct {
 	TeamId   string   `json:"teamId" binding:"required"`
 	Subteams []string `json:"subteams" binding:"required"`
 }
 
-type AddSubteamUseCase struct {
+type AssignSubteamUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewAddSubteamUseCase(teamRepo repository.TeamRepository) *AddSubteamUseCase {
-	return &AddSubteamUseCase{teamRepo}
+func NewAssignSubteamUseCase(teamRepo repository.TeamRepository) *AssignSubteamUseCase {
+	return &AssignSubteamUseCase{teamRepo}
 }
 
-func (uc *AddSubteamUseCase) Execute(input AddSubteamUseCaseInput) error {
+func (uc *AssignSubteamUseCase) Execute(input AssignSubteamUseCaseInput) error {
 	teamId := input.TeamId
 	subteams := input.Subteams
 
@@ -26,8 +26,8 @@ func (uc *AddSubteamUseCase) Execute(input AddSubteamUseCaseInput) error {
 	teamRelations := []model.TeamRelation{}
 	for _, subteamId := range subteams {
 		teamRelations = append(teamRelations, model.TeamRelation{
-			TeamID: teamId,
-			SubteamID:  subteamId,
+			TeamID:    teamId,
+			SubteamID: subteamId,
 		})
 	}
 

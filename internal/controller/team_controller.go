@@ -12,11 +12,12 @@ import (
 type teamApiHandler struct {
 	addTeamUseCase        *team_service.AddTeamUseCase
 	getTeamUseCase        *team_service.GetTeamUseCase
-	addMembersUseCase     *team_service.AddMembersUseCase
-	removeMembersUseCase  *team_service.RemoveMembersUseCase
-	addSubteamUseCase     *team_service.AddSubteamUseCase
-	removeSubteamUseCase  *team_service.RemoveSubteamUseCase
+	assignMembersUseCase  *team_service.AssignMembersUseCase
+	expelMembersUseCase   *team_service.ExpelMembersUseCase
+	assignSubteamUseCase  *team_service.AssignSubteamUseCase
+	expelSubteamUseCase   *team_service.ExpelSubteamUseCase
 	updateUserRoleUseCase *team_service.UpdateUserRoleUseCase
+	belongToUseCase       *team_service.BelongToUseCase
 	logger                *logrus.Logger
 }
 
@@ -28,38 +29,41 @@ func RegisterTeamApi(
 ) {
 	addTeamUseCase := team_service.NewAddTeamUseCase(teamRepo)
 	getTeamUseCase := team_service.NewGetTeamUseCase(teamRepo)
-	addMembersUseCase := team_service.NewAddMembersUseCase(teamRepo)
-	removeMembersUseCase := team_service.NewRemoveMembersUseCase(teamRepo)
-	addSubteamUseCase := team_service.NewAddSubteamUseCase(teamRepo)
-	removeSubteamUseCase := team_service.NewRemoveSubteamUseCase(teamRepo)
+	assignMembersUseCase := team_service.NewAssignMembersUseCase(teamRepo)
+	expelMembersUseCase := team_service.NewExpelMembersUseCase(teamRepo)
+	assignSubteamUseCase := team_service.NewAssignSubteamUseCase(teamRepo)
+	expelSubteamUseCase := team_service.NewExpelSubteamUseCase(teamRepo)
 	updateUserRoleUseCase := team_service.NewUpdateUserRoleUseCase(teamRepo, userRepo)
+	belongToUseCase := team_service.NewBelongToUseCase(teamRepo)
 
 	h := teamApiHandler{
 		addTeamUseCase:        addTeamUseCase,
 		getTeamUseCase:        getTeamUseCase,
-		addMembersUseCase:     addMembersUseCase,
-		removeMembersUseCase:  removeMembersUseCase,
-		addSubteamUseCase:     addSubteamUseCase,
-		removeSubteamUseCase:  removeSubteamUseCase,
+		assignMembersUseCase:  assignMembersUseCase,
+		expelMembersUseCase:   expelMembersUseCase,
+		assignSubteamUseCase:  assignSubteamUseCase,
+		expelSubteamUseCase:   expelSubteamUseCase,
 		updateUserRoleUseCase: updateUserRoleUseCase,
+		belongToUseCase:       belongToUseCase,
 		logger:                logger,
 	}
 
 	team := rg.Group("/team")
 	team.POST("/assign/users", h.addMembers)
-	team.DELETE("/unassign/users", h.removeMembers)
+	team.DELETE("/expel/users", h.removeMembers)
 
 	team.POST("/assign/teams", h.addSubteams)
-	team.DELETE("/unassign/teams", h.removeSubteams)
+	team.DELETE("/expel/teams", h.removeSubteams)
 
-	team.GET("/:id", h.getTeam)
-	team.POST("/", h.addTeam)
+	team.GET("/get", h.getTeam)
+	team.POST("/add", h.addTeam)
 
 	team.PUT("/role/edit", h.updateUserRole)
+	team.GET("/belong_to", h.belongTo)
 }
 
 func (h teamApiHandler) getTeam(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Query("teamId")
 
 	input := team_service.GetTeamUseCaseInput{}
 	output := team_service.GetTeamUseCaseOuptut{}
@@ -95,7 +99,7 @@ func (h teamApiHandler) addTeam(c *gin.Context) {
 }
 
 func (h teamApiHandler) addMembers(c *gin.Context) {
-	input := team_service.AddMembersUseCaseInput{}
+	input := team_service.AssignMembersUseCaseInput{}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -103,7 +107,7 @@ func (h teamApiHandler) addMembers(c *gin.Context) {
 		return
 	}
 
-	if err := h.addMembersUseCase.Execute(input); err != nil {
+	if err := h.assignMembersUseCase.Execute(input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
@@ -116,7 +120,7 @@ func (h teamApiHandler) addMembers(c *gin.Context) {
 func (h teamApiHandler) removeMembers(c *gin.Context) {
 	teamId := c.Param("id")
 
-	input := team_service.RemoveMembersUseCaseInput{}
+	input := team_service.ExpelMembersUseCaseInput{}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -125,7 +129,7 @@ func (h teamApiHandler) removeMembers(c *gin.Context) {
 	}
 	input.TeamId = teamId
 
-	if err := h.removeMembersUseCase.Execute(input); err != nil {
+	if err := h.expelMembersUseCase.Execute(input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{})
 		return
 	}
@@ -134,7 +138,7 @@ func (h teamApiHandler) removeMembers(c *gin.Context) {
 }
 
 func (h teamApiHandler) addSubteams(c *gin.Context) {
-	input := team_service.AddSubteamUseCaseInput{}
+	input := team_service.AssignSubteamUseCaseInput{}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -142,7 +146,7 @@ func (h teamApiHandler) addSubteams(c *gin.Context) {
 		return
 	}
 
-	if err := h.addSubteamUseCase.Execute(input); err != nil {
+	if err := h.assignSubteamUseCase.Execute(input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -153,7 +157,7 @@ func (h teamApiHandler) addSubteams(c *gin.Context) {
 }
 
 func (h teamApiHandler) removeSubteams(c *gin.Context) {
-	input := team_service.RemoveSubteamUseCaseInput{}
+	input := team_service.ExpelSubteamUseCaseInput{}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -161,7 +165,7 @@ func (h teamApiHandler) removeSubteams(c *gin.Context) {
 		return
 	}
 
-	if err := h.removeSubteamUseCase.Execute(input); err != nil {
+	if err := h.expelSubteamUseCase.Execute(input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -187,4 +191,18 @@ func (h teamApiHandler) updateUserRole(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+func (h teamApiHandler) belongTo(c *gin.Context) {
+	input := team_service.BelongToUseCaseInput{UserId: c.Query("userId")}
+	output := team_service.BelongToUseCaseOutput{}
+
+	if err := h.belongToUseCase.Execute(input, &output); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, output)
 }

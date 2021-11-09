@@ -27,12 +27,6 @@ func (uc *GetTeamUseCase) Execute(input GetTeamUseCaseInput, output *GetTeamUseC
 		return err
 	}
 
-	members, err := uc.teamRepo.GetTeamMembersWithRole(input.Id)
-	if err != nil {
-		return err
-	}
-
-	team.Members = members
 	output.Team = team
 
 	return nil

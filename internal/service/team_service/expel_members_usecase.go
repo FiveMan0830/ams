@@ -2,20 +2,20 @@ package team_service
 
 import "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 
-type RemoveMembersUseCaseInput struct {
+type ExpelMembersUseCaseInput struct {
 	TeamId  string   `json:"teamId"`
 	UserIds []string `json:"userIds" binding:"required"`
 }
 
-type RemoveMembersUseCase struct {
+type ExpelMembersUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewRemoveMembersUseCase(teamRepo repository.TeamRepository) *RemoveMembersUseCase {
-	return &RemoveMembersUseCase{teamRepo}
+func NewExpelMembersUseCase(teamRepo repository.TeamRepository) *ExpelMembersUseCase {
+	return &ExpelMembersUseCase{teamRepo}
 }
 
-func (uc *RemoveMembersUseCase) Execute(input RemoveMembersUseCaseInput) error {
+func (uc *ExpelMembersUseCase) Execute(input ExpelMembersUseCaseInput) error {
 	teamId := input.TeamId
 	userIds := input.UserIds
 

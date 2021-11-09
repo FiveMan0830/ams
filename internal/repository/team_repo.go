@@ -12,12 +12,12 @@ import (
 type TeamRepository interface {
 	AddTeam(team *model.Team) error
 	GetTeam(id string) (*model.Team, error)
-	GetTeamMembersWithRole(id string) ([]*model.Member, error)
 	AddMembers(relations []model.RoleRelation) error
 	RemoveMembers(teamId string, userIds []string) error
 	AddSubteams(subteams []model.TeamRelation) error
 	RemoveSubteams(teamId string, subteams []string) error
 	UpdateUserRole(teamId string, userId string, role int) error
+	GetBelongTeam(userId string) ([]model.Team, error)
 }
 
 type teamRepository struct {
@@ -45,10 +45,6 @@ func (tr *teamRepository) GetTeam(id string) (*model.Team, error) {
 		return nil, errors.New("team not found: " + id)
 	}
 
-	return &team, nil
-}
-
-func (tr *teamRepository) GetTeamMembersWithRole(id string) ([]*model.Member, error) {
 	members := []*model.Member{}
 	results := []map[string]interface{}{}
 
@@ -75,7 +71,9 @@ func (tr *teamRepository) GetTeamMembersWithRole(id string) ([]*model.Member, er
 		})
 	}
 
-	return members, nil
+	team.Members = members
+
+	return &team, nil
 }
 
 func (tr *teamRepository) AddMembers(members []model.RoleRelation) error {
@@ -132,6 +130,18 @@ func (tr *teamRepository) UpdateUserRole(teamId string, userId string, role int)
 	//	Model(&model.RoleRelation{TeamID: teamId, UserID: userId}).
 	//	Update("role", role)
 
-
 	return nil
+}
+
+func (tr *teamRepository) GetBelongTeam(userid string) ([]model.Team, error) {
+	teams := []model.Team{}
+	if err := tr.db.
+		Select("team.*").
+		Joins("JOIN role_relation ON role_relation.team_id = team.id").
+		Where("role_relation.user_id = ?", userid).
+		Find(&teams).Error; err != nil {
+		return nil, err
+	}
+
+	return teams, nil
 }

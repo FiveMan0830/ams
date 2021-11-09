@@ -4,20 +4,20 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 )
 
-type RemoveSubteamUseCaseInput struct {
+type ExpelSubteamUseCaseInput struct {
 	TeamId     string   `json:"teamId" binding:"required"`
 	SubteamIds []string `json:"subteamIds" binding:"required"`
 }
 
-type RemoveSubteamUseCase struct {
+type ExpelSubteamUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewRemoveSubteamUseCase(teamRepo repository.TeamRepository) *RemoveSubteamUseCase {
-	return &RemoveSubteamUseCase{teamRepo}
+func NewExpelSubteamUseCase(teamRepo repository.TeamRepository) *ExpelSubteamUseCase {
+	return &ExpelSubteamUseCase{teamRepo}
 }
 
-func (uc *RemoveSubteamUseCase) Execute(input RemoveSubteamUseCaseInput) error {
+func (uc *ExpelSubteamUseCase) Execute(input ExpelSubteamUseCaseInput) error {
 	teamId := input.TeamId
 	subteams := input.SubteamIds
 

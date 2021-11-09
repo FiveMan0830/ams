@@ -7,7 +7,7 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 )
 
-type AddMembersUseCaseInput struct {
+type AssignMembersUseCaseInput struct {
 	TeamId string `json:"teamId" binding:"required"`
 	Users  []struct {
 		UserId string `json:"id"`
@@ -15,15 +15,15 @@ type AddMembersUseCaseInput struct {
 	} `json:"users" binding:"required"`
 }
 
-type AddMembersUseCase struct {
+type AssignMembersUseCase struct {
 	teamRepo repository.TeamRepository
 }
 
-func NewAddMembersUseCase(teamRepo repository.TeamRepository) *AddMembersUseCase {
-	return &AddMembersUseCase{teamRepo}
+func NewAssignMembersUseCase(teamRepo repository.TeamRepository) *AssignMembersUseCase {
+	return &AssignMembersUseCase{teamRepo}
 }
 
-func (uc *AddMembersUseCase) Execute(input AddMembersUseCaseInput) error {
+func (uc *AssignMembersUseCase) Execute(input AssignMembersUseCaseInput) error {
 	teamId := input.TeamId
 	users := input.Users
 
