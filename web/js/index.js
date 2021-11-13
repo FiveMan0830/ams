@@ -4,7 +4,7 @@ window.onload = () => {
         const password = $("#password-field").val() 
         $.ajax({
             type: "POST",
-            url: "https://ssl-ams.csie.ntut.edu.tw/login",
+            url: "http://localhost:8080/login",
             data: {
                 Username: username,
                 Password: password
