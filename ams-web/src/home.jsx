@@ -1,5 +1,5 @@
 
-import './Home.css';
+import './home.css';
 import TeamManage from './teamManage';
 import React, { Component, forwardRef } from "react";
 import { makeStyles } from '@material-ui/core/styles';
