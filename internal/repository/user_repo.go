@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetUser(id string) (*model.User, error)
 	RemoveUser(id string) error
 	UpdateUser(user *model.User) error
+	GetUserByAccount(account string) (*model.User, error)
 }
 
 type userRepository struct {
@@ -60,4 +61,15 @@ func (ur *userRepository) UpdateUser(user *model.User) error {
 	}
 
 	return nil
+}
+
+func (ur *userRepository) GetUserByAccount(account string) (*model.User, error) {
+	user := model.User{}
+	if err := ur.db.
+		Where("account = ?", account).
+		Take(&user).Error; err != nil {
+		return nil, errors.New("user not found: " + account)
+	}
+
+	return &user, nil
 }

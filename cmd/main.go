@@ -22,6 +22,7 @@ func main() {
 	logger := pkg.NewLoggerClient()
 	controller.RegisterUserApi(v2, userRepo, logger)
 	controller.RegisterTeamApi(v2, teamRepo, userRepo, logger)
+	controller.RegisterAuthApi(v2, userRepo, logger)
 
 	router.Run(":10000")
 }

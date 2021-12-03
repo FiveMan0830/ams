@@ -10,7 +10,7 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/model"
 )
 
-func setupMemoryDb() (*gorm.DB, UserRepository) {
+func setupUserRepo() (*gorm.DB, UserRepository) {
 	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	userRepo := NewUserRepository(db)
 
@@ -18,7 +18,7 @@ func setupMemoryDb() (*gorm.DB, UserRepository) {
 }
 
 func TestAddUser(t *testing.T) {
-	db, repo := setupMemoryDb()
+	db, repo := setupUserRepo()
 
 	user := &model.User{
 		ID:          "dummy_id",
@@ -41,7 +41,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	db, repo := setupMemoryDb()
+	db, repo := setupUserRepo()
 
 	user := &model.User{
 		ID:          "dummy_id",
@@ -65,8 +65,33 @@ func TestGetUser(t *testing.T) {
 	assert.Equal(t, result.Email, user.Email)
 }
 
+func TestGetUserByAccount(t *testing.T) {
+	db, repo := setupUserRepo()
+
+	user := &model.User{
+		ID:          "dummy_id",
+		Account:     "dummy_account",
+		DisplayName: "dummy_display_name",
+		Password:    "dummy_password",
+		Email:       "dummy_password",
+	}
+	db.Create(user)
+
+	result, err := repo.GetUserByAccount(user.Account)
+	if err != nil {
+		t.Errorf("failed to get user %s", user.Account)
+	}
+	defer db.Delete(user)
+
+	assert.Equal(t, result.ID, user.ID)
+	assert.Equal(t, result.Account, user.Account)
+	assert.Equal(t, result.DisplayName, user.DisplayName)
+	assert.Equal(t, result.Password, user.Password)
+	assert.Equal(t, result.Email, user.Email)
+}
+
 func TestEditPartOfUserData(t *testing.T) {
-	db, repo := setupMemoryDb()
+	db, repo := setupUserRepo()
 
 	user := &model.User{
 		ID:          "dummy_id",
@@ -93,7 +118,7 @@ func TestEditPartOfUserData(t *testing.T) {
 }
 
 func TestEditAllOfUserData(t *testing.T) {
-	db, repo := setupMemoryDb()
+	db, repo := setupUserRepo()
 
 	user := &model.User{
 		ID:          "dummy_id",
@@ -122,7 +147,7 @@ func TestEditAllOfUserData(t *testing.T) {
 }
 
 func TestRemoveUser(t *testing.T) {
-	db, repo := setupMemoryDb()
+	db, repo := setupUserRepo()
 
 	user := &model.User{
 		ID:          "dummy_id",

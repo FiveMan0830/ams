@@ -1,8 +1,6 @@
 package user_service
 
 import (
-	"encoding/base64"
-
 	"github.com/google/uuid"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/model"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
@@ -27,8 +25,8 @@ func NewAddUserUseCase(userRepo repository.UserRepository) AddUserUseCase {
 }
 
 func (uc AddUserUseCase) Execute(input AddUserUseCaseInput) error {
-	hashedPassword := uc.hashPassword(input.Password)
-	encodedPassword := uc.encodePassword(hashedPassword)
+	hashedPassword := pkg.HashWithSHA256(input.Password)
+	encodedPassword := pkg.EncodeWithBase64(hashedPassword)
 
 	id := uuid.New()
 	user := model.User{
@@ -43,20 +41,4 @@ func (uc AddUserUseCase) Execute(input AddUserUseCaseInput) error {
 	}
 
 	return nil
-}
-
-func (AddUserUseCase) hashPassword(password string) []byte {
-	hasher := pkg.NewSHA256Client()
-	_, err := hasher.Write([]byte(password))
-	if err != nil {
-		panic(err)
-	}
-	return hasher.Sum(nil)
-}
-
-func (AddUserUseCase) encodePassword(password []byte) string {
-	encoder := pkg.NewBase64Client()
-	defer encoder.Close()
-
-	return base64.StdEncoding.EncodeToString(password)
 }

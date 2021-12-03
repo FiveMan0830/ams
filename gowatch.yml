@@ -12,3 +12,4 @@ envs:
   - AMS_MYSQL_DATABASE=ams_test
 
 output: bin/ams_serverr.exe
+
