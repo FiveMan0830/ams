@@ -11,7 +11,8 @@ import (
 )
 
 func setupUserRepo() (*gorm.DB, UserRepository) {
-	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	// use "cache=private" to isolate in-memory DB for each test case
+	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=private"), &gorm.Config{})
 	userRepo := NewUserRepository(db)
 
 	return db, userRepo
@@ -25,7 +26,7 @@ func TestAddUser(t *testing.T) {
 		Account:     "dummy_account",
 		DisplayName: "dummy_display_name",
 		Password:    "dummy_password",
-		Email:       "dummy_password",
+		Email:       "dummy_email",
 	}
 	repo.AddUser(user)
 
@@ -38,6 +39,32 @@ func TestAddUser(t *testing.T) {
 	assert.Equal(t, result.DisplayName, user.DisplayName)
 	assert.Equal(t, result.Password, user.Password)
 	assert.Equal(t, result.Email, user.Email)
+}
+
+func TestAddIdenticalUser(t *testing.T) {
+	_, repo := setupUserRepo()
+
+	user := &model.User{
+		ID:          "dummy_id_1",
+		Account:     "dummy_account",
+		DisplayName: "dummy_display_name",
+		Password:    "dummy_password",
+		Email:       "dummy_email",
+	}
+	if err := repo.AddUser(user); err != nil {
+		t.Errorf("test should failed if fail to add user")
+	}
+
+	user_2 := &model.User{
+		ID:          "dummy_id_2", // ID should not be the same
+		Account:     "dummy_account",
+		DisplayName: "dummy_display_name",
+		Password:    "dummy_password",
+		Email:       "dummy_email",
+	}
+	if err := repo.AddUser(user_2); err == nil {
+		t.Errorf("test should failed if add two users with identical account!")
+	}
 }
 
 func TestGetUser(t *testing.T) {
@@ -65,6 +92,14 @@ func TestGetUser(t *testing.T) {
 	assert.Equal(t, result.Email, user.Email)
 }
 
+func TestGetNonExistUser(t *testing.T) {
+	_, repo := setupUserRepo()
+
+	if _, err := repo.GetUser("non_exist_user_id"); err == nil {
+		t.Errorf("test should fail if try to get non-exist user id without error")
+	}
+}
+
 func TestGetUserByAccount(t *testing.T) {
 	db, repo := setupUserRepo()
 
@@ -88,6 +123,16 @@ func TestGetUserByAccount(t *testing.T) {
 	assert.Equal(t, result.DisplayName, user.DisplayName)
 	assert.Equal(t, result.Password, user.Password)
 	assert.Equal(t, result.Email, user.Email)
+}
+
+func TestGetNonExistUserByAccount(t *testing.T) {
+	_, repo := setupUserRepo()
+
+	if _, err := repo.GetUserByAccount("non_exist_user_account"); err == nil {
+		t.Errorf(
+			"test should fail if try to get non-exist user account without error",
+		)
+	}
 }
 
 func TestEditPartOfUserData(t *testing.T) {

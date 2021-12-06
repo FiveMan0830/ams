@@ -8,46 +8,34 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository/mock"
 )
 
+// definition of user matcher
+type userMatcher struct{}
+
+func NewUserMatcher() gomock.Matcher { return &userMatcher{} }
+
+func (um *userMatcher) Matches(x interface{}) bool {
+	_, ok := x.(*model.User)
+	return ok
+}
+
+func (um *userMatcher) String() string { return "match user" }
+
 func TestAddUserUseCaseWithSingleUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockUserRepo := mock.NewMockUserRepository(ctrl)
 
 	mockUserRepo.
 		EXPECT().
-		AddUser(gomock.Eq(&model.User{
-			ID:          "00000000-0000-0000-0000-000000000000",
-			Account:     "dummy_user_account",
-			DisplayName: "dummy_user_display_name",
-			Password:    "dummy_user_password",
-			Email:       "dummy_user_email",
-		})).
-		Return(nil)
+		AddUser(NewUserMatcher()).Return(nil)
 
-	// uc := NewAddUserUseCase(mockUserRepo)
-	// if err := uc.Execute(); err != nil {
-	//
-	// }
-}
-
-func TestAddUserUseCaseTwiceWithIdenticalUser(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockUserRepo := mock.NewMockUserRepository(ctrl)
-
-	mockUserRepo.
-		EXPECT().
-		AddUser(gomock.Eq(&model.User{
-			ID:          "00000000-0000-0000-0000-000000000000",
-			Account:     "dummy_user_account",
-			DisplayName: "dummy_user_display_name",
-			Password:    "dummy_user_password",
-			Email:       "dummy_user_email",
-		})).
-		Return(nil)
-
-	// uc := NewAddUserUseCase(mockUserRepo)
-	// if err := uc.Execute(); err != nil {
-	//
-	// }
-
-	// output
+	input := AddUserUseCaseInput{
+		Account:     "dummy_user_account",
+		DisplayName: "dummy_user_display_name",
+		Password:    "dummy_user_password",
+		Email:       "dummy_user_email",
+	}
+	uc := NewAddUserUseCase(mockUserRepo)
+	if err := uc.Execute(input); err != nil {
+		t.Errorf("failed to execute use case")
+	}
 }
