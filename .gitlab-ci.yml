@@ -1,0 +1,12 @@
+image: golang:latest
+
+unittest:
+  stage: test
+  only:
+  - refactor
+  script:
+  - go test ./...
+
+stages:
+- test
+- build
