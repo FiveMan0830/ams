@@ -2,6 +2,7 @@ package controller
 
 import (
 	b64 "encoding/base64"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -58,8 +59,8 @@ func (h authApiHandler) login(c *gin.Context) {
 
 	accessToken, err := h.loginUseCase.Execute(input, &output)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": errors.New("incorrect account or password").Error(),
 		})
 		return
 	}
