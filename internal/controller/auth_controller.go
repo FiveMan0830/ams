@@ -65,5 +65,10 @@ func (h authApiHandler) login(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusOK, accessToken)
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("token", accessToken, 86400, "/", "localhost", false, true)
+	c.SetCookie("has_token", "1", 86400, "/", "localhost", false, false)
+	c.String(http.StatusOK, "Login succeeded")
+
+	// c.String(http.StatusOK, accessToken)
 }
