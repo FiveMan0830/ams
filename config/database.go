@@ -20,9 +20,9 @@ type dbConfig struct {
 
 func BuildDBConfig() *dbConfig {
 	host := os.Getenv("AMS_MYSQL_HOST")
-	port, err := strconv.Atoi(os.Getenv("AMD_MYSQL_PORT"))
+	port, err := strconv.Atoi(os.Getenv("AMS_MYSQL_PORT"))
 	if err != nil {
-		panic("failed to get amd mysql port from environment variable")
+		panic(err)
 	}
 	user := os.Getenv("AMS_MYSQL_USER")
 	password := os.Getenv("AMS_MYSQL_PASSWORD")

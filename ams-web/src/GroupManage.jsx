@@ -1,5 +1,4 @@
 
-import './Home.css';
 import React, { Component, forwardRef } from "react";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';

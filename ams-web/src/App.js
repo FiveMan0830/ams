@@ -2,7 +2,7 @@
 import './App.css';
 import React, { Component, forwardRef } from "react";
 import axios from 'axios'
-import Home from './Home';
+import Home from './home';
 import GroupManage from './GroupManage';
 import MyAppBar from './Appbar';
 

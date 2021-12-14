@@ -1,6 +1,4 @@
-FROM node:12-alpine
+FROM nginx:1.14
 
-ADD . /app/
-WORKDIR /app
-RUN npm install && npm run build
-CMD npm run start
+ADD build/ /var/www
+ADD nginx.conf /etc/nginx/nginx.conf

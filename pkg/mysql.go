@@ -21,7 +21,7 @@ func NewMysqlClient() *gorm.DB {
 	}
 	user := os.Getenv("AMS_MYSQL_USER")
 	password := os.Getenv("AMS_MYSQL_PASSWORD")
-	database := os.Getenv("AMS_MYSQL_DATABASE")
+	database := os.Getenv("AMS_MYSQL_DATABASE_V2")
 
 	fmt.Println("host", host)
 	fmt.Println("port", port)
