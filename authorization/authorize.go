@@ -33,7 +33,7 @@ func (vts *verifyJWTService) verifyToken(r *http.Request) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(vts.config.GetTokenSecret()), nil
+		return []byte(vts.config.TokenSecret()), nil
 	})
 	if err != nil {
 		return nil, err

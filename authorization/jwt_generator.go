@@ -26,9 +26,9 @@ func (jg *jwtGenerator) CreateToken(userID string) (string, error) {
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
 	atClaims["user_id"] = userID
-	atClaims["exp"] = jg.config.GetTokenExpiredTime()
+	atClaims["exp"] = jg.config.TokenExpiredTime()
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	token, err := at.SignedString([]byte(jg.config.GetTokenSecret()))
+	token, err := at.SignedString([]byte(jg.config.TokenSecret()))
 	if err != nil {
 		return "", err
 	}

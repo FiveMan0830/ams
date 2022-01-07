@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-var (
-	auth *authConfig
-)
-
 type authConfig struct {
 	tokenSecret string
 	expiredDays int
@@ -23,7 +19,7 @@ func NewAuthConfig() AuthConfig {
 		log.Fatalln("getting environment TOKEN_EXPIRED_DAYS failed: " + err.Error())
 	}
 
-	auth = &authConfig{
+	auth := &authConfig{
 		tokenSecret: tokenSecret,
 		expiredDays: expiredDays,
 	}
@@ -31,15 +27,15 @@ func NewAuthConfig() AuthConfig {
 	return auth
 }
 
-func (ac *authConfig) GetTokenSecret() string {
+func (ac *authConfig) TokenSecret() string {
 	return ac.tokenSecret
 }
 
-func (ac *authConfig) GetTokenExpiredTime() int64 {
+func (ac *authConfig) TokenExpiredTime() int64 {
 	return time.Now().Add(time.Hour * 24 * time.Duration(ac.expiredDays)).Unix()
 }
 
 type AuthConfig interface {
-	GetTokenSecret() string
-	GetTokenExpiredTime() int64
+	TokenSecret() string
+	TokenExpiredTime() int64
 }
