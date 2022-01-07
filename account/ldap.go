@@ -176,7 +176,6 @@ func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]*membe
 		mem.Username = entry.GetAttributeValue("cn")
 		memberDisplayname, err := lm.SearchUserDisplayname(adminUser, adminPasswd, mem.Username)
 		mem.Displayname = memberDisplayname
-		fmt.Println(mem.Username + ", " + mem.Displayname)
 
 		userList = append(userList, mem)
 		if err != nil {

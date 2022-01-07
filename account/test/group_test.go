@@ -1,8 +1,8 @@
 package test
 
 import (
-	"testing"
 	"errors"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
@@ -30,7 +30,7 @@ func TestGetGroupSuccess(t *testing.T) {
 
 	groupList, err := accountManagement.GetGroups(adminUser, adminPassword)
 
-	assert.Contains(t,groupList, groupID)
+	assert.Contains(t, groupList, groupID)
 	assert.Contains(t, groupList, groupID2)
 	assert.Equal(t, nil, err)
 }
@@ -56,7 +56,7 @@ func TestSearchGroupLeaderSuccess(t *testing.T) {
 
 	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
 
-	assert.Equal(t, leaderID2, leader)
+	assert.Equal(t, leaderID, leader)
 	assert.Equal(t, nil, err)
 }
 
@@ -89,7 +89,7 @@ func TestAddMemberToGroupSuccess(t *testing.T) {
 	assert.Contains(t, result, username)
 	assert.Contains(t, result, username2)
 	assert.Equal(t, nil, err)
-	
+
 	assert.Contains(t, result2, groupLeaderUsername2)
 	assert.Contains(t, result2, username)
 	assert.Contains(t, result2, username2)
@@ -156,14 +156,14 @@ func TestGetGroupMembersSuccess(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username3)
 
 	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
 
-	assert.Contains(t, result, leaderID2)
-	assert.Contains(t, result, userID)
+	assert.Contains(t, result, leaderID)
 	assert.Contains(t, result, userID2)
+	assert.Contains(t, result, userID3)
 	assert.Equal(t, nil, err)
 }
 

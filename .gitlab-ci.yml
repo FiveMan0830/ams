@@ -3,7 +3,7 @@ image: golang:latest
 unittest:
   stage: test
   only:
-  - refactor
+  - dev
   script:
   - go test ./...
 

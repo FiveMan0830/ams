@@ -12,7 +12,7 @@ import (
 
 func TestUserIsMemberOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
-	
+
 	defer func() {
 		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
 		teardown()
@@ -26,7 +26,7 @@ func TestUserIsMemberOfGroup(t *testing.T) {
 
 func TestUserIsNotMemberOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
-	
+
 	defer func() {
 		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
 		teardown()
@@ -43,8 +43,9 @@ func TestUserIsLeaderOfGroup(t *testing.T) {
 	setup()
 
 	accountManagement := account.NewLDAPManagement()
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, leaderUsername2)
 
-	assert.True(t, accountManagement.IsLeader(groupName, leaderID2))
+	assert.True(t, accountManagement.IsLeader(groupName, leaderID))
 	assert.True(t, accountManagement.IsMember(groupName, leaderID2))
 }
 

@@ -1,8 +1,9 @@
 package test
 
 import (
-	"testing"
 	"errors"
+	"fmt"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
@@ -18,7 +19,7 @@ import (
 // 	assert.Equal(t, createUserErr, nil)
 // 	assert.Equal(t, searchUserErr, nil)
 // 	assert.Equal(t, deleteUserErr, nil)
-	
+
 // 	assert.Equal(t, result, userID3)
 // }
 
@@ -94,28 +95,29 @@ func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
 
 	result, err := accountManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
 
-	assert.Equal(t, "david93", result[0].Username)
-	assert.Equal(t, "David Wang", result[0].Displayname)
-	assert.Equal(t, "audi98", result[1].Username)
-	assert.Equal(t, "Audi Wu", result[1].Displayname)
+	assert.Equal(t, leaderUsername, result[0].Username)
+	assert.Equal(t, fmt.Sprintf("%s %s", leaderGivenName, leaderSurname), result[0].Displayname)
+	assert.Equal(t, username2, result[1].Username)
+	assert.Equal(t, fmt.Sprintf("%s %s", givenName2, surname2), result[1].Displayname)
 	assert.Equal(t, nil, err)
 }
 
-func TestGetAllUsername(t *testing.T) {
-	defer teardown()
-	setup()
+// func TestGetAllUsername(t *testing.T) {
+// 	defer teardown()
+// 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+// 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
+// 	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
 
-	member1 := new(member)
-	member1.Displayname = "test"
-	member1.Username = "test"
+// 	member1 := member{
+// 		Username:    username,
+// 		Displayname: givenName,
+// 	}
 
-	assert.Equal(t, result[0].Username, member1.Username)
-	assert.Equal(t, nil, err)
-}
+// 	assert.Contains(t, result, member1)
+// 	assert.Equal(t, nil, err)
+// }
 
 func TestGetNameByUUID(t *testing.T) {
 	defer teardown()
@@ -123,13 +125,13 @@ func TestGetNameByUUID(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, "c61965be-8176-4419-b289-4d52617728fb")
+	result, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, userID)
 
-	assert.Equal(t, "fiveman123", result)
+	assert.Equal(t, username, result)
 	assert.Equal(t, nil, err)
 
-	group, err2 := accountManagement.SearchNameByUUID(adminUser, adminPassword, "d23475kl-4862-7456-8473-2c53916648fn")
+	group, err2 := accountManagement.SearchNameByUUID(adminUser, adminPassword, groupID)
 
-	assert.Equal(t, "OIS", group)
+	assert.Equal(t, groupName, group)
 	assert.Equal(t, nil, err2)
 }

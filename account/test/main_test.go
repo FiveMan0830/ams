@@ -34,16 +34,15 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
+	user1 := user{userID, username, givenName, surname, userPassword, userEmail}
+	user2 := user{userID2, username2, givenName2, surname2, userPassword2, userEmail2}
 
-	user1 := user{"c61965be-8176-4419-b289-4d52617728fb", "fiveman123", "Richard", "Zheng", "richard123", "richardEmail@gmail.com"}
-	user2 := user{"c56515be-1654-7895-1564-1d52513528cf", "audi98", "Audi", "Wu", "audipm984", "audiEmail@gmail.com"}
+	leader1 := user{leaderID, leaderUsername, leaderGivenName, leaderSurname, leaderPassword, leaderEmail}
+	leader2 := user{leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
+	leader3 := user{leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
 
-	leader1 := user{"a34531da-8563-9517-3578-3e38754896dg", "george88", "George", "Lim", "george189", "georgeEmail@gmail.com"}
-	leader2 := user{"b96875kl-6842-7539-8549-2c56482648fa", "david93", "David", "Wang", "david632", "davidEmail@gmail.com"}
-	leader3 := user{"c16475kl-6762-7489-8359-2c56846648fm", "sherry99", "Sherry", "Ye", "sherry753", "sherryEmail@gmail.com"}
-
-	group1 := group{"OIS", "david93", "d23475kl-4862-7456-8473-2c53916648fn"}
-	group2 := group{"SSL", "george88", "e16987kl-9512-7424-9629-2c56884248lm"}
+	group1 := group{groupName, groupLeaderUsername, groupID}
+	group2 := group{groupName2, groupLeaderUsername2, groupID2}
 
 	accountManagement := account.NewLDAPManagement()
 
@@ -64,15 +63,15 @@ func setup() {
 }
 
 func teardown() {
-	user1 := user{"c61965be-8176-4419-b289-4d52617728fb", "fiveman123", "Richard", "Zheng", "richard123", "richardEmail@gmail.com"}
-	user2 := user{"c56515be-1654-7895-1564-1d52513528cf", "audi98", "Audi", "Wu", "audipm984", "audiEmail@gmail.com"}
+	user1 := user{userID, username, givenName, surname, userPassword, userEmail}
+	user2 := user{userID2, username2, givenName2, surname2, userPassword2, userEmail2}
 
-	leader1 := user{"a34531da-8563-9517-3578-3e38754896dg", "george88", "George", "Lim", "george189", "georgeEmail@gmail.com"}
-	leader2 := user{"b96875kl-6842-7539-8549-2c56482648fa", "david93", "David", "Wang", "david632", "davidEmail@gmail.com"}
-	leader3 := user{"c16475kl-6762-7489-8359-2c56846648fm", "sherry99", "Sherry", "Ye", "sherry753", "sherryEmail@gmail.com"}
+	leader1 := user{leaderID, leaderUsername, leaderGivenName, leaderSurname, leaderPassword, leaderEmail}
+	leader2 := user{leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
+	leader3 := user{leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
 
-	group1 := group{"OIS", "david93", "d23475kl-4862-7456-8473-2c53916648fn"}
-	group2 := group{"SSL", "george88", "e16987kl-9512-7424-9629-2c56884248lm"}
+	group1 := group{groupName, groupLeaderUsername, groupID}
+	group2 := group{groupName2, groupLeaderUsername2, groupID2}
 
 	accountManagement := account.NewLDAPManagement()
 

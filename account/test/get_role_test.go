@@ -27,7 +27,7 @@ func TestGetUserRoleLeader(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	result, err := accountManagement.SearchUserRole(groupName, leaderID2)
+	result, err := accountManagement.SearchUserRole(groupName, leaderID)
 
 	assert.Equal(t, 1, result.EnumIndex())
 	assert.Equal(t, nil, err)
