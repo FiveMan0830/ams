@@ -52,7 +52,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
-	team.POST("/team/", getName)
+	team.POST("/team", getName)
 	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/add/member", addMember)
 	team.POST("/team/remove/member", removeMember)
@@ -91,7 +91,7 @@ func createTeam(c *gin.Context) {
 
 func getTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	GroupList, err := accountManagement.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
+	GroupList, err := accountManagement.GetGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
 		c.JSON(500, err)

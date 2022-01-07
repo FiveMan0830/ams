@@ -377,6 +377,49 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	return groupsList, err
 }
 
+func (lm *LDAPManagement) GetGroupsInDetail(adminUser, adminPasswd string) ([]detailTeam, error) {
+	lm.connectWithoutTLS()
+	defer lm.ldapConn.Close()
+	lm.bind(adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(objectClass=%s)", ldap.EscapeFilter(ObjectCategoryGroup))
+	searchRequest := ldap.NewSearchRequest(
+		baseDN,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"cn", "uid"},
+		[]ldap.Control{},
+	)
+	sr, err := lm.ldapConn.Search(searchRequest)
+
+	if err != nil {
+		log.Println("error :", err)
+	}
+
+	var groupsList []detailTeam
+
+	for _, entry := range sr.Entries {
+		teamId := entry.GetAttributeValue("uid")
+		teamName := entry.GetAttributeValue("cn")
+		teamLeaderId, err := lm.SearchGroupLeader(adminUser, adminPasswd, teamName)
+		if err != nil {
+			return nil, err
+		}
+		teamLeader, err := lm.GetUserByID(adminUser, adminPasswd, teamLeaderId)
+
+		groupsList = append(groupsList, detailTeam{
+			Team: team{
+				UUID: teamId,
+				Name: teamName,
+			},
+			Leader: teamLeader.Username,
+		})
+	}
+
+	return groupsList, err
+}
+
 // DeleteGroup is a function to delete the group
 func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) error {
 	lm.connectWithoutTLS()

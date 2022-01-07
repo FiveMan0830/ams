@@ -16,7 +16,7 @@ type LDAPManagement struct {
 }
 
 type member struct {
-	Username string `json:"username"`
+	Username    string `json:"username"`
 	Displayname string `json:"displayname"`
 	// Role int `json:"role"`
 }
@@ -24,6 +24,11 @@ type member struct {
 type team struct {
 	Name string `json:"name"`
 	UUID string `json:"id"`
+}
+
+type detailTeam struct {
+	Team   team   `json:"team"`
+	Leader string `json:"leader"`
 }
 
 // CreateUser is a function for user to register
@@ -82,10 +87,10 @@ func (lm *LDAPManagement) GetUserByID(adminUser, adminPasswd, userID string) (*U
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(userID))
 	log.Println(userID)
-	
+
 	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
 		0, 0, 0, false, filter,
-		[]string{"uid", "cn", "displayname",  "mail"},
+		[]string{"uid", "cn", "displayname", "mail"},
 		[]ldap.Control{})
 
 	result, err := lm.ldapConn.Search(searchReq)
@@ -104,10 +109,10 @@ func (lm *LDAPManagement) GetUserByID(adminUser, adminPasswd, userID string) (*U
 	}
 
 	user := &User{
-		UserID: userID,
-		Username: result.Entries[0].GetAttributeValue("cn"),
+		UserID:      userID,
+		Username:    result.Entries[0].GetAttributeValue("cn"),
 		DisplayName: result.Entries[0].GetAttributeValue("displayName"),
-		Email: result.Entries[0].GetAttributeValue("mail"),
+		Email:       result.Entries[0].GetAttributeValue("mail"),
 	}
 
 	return user, nil
@@ -165,14 +170,14 @@ func (lm *LDAPManagement) SearchAllUser(adminUser, adminPasswd string) ([]*membe
 	}
 
 	userList := []*member{}
-	
+
 	for _, entry := range result.Entries {
 		mem := new(member)
 		mem.Username = entry.GetAttributeValue("cn")
 		memberDisplayname, err := lm.SearchUserDisplayname(adminUser, adminPasswd, mem.Username)
 		mem.Displayname = memberDisplayname
 		fmt.Println(mem.Username + ", " + mem.Displayname)
-		
+
 		userList = append(userList, mem)
 		if err != nil {
 			return nil, errors.New("Search Failed")
@@ -356,7 +361,7 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 		tm.Name = entry.GetAttributeValue("cn")
 		tm.UUID = entry.GetAttributeValue("uid")
 		fmt.Println(tm.Name + ", " + tm.UUID)
-		
+
 		teams = append(teams, tm)
 	}
 
@@ -488,5 +493,3 @@ func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string
 
 	return true
 }
-
-
