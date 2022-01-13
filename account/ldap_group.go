@@ -35,6 +35,8 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 	baseDN := config.GetDC()
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), []ldap.Control{})
 
+	fmt.Println(adminUser, adminPasswd, username)
+
 	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
 		return "", errors.New("User does not exist")
 	}

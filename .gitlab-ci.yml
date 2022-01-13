@@ -5,6 +5,7 @@ unittest:
   only:
   - dev
   script:
+  - source $ENV_VARS
   - go test ./...
 
 stages:
