@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/pkg"
@@ -13,7 +13,6 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		bearerToken := c.GetHeader("Authorization")
-		fmt.Println(bearerToken)
 
 		if bearerToken == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -39,7 +38,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			})
 		}
 
-		c.Set("token", token)
+		c.Set("uid", token.Claims.(jwt.MapClaims)["uid"])
+		c.Set("tokenExp", token.Claims.(jwt.MapClaims)["exp"])
 
 		c.Next()
 	}

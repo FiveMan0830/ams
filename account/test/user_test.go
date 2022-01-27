@@ -108,7 +108,7 @@ func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
 
 // 	accountManagement := account.NewLDAPManagement()
 
-// 	result, err := accountManagement.SearchAllUser(adminUser, adminPassword)
+// 	result, err := accountManagement.GetAllUsers(adminUser, adminPassword)
 
 // 	member1 := member{
 // 		Username:    username,

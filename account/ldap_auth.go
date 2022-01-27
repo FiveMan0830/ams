@@ -1,27 +1,32 @@
 package account
 
 import (
+	"errors"
+
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-func (lm *LDAPManagement) IsMember(teamName, userID string) bool {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
+func (lm *LDAPManagement) IsMember(teamId string, userID string) (bool, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, config.GetAdminUser(), config.GetAdminPassword())
 
-	teamMemberList, err := lm.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), teamName)
-
+	members, err := lm.GetGroupMembersDetail(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+	)
 	if err != nil {
-		return false
+		return false, errors.New("failed to get members")
 	}
 
-	for _, teamMember := range teamMemberList {
-		if teamMember == userID {
-			return true
+	for _, member := range members {
+		if member.UserID == userID {
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
@@ -30,7 +35,7 @@ func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
 
 	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
-	
+
 	if err != nil {
 		return false
 	}
@@ -50,7 +55,7 @@ func (lm *LDAPManagement) IsTeam(teamID string) bool {
 	teamList, err := lm.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
-		return false;
+		return false
 	}
 
 	for _, team := range teamList {

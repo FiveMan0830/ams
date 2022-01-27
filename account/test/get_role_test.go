@@ -1,34 +1,27 @@
 package test
 
-import (
-	"testing"
+// func TestGetUserRoleMember(t *testing.T) {
+// 	defer teardown()
+// 	setup()
 
-	"github.com/stretchr/testify/assert"
-	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
-)
+// 	accountManagement := account.NewLDAPManagement()
 
-func TestGetUserRoleMember(t *testing.T) {
-	defer teardown()
-	setup()
+// 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
 
-	accountManagement := account.NewLDAPManagement()
+// 	result, err := accountManagement.SearchUserRole(groupName, userID)
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+// 	assert.Equal(t, 0, result.EnumIndex())
+// 	assert.Equal(t, nil, err)
+// }
 
-	result, err := accountManagement.SearchUserRole(groupName, userID)
+// func TestGetUserRoleLeader(t *testing.T) {
+// 	defer teardown()
+// 	setup()
 
-	assert.Equal(t, 0, result.EnumIndex())
-	assert.Equal(t, nil, err)
-}
+// 	accountManagement := account.NewLDAPManagement()
 
-func TestGetUserRoleLeader(t *testing.T) {
-	defer teardown()
-	setup()
+// 	result, err := accountManagement.SearchUserRole(groupName, leaderID)
 
-	accountManagement := account.NewLDAPManagement()
-
-	result, err := accountManagement.SearchUserRole(groupName, leaderID)
-
-	assert.Equal(t, 1, result.EnumIndex())
-	assert.Equal(t, nil, err)
-}
+// 	assert.Equal(t, 1, result.EnumIndex())
+// 	assert.Equal(t, nil, err)
+// }

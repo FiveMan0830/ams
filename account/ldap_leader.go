@@ -1,7 +1,6 @@
 package account
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -10,35 +9,46 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
-func (lm *LDAPManagement) UpdateGroupLeader(adminUser, adminPasswd, groupName, newLeader string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+func (lm *LDAPManagement) UpdateTeamLeader(adminUser, adminPasswd, teamId, newLeaderId string) error {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("Group does not exist")))
-		return errors.New("Group does not exist")
+	// check if the team exist
+	team, err := lm.GetGroupInDetail(adminUser, adminPasswd, teamId)
+	if err != nil {
+		return err
 	}
 
-	if !lm.SearchUserNoConn(adminUser, adminPasswd, newLeader) {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("User does not exist")))
-		return errors.New("User does not exist")
+	// check if the user exist
+	newLeader, err := lm.GetUserByID(adminUser, adminPasswd, newLeaderId)
+	if err != nil {
+		return err
 	}
 
-	// if !lm.IsMember(groupName, newLeader) {
-	// 	log.Println(fmt.Errorf("failed to query LDAP: %w", errors.New("User is not a member of group")))
-	// 	return errors.New("User is not a member of group")
-	// }
+	// check if the user is the member
+	var isMember bool
+	for _, member := range team.Members {
+		if member.UserID == newLeaderId {
+			isMember = true
+			break
+		}
+	}
+	if !isMember {
+		return fmt.Errorf("user %s is not a member of team %s", newLeaderId, teamId)
+	}
 
 	baseDN := config.GetDC()
-	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN), []ldap.Control{})
-	modify.Replace("o", []string{fmt.Sprintf(newLeader)})
-	err := lm.ldapConn.Modify(modify)
-	
+	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", team.Name, baseDN), []ldap.Control{})
+	modify.Replace("o", []string{fmt.Sprintf(newLeader.Username)})
+	err = conn.Modify(modify)
+
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-		return errors.New("Failed to update new leader!")
+		return fmt.Errorf(
+			"failed to update leader to %s for team %s", newLeaderId, teamId,
+		)
 	}
-	
+
 	return nil
 }

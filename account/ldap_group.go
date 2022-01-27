@@ -210,6 +210,40 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 	return memberIDList, nil
 }
 
+func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*User, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	searchRequest := ldap.NewSearchRequest(
+		baseDN, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf("(&(objectClass=groupOfNames)(uid=%s))", teamId),
+		[]string{"member"},
+		nil,
+	)
+
+	sr, err := conn.Search(searchRequest)
+
+	if err != nil {
+		log.Println("error :", err)
+		return nil, err
+	}
+
+	var memberList []*User
+
+	memberDnList := sr.Entries[0].GetAttributeValues("member")
+	for _, memberDn := range memberDnList {
+		memberDn = strings.Replace(memberDn, "cn=", "", -1)
+		userName := strings.Replace(memberDn, fmt.Sprintf(",%s", baseDN), "", -1)
+
+		member, _ := lm.GetUserByUsername(adminUser, adminPasswd, userName)
+		memberList = append(memberList, member)
+	}
+
+	return memberList, nil
+}
+
 // SearchGroupLeader is for searching the group leader
 func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search string) (string, error) {
 	lm.connectWithoutTLS()
@@ -264,84 +298,94 @@ func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string)
 }
 
 // AddMemberToGroup is for adding member to group
-func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		return nil, errors.New("Group does not exist")
+func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error) {
+	// check if user exist
+	user, err := lm.GetUserByID(adminUser, adminPasswd, userId)
+	if err != nil && err.Error() == "user not found" {
+		return nil, err
 	}
 
-	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
-		return nil, errors.New("User does not exist")
+	// check if team exist
+	team, err := lm.GetGroupInDetail(adminUser, adminPasswd, teamId)
+	if err != nil && err.Error() == "team not found" {
+		return nil, err
 	}
 
-	memberExists := false
-	membersIDList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
-
-	for _, memberUsername := range membersIDList {
-		if memberUsername == username {
-			memberExists = true
-			break
-		}
+	isMember, err := lm.IsMember(teamId, userId)
+	if err != nil {
+		return nil, err
 	}
 
-	if !memberExists {
+	if !isMember {
+		conn, _ := lm.getConnectionWithoutTLS()
+		defer conn.Close()
+		lm.bindAuth(conn, adminUser, adminPasswd)
 		baseDN := config.GetDC()
-		modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN), []ldap.Control{})
-		modify.Add("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
-		err := lm.ldapConn.Modify(modify)
+		modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", team.Name, baseDN), []ldap.Control{})
+		modify.Add("member", []string{fmt.Sprintf("cn=%s,%s", user.Username, baseDN)})
+		err := conn.Modify(modify)
 
 		if err != nil {
-			return membersIDList, errors.New("Failed to add user to group")
+			fmt.Println(err.Error())
+			return nil, errors.New("failed to add user to group")
 		}
 	} else {
-		log.Printf("User %s is already a member of the group %s\n", username, groupName)
-		return nil, errors.New("User already member of the group")
+		log.Printf("User %s is already a member of the group %s\n", user.Username, team.Name)
+		return nil, errors.New("user already member of the group")
 	}
 
-	memberList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+	members, err := lm.GetGroupMembersDetail(adminUser, adminPasswd, teamId)
 
-	return memberList, nil
+	return members, nil
 }
 
 // RemoveMemberFromGroup is a function to remove a user from a group
-func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, groupName, username string) ([]string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	if !lm.GroupExists(adminUser, adminPasswd, groupName) {
-		return nil, errors.New("Group does not exist")
+	// check if the team exist
+	team, err := lm.GetGroupInDetail(adminUser, adminPasswd, teamId)
+	if err != nil {
+		return nil, err
 	}
 
-	memberExists := false
-	membersIDList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+	// check if the user exist
+	user, err := lm.GetUserByID(adminUser, adminPasswd, userId)
+	if err != nil {
+		return nil, err
+	}
 
-	for _, memberUsername := range membersIDList {
-		if memberUsername == username {
-			memberExists = true
+	// check if the user is the member
+	var isMember bool
+	for _, member := range team.Members {
+		if member.UserID == userId {
+			isMember = true
 			break
 		}
 	}
-
-	if memberExists {
-		baseDN := config.GetDC()
-		modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN), []ldap.Control{})
-		modify.Delete("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
-		err := lm.ldapConn.Modify(modify)
-		if err != nil {
-			log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-			return nil, err
-		}
-	} else {
-		return nil, errors.New("User is not a member of group")
+	if !isMember {
+		return nil, fmt.Errorf("user %s is not a member of team %s", userId, teamId)
 	}
 
-	membersList := lm.GetMemberNoConn(adminUser, adminPasswd, groupName)
+	// query
+	baseDN := config.GetDC()
+	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", team.Name, baseDN), []ldap.Control{})
+	modify.Delete("member", []string{fmt.Sprintf("cn=%s,%s", user.Username, baseDN)})
+	err = conn.Modify(modify)
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return nil, err
+	}
 
-	return membersList, nil
+	// get new members
+	members, err := lm.GetGroupMembersDetail(adminUser, adminPasswd, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	return members, nil
 }
 
 // GetGroups is for getting all group inside of ldap
@@ -379,7 +423,84 @@ func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, er
 	return groupsList, err
 }
 
-func (lm *LDAPManagement) GetGroupsInDetail(adminUser, adminPasswd string) ([]detailTeam, error) {
+func (lm *LDAPManagement) SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+	defer conn.Close()
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(teamId))
+	request := ldap.NewSearchRequest(
+		baseDN,
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"o"},
+		[]ldap.Control{},
+	)
+	result, err := conn.Search(request)
+
+	if err != nil {
+		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
+		return nil, err
+	}
+
+	leaderId := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
+	leader, err := lm.GetUserByUsername(adminUser, adminPasswd, leaderId)
+	if err != nil {
+		log.Println(fmt.Errorf("failed to get team leader"))
+		return nil, err
+	}
+
+	return leader, nil
+}
+
+func (lm *LDAPManagement) GetGroupInDetail(adminUser, adminPasswd, teamId string) (*DetailTeam, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	searchRequest := ldap.NewSearchRequest(
+		baseDN, ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		fmt.Sprintf("(&(objectClass=groupOfNames)(uid=%s))", teamId),
+		[]string{"member", "cn"},
+		nil,
+	)
+
+	sr, err := conn.Search(searchRequest)
+
+	if err != nil {
+		log.Println("error :", err)
+		return nil, err
+	}
+
+	if len(sr.Entries) < 1 {
+		return nil, errors.New("team not found")
+	}
+
+	cn := sr.Entries[0].GetAttributeValue("cn")
+
+	leader, err := lm.SearchLeaderByTeamId(adminUser, adminPasswd, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	members, err := lm.GetGroupMembersDetail(adminUser, adminPasswd, teamId)
+	if err != nil {
+		return nil, err
+	}
+
+	detailTeam := DetailTeam{
+		Id:      teamId,
+		Name:    cn,
+		Leader:  leader,
+		Members: members,
+	}
+
+	return &detailTeam, nil
+}
+
+func (lm *LDAPManagement) GetAllGroupsInDetail(adminUser, adminPasswd string) ([]*DetailTeam, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -399,24 +520,14 @@ func (lm *LDAPManagement) GetGroupsInDetail(adminUser, adminPasswd string) ([]de
 		log.Println("error :", err)
 	}
 
-	var groupsList []detailTeam
+	var groupsList []*DetailTeam
 
 	for _, entry := range sr.Entries {
 		teamId := entry.GetAttributeValue("uid")
-		teamName := entry.GetAttributeValue("cn")
-		teamLeaderId, err := lm.SearchGroupLeader(adminUser, adminPasswd, teamName)
-		if err != nil {
-			return nil, err
-		}
-		teamLeader, err := lm.GetUserByID(adminUser, adminPasswd, teamLeaderId)
 
-		groupsList = append(groupsList, detailTeam{
-			Team: team{
-				UUID: teamId,
-				Name: teamName,
-			},
-			Leader: teamLeader.Username,
-		})
+		detailTeam, _ := lm.GetGroupInDetail(adminUser, adminPasswd, teamId)
+
+		groupsList = append(groupsList, detailTeam)
 	}
 
 	return groupsList, err

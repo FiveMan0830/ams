@@ -2,8 +2,10 @@ package server
 
 import (
 	// "encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 
 	// "os"
 
@@ -12,6 +14,7 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/database"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/controller/middleware"
 
 	_ "ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
@@ -30,11 +33,6 @@ type GetUsersRequest struct {
 	Username string
 }
 
-type AddMemberRequest struct {
-	GroupName string
-	Username  string
-}
-
 type RemoveMemberRequest struct {
 	GroupName string
 	Leader    string
@@ -46,7 +44,10 @@ func teams(rg *gin.RouterGroup) {
 
 	team.POST("/team/create", createTeam)
 	team.GET("/team", getTeam)
-	team.POST("/team/get/members", getTeamMember)
+	team.GET("/team/:teamId/members", getTeamMember)
+	team.POST("/team/:teamId/member", addMember)
+	team.DELETE("/team/:teamId/member", middleware.AuthMiddleware(), removeMember)
+	team.POST("/team/:teamId/leader/handover", middleware.AuthMiddleware(), handoverLeader)
 	team.POST("/team/get/leader", getTeamLeader)
 	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
@@ -54,9 +55,6 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
 	team.POST("/team", getName)
 	team.POST("/team/delete", deleteTeam)
-	team.POST("/team/add/member", addMember)
-	team.POST("/team/remove/member", removeMember)
-	team.POST("/team/leader/handover", handoverLeader)
 	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 	team.GET("/all/username", getAllUsername)
 	team.POST("/team/member/role", getRoleOfTeamMembers)
@@ -67,31 +65,57 @@ func teams(rg *gin.RouterGroup) {
 
 func createTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
-	c.Bind(reqbody)
-	teamID := uuid.New().String()
-	info, err := accountManagement.CreateGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.SelfUsername, teamID)
-	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
 
-	fmt.Println(reqbody.GroupName)
-	fmt.Println(reqbody.SelfUsername)
-	fmt.Println(teamID)
-	fmt.Println(info)
-	fmt.Println(leaderID)
+	type createTeamReq struct {
+		TeamName string `json:"teamName" binding:"required"`
+		Leader   string `json:"teamLeader" binding:"required"`
+	}
 
-	if err != nil {
-		c.JSON(500, err.Error())
+	req := &createTeamReq{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	database.InsertRole(leaderID, teamID, 1)
+	newTeamId := uuid.New().String()
+	result, err := accountManagement.CreateGroup(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.TeamName,
+		req.Leader,
+		newTeamId,
+	)
 
-	c.JSON(200, info)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("failed to create team. %s", err.Error()),
+		})
+		return
+	}
+
+	leaderID, err := accountManagement.GetUUIDByUsername(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.Leader,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("failed to get leader. %s", err.Error()),
+		})
+		return
+	}
+
+	database.InsertRole(leaderID, newTeamId, 1)
+
+	c.JSON(200, gin.H{"result": result})
 }
 
 func getTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	GroupList, err := accountManagement.GetGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
+	GroupList, err := accountManagement.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
 		c.JSON(500, err)
@@ -103,16 +127,24 @@ func getTeam(c *gin.Context) {
 
 func getTeamMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	c.Bind(reqbody)
-	memberList, err := accountManagement.GetGroupMembers(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+
+	teamId, _ := c.Params.Get("teamId")
+
+	memberList, err := accountManagement.GetGroupMembersDetail(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+	)
 
 	if err != nil {
-		c.JSON(500, err)
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(200, memberList)
+	c.JSON(http.StatusOK, memberList)
 }
 
 func getTeamLeader(c *gin.Context) {
@@ -203,133 +235,228 @@ func getName(c *gin.Context) {
 
 func deleteTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
-	c.Bind(reqbody)
-	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-	database.DeleteTeam(teamID)
 
-	err = accountManagement.DeleteGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-
-	fmt.Println("delete r" + reqbody.GroupName)
-	fmt.Println("delete ID " + teamID)
-	if err != nil {
-		c.JSON(500, err)
+	type deleteTeamReq struct {
+		TeamName string `json:"teamName`
+	}
+	req := &deleteTeamReq{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	fmt.Println(teamID)
+	teamId, err := accountManagement.GetUUIDByUsername(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.TeamName,
+	)
 
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	database.DeleteTeam(teamId)
+
+	err = accountManagement.DeleteGroup(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.TeamName,
+	)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusAccepted, gin.H{
+		"result": fmt.Sprintf("team deleted: %s", teamId),
+	})
 }
 
 func addMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &AddMemberRequest{}
-	c.Bind(reqbody)
 
-	if !accountManagement.IsMember(reqbody.GroupName, reqbody.Username) {
-		memberList, err := accountManagement.AddMemberToGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
+	type AddMemberReq struct {
+		UserId string `json:"userId"`
+	}
 
-		if err != nil {
-			c.JSON(500, err.Error())
-			return
-		}
-
-		userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
-		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-
-		database.InsertRole(userID, teamID, 0)
-
-		c.JSON(200, memberList)
-	} else {
-		c.JSON(403, "User is not member of the team!")
+	req := AddMemberReq{}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	teamId, _ := c.Params.Get("teamId")
+
+	_, err := accountManagement.GetUserByID(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.UserId,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = accountManagement.GetGroupInDetail(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	isMember, err := accountManagement.IsMember(teamId, req.UserId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if isMember {
+		c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"error": errors.New("the user is already a member of the team"),
+		})
+		return
+	}
+
+	memberList, err := accountManagement.AddMemberToGroup(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+		req.UserId,
+	)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	database.InsertRole(req.UserId, teamId, 0)
+
+	c.JSON(http.StatusOK, gin.H{
+		"members": memberList,
+	})
 }
 
 func removeMember(c *gin.Context) {
+	type RemoveMemberReq struct {
+		UserId string `json:"userId"`
+	}
+
+	req := &RemoveMemberReq{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	uid := c.GetString("uid")
+	teamId, _ := c.Params.Get("teamId")
+
+	// only team lead can remove member
+	role, err := database.GetRole(uid, teamId)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if role != 1 {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "only team lead can remove member from team",
+		})
+		return
+	}
+
 	accountManagement := account.NewLDAPManagement()
-	reqbody := &RemoveMemberRequest{}
-	c.Bind(reqbody)
 
-	userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Leader)
-
+	members, err := accountManagement.RemoveMemberFromGroup(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+		req.UserId,
+	)
 	if err != nil {
-		c.JSON(500, err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	targerUserID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.Username)
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	isLeader, err := database.GetRole(userID, teamID)
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	if isLeader == 1 {
-		memberList, err := accountManagement.RemoveMemberFromGroup(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.Username)
-
-		if err != nil {
-			c.JSON(500, err.Error())
-			return
-		}
-
-		database.DeleteRole(targerUserID, teamID)
-
-		c.JSON(200, memberList)
-	} else {
-		c.JSON(403, "User is not leader of the team!")
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"members": members,
+	})
 }
 
 func handoverLeader(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
-	c.Bind(reqbody)
+	type HandOverLeaderReq struct {
+		NewLeaderId string `json:"newLeaderId"`
+	}
+	req := &HandOverLeaderReq{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	userID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
-	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-	isLeader, err := database.GetRole(userID, teamID)
+	// user that perform the operation
+	userId := c.GetString("uid")
+	fmt.Println("userId:", userId)
 
+	// target team id
+	teamId, _ := c.Params.Get("teamId")
+	fmt.Println("teamId:", teamId)
+
+	// only team lead can remove member
+	role, err := database.GetRole(userId, teamId)
 	if err != nil {
-		c.JSON(500, err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	if isLeader == 1 || isLeader == 2 {
-		err := accountManagement.UpdateGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName, reqbody.InputUsername)
-
-		if err != nil {
-			c.JSON(500, err.Error())
-			return
-		}
-
-		oldLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
-		newLeaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.InputUsername)
-		teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-
-		database.UpdateLeader(oldLeaderID, newLeaderID, teamID)
-
-		c.JSON(200, "")
-	} else {
-		c.JSON(403, "User is not professor or leader of the team!")
+	if role != 1 {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			"error": "only team lead can transfer the ownership",
+		})
 		return
 	}
 
+	accountManagement := account.NewLDAPManagement()
+
+	err = accountManagement.UpdateTeamLeader(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+		req.NewLeaderId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	database.UpdateLeader(userId, req.NewLeaderId, teamId)
+
+	c.Status(http.StatusNoContent)
 }
 
 func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
@@ -349,7 +476,7 @@ func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
 
 func getAllUsername(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	userList, err := accountManagement.SearchAllUser(config.GetAdminUser(), config.GetAdminPassword())
+	userList, err := accountManagement.GetAllUsers(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
 		c.JSON(500, err)

@@ -14,4 +14,5 @@ func RegisterV1Api(
 	auth(rg)
 	role(rg)
 	mySQL(rg)
+	registerUserApi(rg, am)
 }

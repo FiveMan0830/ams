@@ -149,7 +149,6 @@ func GetRole(userID, teamID string) (int, error) {
 	if err != nil {
 		log.Println("error :", err)
 		return 5, err
-		// panic(err.Error())
 	}
 
 	return role, nil
