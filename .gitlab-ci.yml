@@ -28,10 +28,21 @@ build:
     - dev
     - master
   script:
-  - docker build -t ssl1321ois/ams:${CI_COMMIT_SHORT_SHA}
+  - docker build -t ssl1321ois/ams_server:${CI_COMMIT_SHORT_SHA}
   - docker login -u=${DOCKER_USER} -p=${DOCKER_PASSWORD}
-  - docker push mashu6211/ci-test:${CI_COMMIT_SHORT_SHA}
+  - docker push ssl1321ois/ams_server:${CI_COMMIT_SHORT_SHA}
+
+deploy:
+  stage: deploy
+  image: nightlord851108/kustomize
+  only:
+    refs:
+    - master
+  script:
+  - cd deployment/overlay
+  - kustomize edit set image ssl1321ois/ams_server:${CI_COMMIT_SHORT_SHA}
 
 stages:
 - test
 - build
+- deploy

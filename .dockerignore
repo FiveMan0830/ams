@@ -1,2 +1,5 @@
-ams-web/
 .idea/
+.vscode/
+bin/
+.env.sh
+gowatch.yml

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ams-api
+spec:
+  selector:
+    matchLabels:
+      app: ams-api
+  template:
+    metadata:
+      labels:
+        app: ams-api
+    spec:
+      containers:
+      - name: ams-api
+        image: ssl1321ois/ams
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080

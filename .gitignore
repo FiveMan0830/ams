@@ -5,3 +5,5 @@ bin/
 gowatch.yml
 gowatch.yaml
 .env.sh
+.vscode/
+.idea/
