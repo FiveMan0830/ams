@@ -209,12 +209,12 @@ func TestGetUserBelongedTeam(t *testing.T) {
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId2, userId1)
 
-	result, err := accountManagement.SearchUserMemberOf(adminUser, adminPassword, username1)
+	result, err := accountManagement.GetUserBelongingTeams(adminUser, adminPassword, userId1)
 
 	assert.Equal(t, groupName, result[0].Name)
-	assert.Equal(t, groupId1, result[0].UUID)
+	assert.Equal(t, groupId1, result[0].Id)
 	assert.Equal(t, groupName2, result[1].Name)
-	assert.Equal(t, groupId2, result[1].UUID)
+	assert.Equal(t, groupId2, result[1].Id)
 	assert.Equal(t, err, nil)
 }
 
