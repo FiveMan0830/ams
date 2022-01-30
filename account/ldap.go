@@ -22,9 +22,9 @@ type member struct {
 	// Role int `json:"role"`
 }
 
-type team struct {
+type Team struct {
+	Id   string `json:"id"`
 	Name string `json:"name"`
-	UUID string `json:"id"`
 }
 
 type DetailTeam struct {
@@ -364,14 +364,19 @@ func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string
 	return user, nil
 }
 
-// SearchUserMemberOf is for search group that user belong
-func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string) ([]*team, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+// GetUserBelongingTeams is for search group that user belong
+func (lm *LDAPManagement) GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	user, err := lm.GetUserByUsername(adminUser, adminPasswd, username)
+	if err != nil {
+		return nil, err
+	}
 
 	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user, baseDN)
+	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user.Username, baseDN)
 	searchRequest := ldap.NewSearchRequest(
 		baseDN,
 		ldap.ScopeWholeSubtree,
@@ -383,20 +388,20 @@ func (lm *LDAPManagement) SearchUserMemberOf(adminUser, adminPasswd, user string
 		[]string{"dn", "cn", "uid"},
 		[]ldap.Control{})
 
-	sr, err := lm.ldapConn.Search(searchRequest)
+	sr, err := conn.Search(searchRequest)
 
 	if err != nil {
 		log.Println("error :", err)
 		return nil, err
 	}
 
-	teams := []*team{}
+	teams := []*Team{}
 
 	for _, entry := range sr.Entries {
-		tm := new(team)
-		tm.Name = entry.GetAttributeValue("cn")
-		tm.UUID = entry.GetAttributeValue("uid")
-		fmt.Println(tm.Name + ", " + tm.UUID)
+		tm := &Team{
+			Id:   entry.GetAttributeValue("uid"),
+			Name: entry.GetAttributeValue("cn"),
+		}
 
 		teams = append(teams, tm)
 	}

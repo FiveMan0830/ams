@@ -31,7 +31,7 @@ type Management interface {
 	GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*User, error)
 	GetGroupMembersRole(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
 	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error)
-	SearchUserMemberOf(adminUser, adminPasswd, user string) ([]*team, error)
+	GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
 	DeleteUser(adminUser, adminPasswd, username string) error
 	DeleteUserWithOu(adminUser, adminPasswd, username, role string) error

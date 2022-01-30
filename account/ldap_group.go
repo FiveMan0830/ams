@@ -141,12 +141,9 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 	memberResult := []*memberRole{}
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
 
-	fmt.Println(memberDnList)
-
 	for _, memberDN := range memberDnList {
 		memberDN = strings.Replace(memberDN, "cn=", "", -1)
 		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
-		fmt.Println(memberDN)
 		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
 		teamID, err := lm.SearchGroupUUID(adminUser, adminPasswd, groupName)
 		role, err := database.GetRole(memberUUID, teamID)

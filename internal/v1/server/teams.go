@@ -208,17 +208,35 @@ func isLeader(c *gin.Context) {
 }
 
 func getBelongingTeams(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	c.Bind(reqbody)
-	GroupList, err := accountManagement.SearchUserMemberOf(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+	type GetBelongingTeamsReq struct {
+		Username string `json:"username" binding:"required"`
+	}
 
-	if err != nil {
-		c.JSON(500, err)
+	req := &GetBelongingTeamsReq{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		fmt.Println(err.Error())
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(200, GroupList)
+	accountManagement := account.NewLDAPManagement()
+
+	teams, err := accountManagement.GetUserBelongingTeams(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		req.Username,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, teams)
 }
 
 func getUUIDOfUser(c *gin.Context) {
@@ -265,7 +283,7 @@ func deleteTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 
 	type deleteTeamReq struct {
-		TeamName string `json:"teamName`
+		TeamName string `json:"teamName" binding:"requried"`
 	}
 	req := &deleteTeamReq{}
 	if err := c.ShouldBindJSON(req); err != nil {
@@ -312,7 +330,7 @@ func addMember(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 
 	type AddMemberReq struct {
-		UserId string `json:"userId"`
+		UserId string `json:"userId" binding:"required"`
 	}
 
 	req := AddMemberReq{}
@@ -381,7 +399,7 @@ func addMember(c *gin.Context) {
 
 func removeMember(c *gin.Context) {
 	type RemoveMemberReq struct {
-		UserId string `json:"userId"`
+		UserId string `json:"userId" binding:"required"`
 	}
 
 	req := &RemoveMemberReq{}
@@ -433,7 +451,7 @@ func removeMember(c *gin.Context) {
 
 func handoverLeader(c *gin.Context) {
 	type HandOverLeaderReq struct {
-		NewLeaderId string `json:"newLeaderId"`
+		NewLeaderId string `json:"newLeaderId" binding:"required"`
 	}
 	req := &HandOverLeaderReq{}
 	if err := c.ShouldBindJSON(req); err != nil {
@@ -519,6 +537,7 @@ func getRoleOfTeamMembers(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
+	fmt.Println(string(reqbody))
 
 	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
 

@@ -8,11 +8,10 @@ const (
 	Leader
 	Professor
 	Stakeholder
-	Team
 )
 
 func (r Role) String() string {
-	return [...]string{"Member", "Leader", "Professor", "Stakeholder", "Team"}[r-1]
+	return [...]string{"Member", "Leader", "Professor", "Stakeholder"}[r-1]
 }
 
 func (r Role) EnumIndex() int {
