@@ -2,8 +2,8 @@ package account
 
 // Management is a interface to help user manage accounts
 type Management interface {
-	IsMember(teamId string, username string) (bool, error)
-	IsLeader(teamName, username string) bool
+	IsMember(teamId string, userId string) (bool, error)
+	IsLeader(teamName, userId string) bool
 	IsTeam(teamName string) bool
 	IsProfessor(username string) bool
 	IsStakeholder(username string) bool
@@ -15,7 +15,7 @@ type Management interface {
 	GetAllGroupsInDetail(adminUser, adminPassword string) ([]*DetailTeam, error)
 	CreateOu(adminUser, adminPasswd, ouname string) error
 	DeleteOu(adminUser, adminPasswd, ouname string) error
-	AddMemberToGroup(adminUser, adminPasswd, groupName, username string) ([]*User, error)
+	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error)
 	SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error)
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
 	GetAllUsers(adminUser, adminPasswd string) ([]*User, error)

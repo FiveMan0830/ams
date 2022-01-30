@@ -29,7 +29,7 @@ func (lm *LDAPManagement) IsMember(teamId string, userID string) (bool, error) {
 	return false, nil
 }
 
-func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
+func (lm *LDAPManagement) IsLeader(teamName, userId string) bool {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
@@ -40,7 +40,7 @@ func (lm *LDAPManagement) IsLeader(teamName, userID string) bool {
 		return false
 	}
 
-	if leader == userID {
+	if leader == userId {
 		return true
 	} else {
 		return false

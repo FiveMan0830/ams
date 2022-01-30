@@ -4,3 +4,4 @@
 bin/
 gowatch.yml
 gowatch.yaml
+.env.sh

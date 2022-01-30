@@ -14,28 +14,36 @@ func TestUserIsMemberOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	defer func() {
-		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
+		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupId1, userId1)
 		teardown()
 	}()
 
 	setup()
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 
-	assert.True(t, accountManagement.IsMember(groupName, userID))
+	result, err := accountManagement.IsMember(groupId1, userId1)
+	if err != nil {
+		t.Errorf("failed to check membership")
+	}
+	assert.True(t, result)
 }
 
 func TestUserIsNotMemberOfGroup(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	defer func() {
-		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupName, username)
+		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupId1, userId1)
 		teardown()
 	}()
 
 	setup()
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username)
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 
-	assert.False(t, accountManagement.IsMember(groupName, usernameNotExists))
+	result, err := accountManagement.IsMember(groupId1, userId2)
+	if err != nil {
+		t.Errorf("failed to get membership")
+	}
+	assert.False(t, result)
 }
 
 func TestUserIsLeaderOfGroup(t *testing.T) {
@@ -43,10 +51,15 @@ func TestUserIsLeaderOfGroup(t *testing.T) {
 	setup()
 
 	accountManagement := account.NewLDAPManagement()
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, leaderUsername2)
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, leaderId2)
 
-	assert.True(t, accountManagement.IsLeader(groupName, leaderID))
-	assert.True(t, accountManagement.IsMember(groupName, leaderID2))
+	assert.True(t, accountManagement.IsLeader(groupName, leaderId1))
+
+	result, err := accountManagement.IsMember(groupId1, leaderId2)
+	if err != nil {
+		t.Errorf("failed to get membership")
+	}
+	assert.True(t, result)
 }
 
 func TestUserIsNotLeaderOfGroup(t *testing.T) {
@@ -64,7 +77,7 @@ func TestIsTeam(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	assert.True(t, accountManagement.IsTeam(groupID))
+	assert.True(t, accountManagement.IsTeam(groupId1))
 }
 
 func TestIsNotTeam(t *testing.T) {

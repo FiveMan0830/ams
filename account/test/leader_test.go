@@ -13,11 +13,13 @@ func TestHandoverLeader(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupName, username2)
-	accountManagement.UpdateGroupLeader(adminUser, adminPassword, groupName, username2)
+	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
+	accountManagement.UpdateTeamLeader(adminUser, adminPassword, groupId1, userId2)
 
-	result, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
+	leader, err := accountManagement.SearchLeaderByTeamId(adminUser, adminPassword, groupId1)
+	if err != nil {
+		t.Errorf("failed to get team leader")
+	}
 
-	assert.Equal(t, nil, err)
-	assert.Equal(t, userID2, result)
+	assert.Equal(t, userId2, leader.UserID)
 }

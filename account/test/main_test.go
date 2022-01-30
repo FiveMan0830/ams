@@ -34,21 +34,21 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	user1 := user{userID, username, givenName, surname, userPassword, userEmail}
-	user2 := user{userID2, username2, givenName2, surname2, userPassword2, userEmail2}
+	user1 := user{userId1, username1, givenName1, surname1, userPassword1, userEmail1}
+	user2 := user{userId2, username2, givenName2, surname2, userPassword2, userEmail2}
 
-	leader1 := user{leaderID, leaderUsername, leaderGivenName, leaderSurname, leaderPassword, leaderEmail}
-	leader2 := user{leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
-	leader3 := user{leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
+	leader1 := user{leaderId1, leaderUsername1, leaderGivenName1, leaderSurname1, leaderPassword1, leaderEmail1}
+	leader2 := user{leaderId2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
+	leader3 := user{leaderId3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
 
-	group1 := group{groupName, groupLeaderUsername, groupID}
-	group2 := group{groupName2, groupLeaderUsername2, groupID2}
+	group1 := group{groupName, groupLeaderUsername, groupId1}
+	group2 := group{groupName2, groupLeaderUsername2, groupId2}
 
 	accountManagement := account.NewLDAPManagement()
 
 	accountManagement.CreateUser(adminUser, adminPassword, user1.ID, user1.name, user1.givenName, user1.surname, user1.password, user1.email)
 	accountManagement.CreateUser(adminUser, adminPassword, user2.ID, user2.name, user2.givenName, user2.surname, user2.password, user2.email)
-	accountManagement.CreateUser(adminUser, adminPassword, userID3, username3, givenName3, surname3, userPassword3, userEmail3)
+	accountManagement.CreateUser(adminUser, adminPassword, userId3, username3, givenName3, surname3, userPassword3, userEmail3)
 
 	accountManagement.CreateUser(adminUser, adminPassword, leader1.ID, leader1.name, leader1.givenName, leader1.surname, leader1.password, leader1.email)
 	accountManagement.CreateUser(adminUser, adminPassword, leader2.ID, leader2.name, leader2.givenName, leader2.surname, leader2.password, leader2.email)
@@ -63,15 +63,15 @@ func setup() {
 }
 
 func teardown() {
-	user1 := user{userID, username, givenName, surname, userPassword, userEmail}
-	user2 := user{userID2, username2, givenName2, surname2, userPassword2, userEmail2}
+	user1 := user{userId1, username1, givenName1, surname1, userPassword1, userEmail1}
+	user2 := user{userId2, username2, givenName2, surname2, userPassword2, userEmail2}
 
-	leader1 := user{leaderID, leaderUsername, leaderGivenName, leaderSurname, leaderPassword, leaderEmail}
-	leader2 := user{leaderID2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
-	leader3 := user{leaderID3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
+	leader1 := user{leaderId1, leaderUsername1, leaderGivenName1, leaderSurname1, leaderPassword1, leaderEmail1}
+	leader2 := user{leaderId2, leaderUsername2, leaderGivenName2, leaderSurname2, leaderPassword2, leaderEmail2}
+	leader3 := user{leaderId3, leaderUsername3, leaderGivenName3, leaderSurname3, leaderPassword3, leaderEmail3}
 
-	group1 := group{groupName, groupLeaderUsername, groupID}
-	group2 := group{groupName2, groupLeaderUsername2, groupID2}
+	group1 := group{groupName, groupLeaderUsername, groupId1}
+	group2 := group{groupName2, groupLeaderUsername2, groupId2}
 
 	accountManagement := account.NewLDAPManagement()
 

@@ -1,12 +1,36 @@
-image: golang:latest
+variables:
+  # variables for docker service to build image during CI
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  
+# service of dind to build image during CI
+services:
+  - docker:19.03.13-dind
 
-unittest:
+test:
   stage: test
+  image: golang:latest
   only:
-  - dev
+    refs:
+    - dev
+    - master
   script:
   - source $ENV_VARS
   - go test ./...
+
+build:
+  stage: build
+  image: docker:19.03.13
+  only:
+    refs:
+    - dev
+    - master
+  script:
+  - docker build -t ssl1321ois/ams:${CI_COMMIT_SHORT_SHA}
+  - docker login -u=${DOCKER_USER} -p=${DOCKER_PASSWORD}
+  - docker push mashu6211/ci-test:${CI_COMMIT_SHORT_SHA}
 
 stages:
 - test

@@ -43,11 +43,13 @@ func teams(rg *gin.RouterGroup) {
 	team := rg
 
 	team.POST("/team/create", createTeam)
-	team.GET("/team", getTeam)
+	team.GET("/teams", getAllTeams)
+	team.GET("/team/:teamId", getTeam)
 	team.GET("/team/:teamId/members", getTeamMember)
 	team.POST("/team/:teamId/member", addMember)
 	team.DELETE("/team/:teamId/member", middleware.AuthMiddleware(), removeMember)
 	team.POST("/team/:teamId/leader/handover", middleware.AuthMiddleware(), handoverLeader)
+
 	team.POST("/team/get/leader", getTeamLeader)
 	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
@@ -113,16 +115,42 @@ func createTeam(c *gin.Context) {
 	c.JSON(200, gin.H{"result": result})
 }
 
-func getTeam(c *gin.Context) {
+func getAllTeams(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
-	GroupList, err := accountManagement.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
-
+	groupList, err := accountManagement.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 	if err != nil {
-		c.JSON(500, err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	c.JSON(200, GroupList)
+	c.JSON(http.StatusOK, groupList)
+}
+
+func getTeam(c *gin.Context) {
+	teamId, ok := c.Params.Get("teamId")
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "teamId missed",
+		})
+		return
+	}
+
+	accountManagement := account.NewLDAPManagement()
+	team, err := accountManagement.GetGroupInDetail(
+		config.GetAdminUser(),
+		config.GetAdminPassword(),
+		teamId,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, team)
 }
 
 func getTeamMember(c *gin.Context) {

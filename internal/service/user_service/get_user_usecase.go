@@ -1,8 +1,6 @@
 package user_service
 
 import (
-	"fmt"
-
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 )
 
@@ -29,7 +27,6 @@ func NewGetUserUseCase(userRepo repository.UserRepository) GetUserUseCase {
 
 func (uc GetUserUseCase) Execute(input GetUserUseCaseInput, output *GetUserUseCaseOutput) error {
 	user, err := uc.userRepo.GetUser(input.Id)
-	fmt.Println(user)
 	if err != nil {
 		return err
 	}
