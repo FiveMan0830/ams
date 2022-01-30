@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/controller"
-	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/controller/middleware"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/v1/server"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/pkg"
@@ -25,8 +24,8 @@ func main() {
 	v1 := engine.Group("/")
 	server.RegisterV1Api(v1, am)
 
-	engine.GET("/api/v2/need-auth", middleware.AuthMiddleware(), func(c *gin.Context) {
-		c.String(200, "successful")
+	engine.GET("/health-check", func(c *gin.Context) {
+		c.String(200, "the server is healthy\n")
 	})
 
 	// register api v2
