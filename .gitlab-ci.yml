@@ -28,7 +28,7 @@ build:
     - dev
     - master
   script:
-  - docker build -t ssl1321ois/ams_server:${CI_COMMIT_SHORT_SHA} .
+  - docker build -t ssl1321ois/ams_server:${CI_COMMIT_BRANCH}.${CI_COMMIT_SHORT_SHA} .
   - docker login -u=${DOCKER_USER} -p=${DOCKER_PASSWORD}
   - docker push ssl1321ois/ams_server:${CI_COMMIT_BRANCH}.${CI_COMMIT_SHORT_SHA}
 
