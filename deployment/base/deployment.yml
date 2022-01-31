@@ -18,5 +18,60 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "500m"
+        env:
+        - name: AMS_MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_HOST
+        - name: AMS_MYSQL_PORT
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_PORT
+              name: ams-server
+        - name: AMS_MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_USER
+              name: ams-server
+        - name: AMS_MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_PASSWORD
+              name: ams-server
+        - name: AMS_MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_DATABASE
+              name: ams-server
+        - name: AMS_MYSQL_DATABASE_V2
+          valueFrom:
+            secretKeyRef:
+              key: AMS_MYSQL_DATABASE_V2
+              name: ams-server
+        - name: LDAP_DC
+          valueFrom:
+            secretKeyRef:
+              key: LDAP_DC
+              name: ams-server
+        - name: LDAP_URL
+          valueFrom:
+            secretKeyRef:
+              key: LDAP_URL
+              name: ams-server
+        - name: LDAP_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              key: LDAP_ADMIN_USER
+              name: ams-server
+        - name: LDAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: LDAP_ADMIN_PASSWORD
+              name: ams-server
+        - name: TOKEN_EXPIRED_DAYS
+          valueFrom:
+            secretKeyRef:
+              key: TOKEN_EXPIRED_DAYS
+              name: ams-server
         ports:
         - containerPort: 8080
