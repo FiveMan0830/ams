@@ -74,5 +74,10 @@ spec:
             secretKeyRef:
               key: TOKEN_EXPIRED_DAYS
               name: ams-server
+        - name: CORS_ALLOWED_ORIGINS
+          valueFrom:
+            secretKeyRef:
+              key: CORS_ALLOWED_ORIGINS
+              name: ams-server
         ports:
         - containerPort: 8080
