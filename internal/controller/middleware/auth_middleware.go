@@ -6,6 +6,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/pkg"
 )
@@ -40,6 +41,34 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Set("uid", token.Claims.(jwt.MapClaims)["uid"])
 		c.Set("tokenExp", token.Claims.(jwt.MapClaims)["exp"])
+
+		c.Next()
+	}
+}
+
+func AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userId := c.GetString("uid")
+
+		accountManager := account.NewLDAPManagement()
+		user, err := accountManager.GetUserByID(
+			config.GetAdminUser(),
+			config.GetAdminPassword(),
+			userId,
+		)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if user.Username != "timelog_admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "only admin can perform this action",
+			})
+			return
+		}
 
 		c.Next()
 	}

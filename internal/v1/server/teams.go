@@ -42,7 +42,8 @@ type RemoveMemberRequest struct {
 func teams(rg *gin.RouterGroup) {
 	team := rg
 
-	team.POST("/team/create", createTeam)
+	team.POST("/team/create", middleware.AuthMiddleware(), middleware.AdminMiddleware(), createTeam)
+	team.POST("/team/delete", middleware.AuthMiddleware(), middleware.AdminMiddleware(), deleteTeam)
 	team.GET("/teams", getAllTeams)
 	team.GET("/team/:teamId", getTeam)
 	team.GET("/team/:teamId/members", getTeamMember)
@@ -56,7 +57,6 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/uuid/user", getUUIDOfUser)
 	team.POST("/team/get/uuid/team", getUUIDOfTeam)
 	team.POST("/team", getName)
-	team.POST("/team/delete", deleteTeam)
 	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 	team.GET("/all/username", getAllUsername)
 	team.POST("/team/member/role", getRoleOfTeamMembers)
@@ -73,6 +73,7 @@ func createTeam(c *gin.Context) {
 		Leader   string `json:"teamLeader" binding:"required"`
 	}
 
+	// check request
 	req := &createTeamReq{}
 	if err := c.ShouldBindJSON(req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
