@@ -21,7 +21,7 @@ func main() {
 	teamRepo := repository.NewTeamRepository(db)
 
 	// register api v1
-	v1 := engine.Group("/")
+	v1 := engine.Group("/api/v1")
 	server.RegisterV1Api(v1, am)
 
 	engine.GET("/health-check", func(c *gin.Context) {
