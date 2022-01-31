@@ -23,6 +23,7 @@ spec:
           valueFrom:
             secretKeyRef:
               key: AMS_MYSQL_HOST
+              name: ams-server
         - name: AMS_MYSQL_PORT
           valueFrom:
             secretKeyRef:
