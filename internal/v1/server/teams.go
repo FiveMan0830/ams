@@ -284,7 +284,7 @@ func deleteTeam(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 
 	type deleteTeamReq struct {
-		TeamName string `json:"teamName" binding:"requried"`
+		TeamName string `json:"teamName" binding:"required"`
 	}
 	req := &deleteTeamReq{}
 	if err := c.ShouldBindJSON(req); err != nil {
