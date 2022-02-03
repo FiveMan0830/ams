@@ -9,19 +9,20 @@ import (
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
 )
 
-// func TestCreateUserSuccess(t *testing.T) {
-// 	accountManagement := account.NewLDAPManagement()
+func TestCreateUserSuccess(t *testing.T) {
+	accountManagement := account.NewLDAPManagement()
 
-// 	createUserErr := accountManagement.CreateUser(adminUser, adminPassword, userID3, username3, givenName3, surname3, userPassword3, userEmail3)
-// 	result, searchUserErr := accountManagement.SearchUser(adminUser, adminPassword, username3)
-// 	deleteUserErr := accountManagement.DeleteUser(adminUser, adminPassword, username3)
+	user, err := accountManagement.CreateUser(adminUser, adminPassword, userId3, username3, givenName3, surname3, userPassword3, userEmail3)
 
-// 	assert.Equal(t, createUserErr, nil)
-// 	assert.Equal(t, searchUserErr, nil)
-// 	assert.Equal(t, deleteUserErr, nil)
+	assert.Nil(t, err)
+	assert.Equal(t, userId3, user.UserID)
+	assert.Equal(t, userEmail3, user.Email)
+	assert.Equal(t, username3, user.Username)
 
-// 	assert.Equal(t, result, userID3)
-// }
+	err = accountManagement.DeleteUserByUserId(adminUser, adminPassword, userId3)
+
+	assert.Nil(t, err)
+}
 
 func TestCreateDuplicateUser(t *testing.T) {
 	defer teardown()
@@ -29,10 +30,10 @@ func TestCreateDuplicateUser(t *testing.T) {
 
 	accountManagement := account.NewLDAPManagement()
 
-	duplicateUser := accountManagement.CreateUser(adminUser, adminPassword, userId1, username1, givenName1, surname1, userPassword1, userEmail1)
-	duplicateError := errors.New("User already exist")
+	user, err := accountManagement.CreateUser(adminUser, adminPassword, userId1, username1, givenName1, surname1, userPassword1, userEmail1)
 
-	assert.Equal(t, duplicateError, duplicateUser)
+	assert.Nil(t, user)
+	assert.Error(t, err)
 }
 
 func TestSearchUserSuccess(t *testing.T) {
