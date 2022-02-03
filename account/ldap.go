@@ -35,26 +35,31 @@ type DetailTeam struct {
 }
 
 // CreateUser is a function for user to register
-func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userId, username, givenName, surName, password, email string) (*User, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,%s", username, config.GetDC()), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "inetOrgPerson"})
 	addReq.Attribute("cn", []string{username})
-	addReq.Attribute("givenname", []string{givenname})
-	addReq.Attribute("sn", []string{surname})
-	addReq.Attribute("displayname", []string{givenname + " " + surname})
+	addReq.Attribute("givenname", []string{givenName})
+	addReq.Attribute("sn", []string{surName})
+	addReq.Attribute("displayname", []string{givenName + " " + surName})
 	addReq.Attribute("userPassword", []string{password})
-	addReq.Attribute("uid", []string{userID})
+	addReq.Attribute("uid", []string{userId})
 	addReq.Attribute("mail", []string{email})
 
-	if err := lm.ldapConn.Add(addReq); err != nil {
-		return errors.New("User already exist")
+	if err := conn.Add(addReq); err != nil {
+		return nil, errors.New("user already exist")
 	}
 
-	return nil
+	user, err := lm.GetUserByID(adminUser, adminPasswd, userId)
+	if err != nil {
+		return nil, errors.New("failed to get created user")
+	}
+
+	return user, nil
 }
 
 // CreateUser is a function for user with role to register
@@ -159,13 +164,19 @@ func (lm *LDAPManagement) GetUserByUsername(adminUser, adminPasswd, userName str
 }
 
 // DeleteUser is for removing user from ldap
-func (lm *LDAPManagement) DeleteUser(adminUser, adminPasswd, username string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+func (lm *LDAPManagement) DeleteUserByUserId(adminUser, adminPasswd, userId string) error {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	user, err := lm.GetUserByID(adminUser, adminPasswd, userId)
+	if err != nil {
+		return err
+	}
+
 	baseDN := config.GetDC()
-	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,%s", username, baseDN), nil)
-	err := lm.ldapConn.Del(d)
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,%s", user.Username, baseDN), nil)
+	err = conn.Del(d)
 
 	if err != nil {
 		log.Println("User could not be deleted :", err)

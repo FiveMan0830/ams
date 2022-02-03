@@ -7,7 +7,7 @@ type Management interface {
 	IsTeam(teamName string) bool
 	IsProfessor(username string) bool
 	IsStakeholder(username string) bool
-	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) error
+	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) (*User, error)
 	CreateUserWithOu(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error
 	CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error)
 	GetGroups(adminUser, adminPasswd string) ([]string, error)
@@ -33,7 +33,7 @@ type Management interface {
 	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error)
 	GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
-	DeleteUser(adminUser, adminPasswd, username string) error
+	DeleteUserByUserId(adminUser, adminPasswd, userId string) error
 	DeleteUserWithOu(adminUser, adminPasswd, username, role string) error
 	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
 	UpdateTeamLeader(adminUser, adminPasswd, groupName, newLeader string) error
