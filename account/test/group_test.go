@@ -17,8 +17,8 @@ func TestCreateGroupSuccess(t *testing.T) {
 	group, createGroupErr := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, leaderUsername3, groupId3)
 	deleteGroupErr := accountManagement.DeleteGroup(adminUser, adminPassword, groupName3)
 
-	assert.Equal(t, nil, createGroupErr)
-	assert.Equal(t, nil, deleteGroupErr)
+	assert.Nil(t, createGroupErr)
+	assert.Nil(t, deleteGroupErr)
 	assert.Equal(t, groupName3, group)
 }
 
@@ -42,7 +42,7 @@ func TestCreateGroupDuplicateName(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupId1)
-	duplicateError := errors.New("Duplicate Group Name")
+	duplicateError := errors.New("team already exist")
 
 	assert.Equal(t, null, group)
 	assert.Equal(t, duplicateError, err)
@@ -67,7 +67,7 @@ func TestCreateGroupWithNotExistsLeader(t *testing.T) {
 	accountManagement := account.NewLDAPManagement()
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupId1)
-	leaderError := errors.New("User does not exist")
+	leaderError := errors.New("user not found")
 
 	assert.Equal(t, null, group)
 	assert.Equal(t, leaderError, err)
