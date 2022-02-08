@@ -27,29 +27,31 @@ const ObjectCategoryGroup string = "groupOfNames"
 // LDAPManagement implement Management interface to connect to LDAP
 
 // CreateGroup is a function for user to create group
-func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, username, teamID string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, username, teamId string) (string, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), []ldap.Control{})
 
-	if !lm.SearchUserNoConn(adminUser, adminPasswd, username) {
-		return "", errors.New("User does not exist")
+	_, err := lm.GetUserByUsername(adminUser, adminPasswd, username)
+	if err != nil {
+		return "", errors.New("user not found")
 	}
 
-	if lm.GroupExists(adminUser, adminPasswd, groupName) {
-		return "", errors.New("Duplicate Group Name")
+	_, err = lm.GetGroupInDetail(adminUser, adminPasswd, teamId)
+	if err == nil {
+		return "", errors.New("team already exist")
 	}
 
 	addReq.Attribute("objectClass", []string{"top", ObjectCategoryGroup, "UidObject"})
 	addReq.Attribute("cn", []string{groupName})
 	addReq.Attribute("o", []string{username})
 	addReq.Attribute("member", []string{fmt.Sprintf("cn=%s,%s", username, baseDN)})
-	addReq.Attribute("uid", []string{teamID})
+	addReq.Attribute("uid", []string{teamId})
 
-	if err := lm.ldapConn.Add(addReq); err != nil {
+	if err := conn.Add(addReq); err != nil {
 		log.Println("error adding group:", addReq, err)
 		return "", err
 	}
@@ -60,7 +62,7 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 		filter,
 		[]string{"cn"},
 		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
+	result, err := conn.Search(request)
 
 	if err != nil {
 		log.Println("error searching group:", request, err)
@@ -529,13 +531,14 @@ func (lm *LDAPManagement) GetAllGroupsInDetail(adminUser, adminPasswd string) ([
 
 // DeleteGroup is a function to delete the group
 func (lm *LDAPManagement) DeleteGroup(adminUser, adminPasswd, groupName string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
 	// baseDN := config.GetDC()
 	// ou := "OISGroup"
 	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, config.GetDC()), nil)
-	err := lm.ldapConn.Del(d)
+	err := conn.Del(d)
 
 	if err != nil {
 		log.Println("Group entry could not be deleted :", d, err)
