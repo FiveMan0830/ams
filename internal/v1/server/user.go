@@ -65,7 +65,6 @@ func (h *userApiHandler) getUserProfile(c *gin.Context) {
 
 func (h *userApiHandler) getAllUsers(c *gin.Context) {
 	users, err := h.accountManager.GetAllUsers(h.adminUser, h.adminPassword)
-	fmt.Println(users)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

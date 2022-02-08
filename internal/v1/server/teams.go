@@ -92,6 +92,7 @@ func createTeam(c *gin.Context) {
 	)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("failed to create team. %s", err.Error()),
 		})
@@ -301,6 +302,7 @@ func deleteTeam(c *gin.Context) {
 	)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
