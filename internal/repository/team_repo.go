@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/model"
@@ -59,7 +58,6 @@ func (tr *teamRepository) GetTeam(id string) (*model.Team, error) {
 	}
 
 	for _, result := range results {
-		fmt.Println(result)
 		members = append(members, &model.Member{
 			User: model.User{
 				ID:          result["id"].(string),

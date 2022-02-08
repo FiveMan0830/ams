@@ -321,7 +321,6 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userI
 		err := conn.Modify(modify)
 
 		if err != nil {
-			fmt.Println(err.Error())
 			return nil, errors.New("failed to add user to group")
 		}
 	} else {
