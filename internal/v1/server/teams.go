@@ -432,6 +432,8 @@ func removeMember(c *gin.Context) {
 		return
 	}
 
+	database.DeleteRole(req.UserId, teamId)
+
 	accountManagement := account.NewLDAPManagement()
 
 	members, err := accountManagement.RemoveMemberFromGroup(
