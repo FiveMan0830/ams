@@ -47,7 +47,7 @@ func teams(rg *gin.RouterGroup) {
 	team.GET("/teams", getAllTeams)
 	team.GET("/team/:teamId", getTeam)
 	team.GET("/team/:teamId/members", getTeamMember)
-	team.POST("/team/:teamId/member", addMember)
+	team.POST("/team/:teamId/member", middleware.AuthMiddleware(), addMember)
 	team.DELETE("/team/:teamId/member", middleware.AuthMiddleware(), removeMember)
 	team.POST("/team/:teamId/leader/handover", middleware.AuthMiddleware(), handoverLeader)
 
@@ -166,7 +166,6 @@ func getTeamMember(c *gin.Context) {
 	)
 
 	if err != nil {
-		fmt.Println(err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -215,7 +214,6 @@ func getBelongingTeams(c *gin.Context) {
 
 	req := &GetBelongingTeamsReq{}
 	if err := c.ShouldBindJSON(req); err != nil {
-		fmt.Println(err.Error())
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -464,11 +462,9 @@ func handoverLeader(c *gin.Context) {
 
 	// user that perform the operation
 	userId := c.GetString("uid")
-	fmt.Println("userId:", userId)
 
 	// target team id
 	teamId, _ := c.Params.Get("teamId")
-	fmt.Println("teamId:", teamId)
 
 	// only team lead can remove member
 	role, err := database.GetRole(userId, teamId)
@@ -538,11 +534,8 @@ func getRoleOfTeamMembers(c *gin.Context) {
 	accountManagement := account.NewLDAPManagement()
 	reqbody, err := ioutil.ReadAll(c.Request.Body)
 	c.Bind(reqbody)
-	fmt.Println(string(reqbody))
 
 	teamName, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
-
-	fmt.Println("Team name: ", teamName)
 
 	memberList, err := accountManagement.GetGroupMembersRole(config.GetAdminUser(), config.GetAdminPassword(), teamName)
 
