@@ -495,9 +495,9 @@ func (lm *LDAPManagement) GetGroupInDetail(adminUser, adminPasswd, teamId string
 }
 
 func (lm *LDAPManagement) GetAllGroupsInDetail(adminUser, adminPasswd string) ([]*DetailTeam, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(objectClass=%s)", ldap.EscapeFilter(ObjectCategoryGroup))
@@ -508,13 +508,13 @@ func (lm *LDAPManagement) GetAllGroupsInDetail(adminUser, adminPasswd string) ([
 		[]string{"cn", "uid"},
 		[]ldap.Control{},
 	)
-	sr, err := lm.ldapConn.Search(searchRequest)
+	sr, err := conn.Search(searchRequest)
 
 	if err != nil {
 		log.Println("error :", err)
 	}
 
-	var groupsList []*DetailTeam
+	groupsList := []*DetailTeam{}
 
 	for _, entry := range sr.Entries {
 		teamId := entry.GetAttributeValue("uid")
