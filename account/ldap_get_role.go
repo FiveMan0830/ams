@@ -4,14 +4,14 @@ package account
 type Role int
 
 const (
-	Member Role = iota
-	Leader
-	Professor
-	Stakeholder
+	MEMBER Role = iota
+	LEADER
+	PROFESSOR
+	STAKEHOLDER
 )
 
 func (r Role) String() string {
-	return [...]string{"Member", "Leader", "Professor", "Stakeholder"}[r-1]
+	return [...]string{"MEMBER", "LEADER", "PROFESSOR", "STAKEHOLDER"}[r]
 }
 
 func (r Role) EnumIndex() int {

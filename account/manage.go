@@ -15,7 +15,7 @@ type Management interface {
 	GetAllGroupsInDetail(adminUser, adminPassword string) ([]*DetailTeam, error)
 	CreateOu(adminUser, adminPasswd, ouname string) error
 	DeleteOu(adminUser, adminPasswd, ouname string) error
-	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error)
+	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
 	SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error)
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
 	GetAllUsers(adminUser, adminPasswd string) ([]*User, error)
@@ -28,9 +28,9 @@ type Management interface {
 	Login(adminUser, adminPasswd, username, password string) (string, error)
 	GetGroupMembersUsernameAndDisplayname(adminUser, adminPasswd, groupName string) ([]*member, error)
 	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
-	GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*User, error)
-	GetGroupMembersRole(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
-	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error)
+	GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*MemberRole, error)
+	GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
+	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
 	GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
 	DeleteUserByUserId(adminUser, adminPasswd, userId string) error
@@ -47,4 +47,9 @@ type User struct {
 	Username    string `json:"username"`
 	DisplayName string `json:"displayName"`
 	Email       string `json:"email"`
+}
+
+type MemberRole struct {
+	*User
+	Role string `json:"role"`
 }

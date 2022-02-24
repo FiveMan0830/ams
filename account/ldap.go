@@ -28,10 +28,10 @@ type Team struct {
 }
 
 type DetailTeam struct {
-	Id      string  `json:"id"`
-	Name    string  `json:"name"`
-	Leader  *User   `json:"leader"`
-	Members []*User `json:"members"`
+	Id      string        `json:"id"`
+	Name    string        `json:"name"`
+	Leader  *User         `json:"leader"`
+	Members []*MemberRole `json:"members"`
 }
 
 // CreateUser is a function for user to register

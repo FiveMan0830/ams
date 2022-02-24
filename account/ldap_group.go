@@ -21,6 +21,11 @@ type memberRole struct {
 	Role   string `json:"role"`
 }
 
+type MemberWithRole struct {
+	User
+	Role Role `json:"role"`
+}
+
 // ObjectCategoryGroup is const for ldap attribute
 const ObjectCategoryGroup string = "groupOfNames"
 
@@ -119,7 +124,7 @@ func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, admin
 }
 
 // GetGroupMembers is to get members inside of group
-func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName string) ([]*memberRole, error) {
+func (lm *LDAPManagement) GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
@@ -157,7 +162,7 @@ func (lm *LDAPManagement) GetGroupMembersRole(adminUser, adminPasswd, groupName 
 
 		mem := new(memberRole)
 		mem.UserID = memberUUID
-		mem.Role = MemberRole(role)
+		mem.Role = getRoleOfMember(role)
 
 		memberResult = append(memberResult, mem)
 	}
@@ -207,7 +212,7 @@ func (lm *LDAPManagement) GetGroupMembers(adminUser, adminPasswd, groupName stri
 	return memberIDList, nil
 }
 
-func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*User, error) {
+func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*MemberRole, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
 	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
@@ -227,7 +232,7 @@ func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId s
 		return nil, err
 	}
 
-	var memberList []*User
+	var memberList []*MemberRole
 
 	memberDnList := sr.Entries[0].GetAttributeValues("member")
 	for _, memberDn := range memberDnList {
@@ -235,7 +240,10 @@ func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId s
 		userName := strings.Replace(memberDn, fmt.Sprintf(",%s", baseDN), "", -1)
 
 		member, _ := lm.GetUserByUsername(adminUser, adminPasswd, userName)
-		memberList = append(memberList, member)
+		role, _ := database.GetRole(member.UserID, teamId)
+		memberRole := &MemberRole{member, Role(role).String()}
+
+		memberList = append(memberList, memberRole)
 	}
 
 	return memberList, nil
@@ -295,7 +303,7 @@ func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string)
 }
 
 // AddMemberToGroup is for adding member to group
-func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error) {
+func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error) {
 	// check if user exist
 	user, err := lm.GetUserByID(adminUser, adminPasswd, userId)
 	if err != nil && err.Error() == "user not found" {
@@ -336,7 +344,7 @@ func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userI
 }
 
 // RemoveMemberFromGroup is a function to remove a user from a group
-func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*User, error) {
+func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
 	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
@@ -600,7 +608,7 @@ func (lm *LDAPManagement) GroupExists(adminUser, adminPasswd, search string) boo
 	return true
 }
 
-func MemberRole(roleID int) string {
+func getRoleOfMember(roleID int) string {
 	if roleID == 0 {
 		return "MEMBER"
 	} else if roleID == 1 {
