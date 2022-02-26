@@ -142,32 +142,6 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, groupName st
 	return leaderID, nil
 }
 
-// SearchGroupUUID is for searching the group UUID by using group name
-func (lm *LDAPManagement) SearchGroupUUID(adminUser, adminPasswd, search string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", search, baseDN),
-		ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"uid"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-		return "", err
-	}
-
-	teamID := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
-
-	return teamID, nil
-}
-
 // AddMemberToGroup is for adding member to group
 func (lm *LDAPManagement) AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error) {
 	// check if user exist

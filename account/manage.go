@@ -35,7 +35,6 @@ type Management interface {
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)
 	DeleteUserByUserId(adminUser, adminPasswd, userId string) error
 	DeleteUserWithOu(adminUser, adminPasswd, username, role string) error
-	SearchGroupUUID(adminUser, adminPasswd, groupName string) (string, error)
 	UpdateTeamLeader(adminUser, adminPasswd, groupName, newLeader string) error
 	// SearchUserRole(teamName, username string) (Role, error)
 	GetUserByID(adminUser, adminPasswd, userID string) (*User, error)
