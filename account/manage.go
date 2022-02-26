@@ -30,7 +30,6 @@ type Management interface {
 	DeleteGroup(adminUser, adminPasswd, cn string) error
 	Login(adminUser, adminPasswd, username, password string) (string, error)
 	GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*MemberRole, error)
-	GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
 	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
 	GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error)
 	GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error)

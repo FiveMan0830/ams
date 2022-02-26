@@ -78,53 +78,6 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 	return group, nil
 }
 
-// GetGroupMembers is to get members inside of group
-func (lm *LDAPManagement) GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=groupOfNames))",
-		[]string{"member"},
-		nil,
-	)
-
-	sr, err := lm.ldapConn.Search(searchRequest)
-
-	if err != nil {
-		log.Println("error :", err)
-		return nil, err
-	}
-
-	memberResult := []*memberRole{}
-	memberDnList := sr.Entries[0].GetAttributeValues("member")
-
-	for _, memberDN := range memberDnList {
-		memberDN = strings.Replace(memberDN, "cn=", "", -1)
-		memberDN = strings.Replace(memberDN, fmt.Sprintf(",%s", baseDN), "", -1)
-		memberUUID, err := lm.SearchUser(adminUser, adminPasswd, memberDN)
-		teamID, err := lm.SearchGroupUUID(adminUser, adminPasswd, groupName)
-		role, err := database.GetRole(memberUUID, teamID)
-
-		if err != nil {
-			log.Println("error :", err)
-			return nil, err
-		}
-
-		mem := new(memberRole)
-		mem.UserID = memberUUID
-		mem.Role = role.String()
-
-		memberResult = append(memberResult, mem)
-	}
-
-	return memberResult, nil
-}
-
 func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*MemberRole, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
 	defer conn.Close()
