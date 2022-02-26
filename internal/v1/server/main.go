@@ -12,7 +12,5 @@ func RegisterV1Api(
 	login(rg)
 	teams(rg)
 	auth(rg)
-	role(rg)
-	mySQL(rg)
 	registerUserApi(rg, am)
 }
