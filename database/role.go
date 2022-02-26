@@ -2,13 +2,30 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
+
+// Role enum
+type Role int
+
+const (
+	MEMBER Role = iota
+	LEADER
+	PROFESSOR
+	STAKEHOLDER
+	NULL_ROLE
+)
+
+func (r Role) String() string {
+	return [...]string{"MEMBER", "LEADER", "PROFESSOR", "STAKEHOLDER", "NULL_ROLE"}[r]
+}
+
+func (r Role) EnumIndex() int {
+	return int(r)
+}
 
 func InsertRole(userID string, teamID string, role int) {
 	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
@@ -121,12 +138,12 @@ func DeleteRole(userID, teamID string) {
 	db.Exec("DELETE FROM `role_relation` WHERE `team_id` = ? AND `unit_id` = ?", teamID, userID)
 }
 
-func GetRole(userID, teamID string) (int, error) {
+func GetRole(userID, teamID string) (Role, error) {
 	db, err := sql.Open("mysql", config.DbURL(config.BuildDBConfig()))
 
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err
+		return NULL_ROLE, err
 	}
 
 	defer db.Close()
@@ -135,7 +152,7 @@ func GetRole(userID, teamID string) (int, error) {
 
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err
+		return NULL_ROLE, err
 	}
 
 	defer stmt.Close()
@@ -144,12 +161,10 @@ func GetRole(userID, teamID string) (int, error) {
 
 	err = stmt.QueryRow(userID, teamID).Scan(&role)
 
-	fmt.Printf("in team %s, user %s is a %s\n", teamID, userID, strconv.Itoa(role))
-
 	if err != nil {
 		log.Println("error :", err)
-		return 5, err
+		return NULL_ROLE, err
 	}
 
-	return role, nil
+	return Role(role), nil
 }

@@ -23,7 +23,7 @@ type memberRole struct {
 
 type MemberWithRole struct {
 	User
-	Role Role `json:"role"`
+	Role database.Role `json:"role"`
 }
 
 // ObjectCategoryGroup is const for ldap attribute
@@ -117,7 +117,7 @@ func (lm *LDAPManagement) GetGroupMembersRoleDepre(adminUser, adminPasswd, group
 
 		mem := new(memberRole)
 		mem.UserID = memberUUID
-		mem.Role = getRoleOfMember(role)
+		mem.Role = role.String()
 
 		memberResult = append(memberResult, mem)
 	}
@@ -196,7 +196,7 @@ func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId s
 
 		member, _ := lm.GetUserByUsername(adminUser, adminPasswd, userName)
 		role, _ := database.GetRole(member.UserID, teamId)
-		memberRole := &MemberRole{member, Role(role).String()}
+		memberRole := &MemberRole{member, role.String()}
 
 		memberList = append(memberList, memberRole)
 	}
