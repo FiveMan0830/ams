@@ -170,23 +170,6 @@ func TestAddDuplicateMemberToGroup(t *testing.T) {
 	assert.Equal(t, memberDuplicateError, err)
 }
 
-func TestGetGroupMembersSuccess(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId3)
-
-	result, err := accountManagement.GetGroupMembers(adminUser, adminPassword, groupName)
-
-	assert.Contains(t, result, leaderId1)
-	assert.Contains(t, result, userId2)
-	assert.Contains(t, result, userId3)
-	assert.Equal(t, nil, err)
-}
-
 func TestGetUserBelongedTeam(t *testing.T) {
 	defer teardown()
 	setup()

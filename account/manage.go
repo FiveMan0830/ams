@@ -29,7 +29,6 @@ type Management interface {
 	SearchUserDn(adminUser, adminPasswd, search string) (string, error)
 	DeleteGroup(adminUser, adminPasswd, cn string) error
 	Login(adminUser, adminPasswd, username, password string) (string, error)
-	GetGroupMembers(adminUser, adminPasswd, groupName string) ([]string, error)
 	GetGroupMembersDetail(adminUser, adminPasswd, teamId string) ([]*MemberRole, error)
 	GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error)
 	RemoveMemberFromGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
