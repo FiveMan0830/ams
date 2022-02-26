@@ -54,10 +54,7 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/get/leader", getTeamLeader)
 	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
-	team.POST("/team/get/uuid/user", getUUIDOfUser)
-	team.POST("/team/get/uuid/team", getUUIDOfTeam)
 	team.POST("/team", getName)
-	team.POST("/team/get/member/name", getTeamMemberUsernameAndDisplayname)
 	team.GET("/all/username", getAllUsername)
 	team.POST("/team/member/role", getRoleOfTeamMembers)
 
@@ -239,32 +236,6 @@ func getBelongingTeams(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, teams)
-}
-
-func getUUIDOfUser(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	uuid, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	c.JSON(200, uuid)
-}
-
-func getUUIDOfTeam(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	uuid, err := accountManagement.SearchGroupUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	c.JSON(200, uuid)
 }
 
 func getName(c *gin.Context) {
@@ -508,21 +479,6 @@ func handoverLeader(c *gin.Context) {
 	database.UpdateLeader(userId, req.NewLeaderId, teamId)
 
 	c.Status(http.StatusNoContent)
-}
-
-func getTeamMemberUsernameAndDisplayname(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
-	c.Bind(reqbody)
-
-	memberList, err := accountManagement.GetGroupMembersUsernameAndDisplayname(config.GetAdminUser(), config.GetAdminPassword(), reqbody.GroupName)
-
-	if err != nil {
-		c.JSON(500, err.Error())
-		return
-	}
-
-	c.JSON(200, memberList)
 }
 
 func getAllUsername(c *gin.Context) {

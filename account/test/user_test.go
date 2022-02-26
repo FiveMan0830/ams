@@ -2,7 +2,6 @@ package test
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -84,25 +83,6 @@ func TestGetUUIDByUsernameNotFound(t *testing.T) {
 
 	assert.Equal(t, null, uuid)
 	assert.Equal(t, uuidError, err)
-}
-
-func TestGetListOfMemberUsernameAndDisplaynameByTeamName(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
-
-	result, err := accountManagement.GetGroupMembersUsernameAndDisplayname(adminUser, adminPassword, groupName)
-
-	fmt.Println(result)
-
-	assert.Equal(t, leaderUsername1, result[0].Username)
-	assert.Equal(t, fmt.Sprintf("%s %s", leaderGivenName1, leaderSurname1), result[0].Displayname)
-	assert.Equal(t, username2, result[1].Username)
-	assert.Equal(t, fmt.Sprintf("%s %s", givenName2, surname2), result[1].Displayname)
-	assert.Equal(t, nil, err)
 }
 
 // func TestGetAllUsername(t *testing.T) {

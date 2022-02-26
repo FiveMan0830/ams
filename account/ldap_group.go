@@ -79,51 +79,6 @@ func (lm *LDAPManagement) CreateGroup(adminUser, adminPasswd, groupName, usernam
 }
 
 // GetGroupMembers is to get members inside of group
-func (lm *LDAPManagement) GetGroupMembersUsernameAndDisplayname(adminUser, adminPasswd, groupName string) ([]*member, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	searchRequest := ldap.NewSearchRequest(
-		fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=groupOfNames))",
-		[]string{"member"},
-		nil,
-	)
-
-	sr, err := lm.ldapConn.Search(searchRequest)
-
-	if err != nil {
-		log.Println("error :", err)
-		return nil, err
-	}
-
-	memberResult := []*member{}
-	memberList := sr.Entries[0].GetAttributeValues("member")
-
-	for _, memberEntry := range memberList {
-		memberEntry = strings.Replace(memberEntry, "cn=", "", -1)
-		memberEntry = strings.Replace(memberEntry, fmt.Sprintf(",%s", baseDN), "", -1)
-		memberDisplayname, err := lm.SearchUserDisplayname(adminUser, adminPasswd, memberEntry)
-
-		if err != nil {
-			log.Println("error :", err)
-			return nil, err
-		}
-
-		mem := new(member)
-		mem.Username = memberEntry
-		mem.Displayname = memberDisplayname
-
-		memberResult = append(memberResult, mem)
-	}
-
-	return memberResult, nil
-}
-
-// GetGroupMembers is to get members inside of group
 func (lm *LDAPManagement) GetGroupMembersRoleDepre(adminUser, adminPasswd, groupName string) ([]*memberRole, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
