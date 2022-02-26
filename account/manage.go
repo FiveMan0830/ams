@@ -17,10 +17,11 @@ type Management interface {
 	GetTeamLeader(adminUser, adminPasswd, teamId string) (*User, error)
 	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
 
+	GetAllUsers(adminUser, adminPasswd string) ([]*User, error)
+
 	CreateOu(adminUser, adminPasswd, ouname string) error
 	DeleteOu(adminUser, adminPasswd, ouname string) error
-	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
-	GetAllUsers(adminUser, adminPasswd string) ([]*User, error)
+	SearchGroupLeader(adminUser, adminPasswd, groupName string) (string, error)
 	SearchUser(adminUser, adminPasswd, username string) (string, error)
 	SearchUserDisplayname(adminUser, adminPasswd, search string) (string, error)
 	SearchUserWithOu(adminUser, adminPasswd, role string) ([]string, error)

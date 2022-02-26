@@ -205,14 +205,14 @@ func (lm *LDAPManagement) GetGroupMembersDetail(adminUser, adminPasswd, teamId s
 }
 
 // SearchGroupLeader is for searching the group leader
-func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search string) (string, error) {
+func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, groupName string) (string, error) {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", search, baseDN),
+	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(groupName))
+	request := ldap.NewSearchRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", groupName, baseDN),
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases, 0, 0, false,
 		filter,
@@ -226,7 +226,7 @@ func (lm *LDAPManagement) SearchGroupLeader(adminUser, adminPasswd, search strin
 	}
 
 	leader := strings.Join(result.Entries[0].GetAttributeValues("o"), "")
-	leaderID, err := lm.SearchUser(adminUser, adminPasswd, leader)
+	leaderID, _ := lm.SearchUser(adminUser, adminPasswd, leader)
 
 	return leaderID, nil
 }
