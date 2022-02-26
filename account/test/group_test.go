@@ -22,19 +22,6 @@ func TestCreateGroupSuccess(t *testing.T) {
 	assert.Equal(t, groupName3, group)
 }
 
-func TestGetGroupSuccess(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	groupList, err := accountManagement.GetGroups(adminUser, adminPassword)
-
-	assert.Contains(t, groupList, groupId1)
-	assert.Contains(t, groupList, groupId2)
-	assert.Equal(t, nil, err)
-}
-
 func TestCreateGroupDuplicateName(t *testing.T) {
 	defer teardown()
 	setup()

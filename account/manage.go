@@ -10,7 +10,7 @@ type Management interface {
 	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) (*User, error)
 	CreateUserWithOu(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error
 	CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error)
-	GetGroups(adminUser, adminPasswd string) ([]string, error)
+
 	GetGroupInDetail(adminUser, adminPasswd, teamId string) (*DetailTeam, error)
 	GetAllGroupsInDetail(adminUser, adminPassword string) ([]*DetailTeam, error)
 	CreateOu(adminUser, adminPasswd, ouname string) error

@@ -48,18 +48,18 @@ func (lm *LDAPManagement) IsLeader(teamName, userId string) bool {
 }
 
 func (lm *LDAPManagement) IsTeam(teamID string) bool {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, config.GetAdminUser(), config.GetAdminPassword())
 
-	teamList, err := lm.GetGroups(config.GetAdminUser(), config.GetAdminPassword())
+	teamList, err := lm.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
 		return false
 	}
 
 	for _, team := range teamList {
-		if team == teamID {
+		if team.Id == teamID {
 			return true
 		}
 	}

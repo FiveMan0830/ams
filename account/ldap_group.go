@@ -347,41 +347,6 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, teamId, 
 	return members, nil
 }
 
-// GetGroups is for getting all group inside of ldap
-func (lm *LDAPManagement) GetGroups(adminUser, adminPasswd string) ([]string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-	ou := "test"
-
-	if ou == "" {
-		log.Fatal("ou is a required paramater for getting a list of groups")
-	}
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(objectClass=%s)", ldap.EscapeFilter(ObjectCategoryGroup))
-	searchRequest := ldap.NewSearchRequest(
-		baseDN,
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"cn", "uid"},
-		[]ldap.Control{},
-	)
-	sr, err := lm.ldapConn.Search(searchRequest)
-
-	if err != nil {
-		log.Println("error :", err)
-	}
-
-	var groupsList []string
-
-	for _, entry := range sr.Entries {
-		groupsList = append(groupsList, entry.GetAttributeValue("uid"))
-	}
-
-	return groupsList, err
-}
-
 func (lm *LDAPManagement) SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
 	lm.bindAuth(conn, adminUser, adminPasswd)
