@@ -16,7 +16,7 @@ func TestHandoverLeader(t *testing.T) {
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
 	accountManagement.UpdateTeamLeader(adminUser, adminPassword, groupId1, userId2)
 
-	leader, err := accountManagement.SearchLeaderByTeamId(adminUser, adminPassword, groupId1)
+	leader, err := accountManagement.GetTeamLeader(adminUser, adminPassword, groupId1)
 	if err != nil {
 		t.Errorf("failed to get team leader")
 	}

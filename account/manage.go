@@ -14,10 +14,11 @@ type Management interface {
 
 	GetGroupInDetail(adminUser, adminPasswd, teamId string) (*DetailTeam, error)
 	GetAllGroupsInDetail(adminUser, adminPassword string) ([]*DetailTeam, error)
+	GetTeamLeader(adminUser, adminPasswd, teamId string) (*User, error)
+	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
+
 	CreateOu(adminUser, adminPasswd, ouname string) error
 	DeleteOu(adminUser, adminPasswd, ouname string) error
-	AddMemberToGroup(adminUser, adminPasswd, teamId, userId string) ([]*MemberRole, error)
-	SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error)
 	SearchGroupLeader(adminUser, adminPasswd, groupname string) (string, error)
 	GetAllUsers(adminUser, adminPasswd string) ([]*User, error)
 	SearchUser(adminUser, adminPasswd, username string) (string, error)

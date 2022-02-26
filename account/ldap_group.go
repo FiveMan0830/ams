@@ -347,7 +347,7 @@ func (lm *LDAPManagement) RemoveMemberFromGroup(adminUser, adminPasswd, teamId, 
 	return members, nil
 }
 
-func (lm *LDAPManagement) SearchLeaderByTeamId(adminUser, adminPasswd, teamId string) (*User, error) {
+func (lm *LDAPManagement) GetTeamLeader(adminUser, adminPasswd, teamId string) (*User, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
 	lm.bindAuth(conn, adminUser, adminPasswd)
 	defer conn.Close()
@@ -405,7 +405,7 @@ func (lm *LDAPManagement) GetGroupInDetail(adminUser, adminPasswd, teamId string
 
 	cn := sr.Entries[0].GetAttributeValue("cn")
 
-	leader, err := lm.SearchLeaderByTeamId(adminUser, adminPasswd, teamId)
+	leader, err := lm.GetTeamLeader(adminUser, adminPasswd, teamId)
 	if err != nil {
 		return nil, err
 	}
