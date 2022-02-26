@@ -63,7 +63,7 @@ func AdminMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if user.Username != "timelog_admin" {
+		if user.Username != "ams_admin" {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "only admin can perform this action",
 			})
