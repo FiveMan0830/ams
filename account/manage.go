@@ -7,8 +7,9 @@ type Management interface {
 	IsTeam(teamName string) bool
 	IsProfessor(username string) bool
 	IsStakeholder(username string) bool
+
 	CreateUser(adminUser, adminPasswd, userID, username, givenname, surname, password, email string) (*User, error)
-	CreateUserWithOu(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error
+	CreateUserWithRole(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error
 	CreateGroup(adminUser, adminPasswd, groupname, username, teamID string) (string, error)
 
 	GetGroupInDetail(adminUser, adminPasswd, teamId string) (*DetailTeam, error)

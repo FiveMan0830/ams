@@ -12,9 +12,9 @@ import (
 
 // CreateOu is a function for user to create ou
 func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	addReq := ldap.NewAddRequest(fmt.Sprintf("ou=%s,%s", ouname, config.GetDC()), []ldap.Control{})
 
@@ -22,7 +22,7 @@ func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error 
 	addReq.Attribute("ou", []string{ouname})
 
 	if err := lm.ldapConn.Add(addReq); err != nil {
-		return errors.New("This Organization Unit already exists")
+		return errors.New("this Organization Unit already exists")
 	}
 
 	return nil
@@ -36,11 +36,11 @@ func (lm *LDAPManagement) DeleteOu(adminUser, adminPasswd, ouname string) error 
 	baseDN := config.GetDC()
 	d := ldap.NewDelRequest(fmt.Sprintf("ou=%s,%s", ouname, baseDN), nil)
 	err := lm.ldapConn.Del(d)
-	
+
 	if err != nil {
 		log.Println("Organization Unit entry could not be deleted :", err)
 		return err
 	}
-	
+
 	return nil
 }

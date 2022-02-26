@@ -101,7 +101,7 @@ func TestUserIsProfessor(t *testing.T) {
 
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
-	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
+	accountManagement.CreateUserWithRole(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
 
 	assert.True(t, accountManagement.IsProfessor(userID))
 }
@@ -118,7 +118,7 @@ func TestUserIsNotProfessor(t *testing.T) {
 
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Professor")
-	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
+	accountManagement.CreateUserWithRole(adminUser, adminPassword, userID, "Cheng134", "Harry", "Cheng", "Professor", "123", "harry@gmail.com")
 
 	assert.False(t, accountManagement.IsProfessor(usernameNotExists))
 }
@@ -135,7 +135,7 @@ func TestUserIsStakeholder(t *testing.T) {
 
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
-	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
+	accountManagement.CreateUserWithRole(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
 
 	assert.True(t, accountManagement.IsStakeholder(userID))
 }
@@ -152,7 +152,7 @@ func TestUserIsNotStakeholder(t *testing.T) {
 
 	setup()
 	accountManagement.CreateOu(adminUser, adminPassword, "Stakeholder")
-	accountManagement.CreateUserWithOu(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
+	accountManagement.CreateUserWithRole(adminUser, adminPassword, userID, "Wang134", "Eric", "Wangg", "Stakeholder", "9865", "eric@gmail.com")
 
 	assert.False(t, accountManagement.IsStakeholder(usernameNotExists))
 }

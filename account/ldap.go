@@ -63,7 +63,7 @@ func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userId, username, g
 }
 
 // CreateUser is a function for user with role to register
-func (lm *LDAPManagement) CreateUserWithOu(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error {
+func (lm *LDAPManagement) CreateUserWithRole(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error {
 	lm.connectWithoutTLS()
 	defer lm.ldapConn.Close()
 	lm.bind(adminUser, adminPasswd)
