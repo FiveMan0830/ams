@@ -25,7 +25,6 @@ type Management interface {
 	SearchUser(adminUser, adminPasswd, username string) (string, error)
 	SearchUserDisplayname(adminUser, adminPasswd, search string) (string, error)
 	SearchUserWithOu(adminUser, adminPasswd, role string) ([]string, error)
-	SearchNameByUUID(adminUser, adminPasswd, userID string) (string, error)
 	SearchUserDn(adminUser, adminPasswd, search string) (string, error)
 	DeleteGroup(adminUser, adminPasswd, cn string) error
 	Login(adminUser, adminPasswd, username, password string) (string, error)

@@ -101,20 +101,3 @@ func TestGetUUIDByUsernameNotFound(t *testing.T) {
 // 	assert.Contains(t, result, member1)
 // 	assert.Equal(t, nil, err)
 // }
-
-func TestGetNameByUUID(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	result, err := accountManagement.SearchNameByUUID(adminUser, adminPassword, userId1)
-
-	assert.Equal(t, username1, result)
-	assert.Equal(t, nil, err)
-
-	group, err2 := accountManagement.SearchNameByUUID(adminUser, adminPassword, groupId1)
-
-	assert.Equal(t, groupName, group)
-	assert.Equal(t, nil, err2)
-}

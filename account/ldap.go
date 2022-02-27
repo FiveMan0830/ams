@@ -349,32 +349,6 @@ func (lm *LDAPManagement) SearchUserDn(adminUser, adminPasswd, search string) (s
 	return result.Entries[0].DN, nil
 }
 
-// SearchNameByUUID is for search name of user or group by their UUID
-func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"cn"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		return "", errors.New("Search Failed")
-	} else if len(result.Entries) < 1 {
-		return "", errors.New("User not found")
-	}
-
-	user := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
-
-	return user, nil
-}
-
 // GetUserBelongingTeams is for search group that user belong
 func (lm *LDAPManagement) GetUserBelongingTeams(adminUser, adminPasswd, username string) ([]*Team, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
