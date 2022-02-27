@@ -4,7 +4,6 @@ import (
 	// "encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	// "os"
@@ -51,14 +50,7 @@ func teams(rg *gin.RouterGroup) {
 	team.DELETE("/team/:teamId/member", middleware.AuthMiddleware(), removeMember)
 	team.POST("/team/:teamId/leader/handover", middleware.AuthMiddleware(), handoverLeader)
 
-	team.POST("/team/get/leader", getTeamLeader)
-	team.POST("/team/isleader", isLeader)
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
-	team.POST("/team", getName)
-	team.GET("/all/username", getAllUsername)
-
-	// Richard requested API
-	team.POST("/get/name", getName)
 }
 
 func createTeam(c *gin.Context) {
@@ -173,38 +165,6 @@ func getTeamMember(c *gin.Context) {
 	c.JSON(http.StatusOK, memberList)
 }
 
-func getTeamLeader(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-	c.Bind(reqbody)
-	teamID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
-	leaderID, err := database.GetTeamLeader(teamID)
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	c.JSON(200, leaderID)
-}
-
-func isLeader(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody := &GetGroupRequest{}
-	c.Bind(reqbody)
-
-	leaderID, err := accountManagement.GetUUIDByUsername(config.GetAdminUser(), config.GetAdminPassword(), reqbody.SelfUsername)
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	result := accountManagement.IsLeader(reqbody.GroupName, leaderID)
-
-	c.JSON(200, result)
-}
-
 func getBelongingTeams(c *gin.Context) {
 	type GetBelongingTeamsReq struct {
 		Username string `json:"username" binding:"required"`
@@ -235,20 +195,6 @@ func getBelongingTeams(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, teams)
-}
-
-func getName(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	reqbody, err := ioutil.ReadAll(c.Request.Body)
-
-	name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	c.JSON(200, name)
 }
 
 func deleteTeam(c *gin.Context) {
@@ -478,16 +424,4 @@ func handoverLeader(c *gin.Context) {
 	database.UpdateLeader(userId, req.NewLeaderId, teamId)
 
 	c.Status(http.StatusNoContent)
-}
-
-func getAllUsername(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
-	userList, err := accountManagement.GetAllUsers(config.GetAdminUser(), config.GetAdminPassword())
-
-	if err != nil {
-		c.JSON(500, err)
-		return
-	}
-
-	c.JSON(200, userList)
 }
