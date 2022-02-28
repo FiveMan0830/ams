@@ -453,6 +453,7 @@ func (lm *LDAPManagement) SearchLeaderByTeamId(adminUser, adminPasswd, teamId st
 
 func (lm *LDAPManagement) GetGroupInDetail(adminUser, adminPasswd, teamId string) (*DetailTeam, error) {
 	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	baseDN := config.GetDC()
