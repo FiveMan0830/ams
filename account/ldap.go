@@ -13,13 +13,7 @@ import (
 
 // LDAPManagement implement Management interface to connect to LDAP
 type LDAPManagement struct {
-	ldapConn *ldap.Conn
-}
-
-type member struct {
-	Username    string `json:"username"`
-	Displayname string `json:"displayname"`
-	// Role int `json:"role"`
+	BaseDN string
 }
 
 type Team struct {
@@ -64,9 +58,9 @@ func (lm *LDAPManagement) CreateUser(adminUser, adminPasswd, userId, username, g
 
 // CreateUser is a function for user with role to register
 func (lm *LDAPManagement) CreateUserWithRole(adminUser, adminPasswd, userID, username, givenname, surname, role, password, email string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
 	addReq := ldap.NewAddRequest(fmt.Sprintf("cn=%s,ou=%s,%s", username, role, config.GetDC()), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "inetOrgPerson"})
@@ -78,7 +72,7 @@ func (lm *LDAPManagement) CreateUserWithRole(adminUser, adminPasswd, userID, use
 	addReq.Attribute("uid", []string{userID})
 	addReq.Attribute("mail", []string{email})
 
-	if err := lm.ldapConn.Add(addReq); err != nil {
+	if err := conn.Add(addReq); err != nil {
 		return errors.New("User already exist")
 	}
 
@@ -92,13 +86,17 @@ func (lm *LDAPManagement) GetUserByID(adminUser, adminPasswd, userID string) (*U
 	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(userID))
+	attributes := []string{"uid", "cn", "displayname", "mail"}
 
-	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		0, 0, 0, false, filter,
-		[]string{"uid", "cn", "displayname", "mail"},
-		[]ldap.Control{})
+	searchReq := ldap.NewSearchRequest(
+		lm.BaseDN,
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		attributes,
+		[]ldap.Control{},
+	)
 
 	result, err := conn.Search(searchReq)
 
@@ -130,13 +128,16 @@ func (lm *LDAPManagement) GetUserByUsername(adminUser, adminPasswd, userName str
 	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(userName))
-
-	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		0, 0, 0, false, filter,
-		[]string{"uid", "cn", "displayname", "mail"},
-		[]ldap.Control{})
+	attributes := []string{"uid", "cn", "displayname", "mail"}
+	searchReq := ldap.NewSearchRequest(
+		lm.BaseDN,
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		attributes,
+		[]ldap.Control{},
+	)
 
 	result, err := conn.Search(searchReq)
 
@@ -174,45 +175,52 @@ func (lm *LDAPManagement) DeleteUserByUserId(adminUser, adminPasswd, userId stri
 		return err
 	}
 
-	baseDN := config.GetDC()
-	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,%s", user.Username, baseDN), nil)
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,%s", user.Username, lm.BaseDN), nil)
 	err = conn.Del(d)
 
 	if err != nil {
 		log.Println("User could not be deleted :", err)
 		return err
 	}
+
 	return nil
 }
 
+// Delete user who has organization unit
 func (lm *LDAPManagement) DeleteUserWithOu(adminUser, adminPasswd, username, role string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-	baseDN := config.GetDC()
-	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", username, role, baseDN), nil)
-	err := lm.ldapConn.Del(d)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	d := ldap.NewDelRequest(fmt.Sprintf("cn=%s,ou=%s,%s", username, role, lm.BaseDN), nil)
+	err := conn.Del(d)
 
 	if err != nil {
 		log.Println("User could not be deleted :", err)
 		return err
 	}
+
 	return nil
 }
 
-// SearchUser is a function to search a user
+// Get all users
 func (lm *LDAPManagement) GetAllUsers(adminUser, adminPasswd string) ([]*User, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+	filter := "(&(objectClass=organizationalPerson))"
+	attributes := []string{"cn", "uid", "displayName", "mail"}
+	request := ldap.NewSearchRequest(
+		lm.BaseDN,
+		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases, 0, 0, false,
-		"(&(objectClass=organizationalPerson))",
-		[]string{"cn", "uid", "displayName", "mail"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
+		filter,
+		attributes,
+		[]ldap.Control{},
+	)
+
+	result, err := conn.Search(request)
 
 	if err != nil {
 		return nil, errors.New("search failed")
@@ -234,84 +242,31 @@ func (lm *LDAPManagement) GetAllUsers(adminUser, adminPasswd string) ([]*User, e
 	return userList, nil
 }
 
-// SearchUser is a function to search a user
-func (lm *LDAPManagement) SearchUser(adminUser, adminPasswd, search string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"uid"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		return "", errors.New("Search Failed")
-	} else if len(result.Entries) < 1 {
-		return "", errors.New("User not found")
-	}
-
-	user := strings.Join(result.Entries[0].GetAttributeValues("uid"), "")
-
-	return user, nil
-}
-
-func (lm *LDAPManagement) SearchUserDisplayname(adminUser, adminPasswd, search string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"displayName"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		return "", errors.New("Search Failed")
-	} else if len(result.Entries) < 1 {
-		return "", errors.New("User not found")
-	}
-
-	user := strings.Join(result.Entries[0].GetAttributeValues("displayName"), "")
-
-	return user, nil
-}
-
-// SearchUser is a function to search a user that have a role
+// search user who has organization unit
 func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) ([]string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(&(objectClass=organizationalPerson)(ou:dn:=%s))", ldap.EscapeFilter(role))
+	attributes := []string{"uid"}
 	request := ldap.NewSearchRequest(
-		baseDN,
+		lm.BaseDN,
 		ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases,
-		0,
-		0,
-		false,
+		ldap.NeverDerefAliases, 0, 0, false,
 		filter,
-		[]string{"uid"},
-		[]ldap.Control{})
+		attributes,
+		[]ldap.Control{},
+	)
 
-	result, err := lm.ldapConn.Search(request)
+	result, err := conn.Search(request)
 
 	if err != nil {
 		log.Println("Search Failed")
-		return nil, errors.New("Search Failed")
+		return nil, errors.New("search Failed")
 	} else if len(result.Entries) < 1 {
 		log.Println("User not found")
-		return nil, errors.New("User not found")
+		return nil, errors.New("user not found")
 	}
 
 	var userList []string
@@ -321,32 +276,6 @@ func (lm *LDAPManagement) SearchUserWithOu(adminUser, adminPasswd, role string) 
 	}
 
 	return userList, nil
-}
-
-// SearchUser is a function to search a user dn
-func (lm *LDAPManagement) SearchUserDn(adminUser, adminPasswd, search string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		return "", errors.New("Search Failed")
-	} else if len(result.Entries) < 1 {
-		return "", errors.New("User not found")
-	}
-
-	// user := strings.Join(result.Entries[0], "")
-
-	return result.Entries[0].DN, nil
 }
 
 // GetUserBelongingTeams is for search group that user belong
@@ -360,18 +289,16 @@ func (lm *LDAPManagement) GetUserBelongingTeams(adminUser, adminPasswd, username
 		return nil, err
 	}
 
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user.Username, baseDN)
+	filter := fmt.Sprintf("(&(objectClass=groupOfNames)(member=cn=%s,%s))", user.Username, lm.BaseDN)
+	attributes := []string{"dn", "cn", "uid"}
 	searchRequest := ldap.NewSearchRequest(
-		baseDN,
+		lm.BaseDN,
 		ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases,
-		0,
-		0,
-		false,
+		ldap.NeverDerefAliases, 0, 0, false,
 		filter,
-		[]string{"dn", "cn", "uid"},
-		[]ldap.Control{})
+		attributes,
+		[]ldap.Control{},
+	)
 
 	sr, err := conn.Search(searchRequest)
 
@@ -396,18 +323,22 @@ func (lm *LDAPManagement) GetUserBelongingTeams(adminUser, adminPasswd, username
 
 // GetUUIDByUsername is a function to get username to get UUID
 func (lm *LDAPManagement) GetUUIDByUsername(adminUser, adminPasswd, username string) (string, error) {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+	attributes := []string{"uid"}
+	request := ldap.NewSearchRequest(
+		lm.BaseDN,
+		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases, 0, 0, false,
 		filter,
-		[]string{"uid"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
+		attributes,
+		[]ldap.Control{},
+	)
+
+	result, err := conn.Search(request)
 
 	if err != nil {
 		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
@@ -428,14 +359,18 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 	defer conn.Close()
 	lm.bindAuth(conn, adminUser, adminPasswd)
 
-	baseDN := config.GetDC()
 	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(username))
+	attributes := []string{"cn", "uid"}
 
-	// Filters must start and finish with ()!
-	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		0, 0, 0, false, filter,
-		[]string{"cn", "uid"},
-		[]ldap.Control{})
+	searchReq := ldap.NewSearchRequest(
+		lm.BaseDN,
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		attributes,
+		[]ldap.Control{},
+	)
+
 	result, err := conn.Search(searchReq)
 
 	if err != nil {
@@ -470,6 +405,32 @@ func (lm *LDAPManagement) Login(adminUser, adminPasswd, username, password strin
 	return token, nil
 }
 
+// SearchNameByUUID is for search name of user or group by their UUID
+func (lm *LDAPManagement) SearchNameByUUID(adminUser, adminPasswd, search string) (string, error) {
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	baseDN := config.GetDC()
+	filter := fmt.Sprintf("(uid=%s)", ldap.EscapeFilter(search))
+	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		[]string{"cn"},
+		[]ldap.Control{})
+	result, err := conn.Search(request)
+
+	if err != nil {
+		return "", errors.New("search Failed")
+	} else if len(result.Entries) < 1 {
+		return "", errors.New("User not found")
+	}
+
+	user := strings.Join(result.Entries[0].GetAttributeValues("cn"), "")
+
+	return user, nil
+}
+
 func (lm *LDAPManagement) getConnectionWithoutTLS() (*ldap.Conn, error) {
 	ldapUrl := config.GetLDAPURL()
 	conn, err := ldap.DialURL(ldapUrl)
@@ -489,50 +450,11 @@ func (lm *LDAPManagement) bindAuth(conn *ldap.Conn, username string, password st
 	return nil
 }
 
-func (lm *LDAPManagement) connectWithoutTLS() error {
-	ldapURL := config.GetLDAPURL()
-	var err error
-	lm.ldapConn, err = ldap.DialURL(ldapURL)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
-}
-
-func (lm *LDAPManagement) bind(username, password string) error {
-	err := lm.ldapConn.Bind(fmt.Sprintf("cn=%s,%s", username, config.GetDC()), password)
-
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	return nil
+type LDAPManagerConfig struct {
+	BaseDN string
 }
 
 // NewLDAPManagement is a factory method to generate LDAPManagement
-func NewLDAPManagement() Management {
-	return &LDAPManagement{}
-}
-
-// SearchUserNoConn is a function to search a user
-func (lm *LDAPManagement) SearchUserNoConn(adminUser, adminPasswd, search string) bool {
-	baseDN := config.GetDC()
-	filter := fmt.Sprintf("(cn=%s)", ldap.EscapeFilter(search))
-	request := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases, 0, 0, false,
-		filter,
-		[]string{"cn"},
-		[]ldap.Control{})
-	result, err := lm.ldapConn.Search(request)
-
-	if err != nil {
-		log.Println(fmt.Errorf("failed to query LDAP: %w", err))
-	}
-	if len(result.Entries) < 1 {
-		return false
-	}
-
-	return true
+func NewLDAPManagement(config LDAPManagerConfig) Management {
+	return &LDAPManagement{BaseDN: config.BaseDN}
 }

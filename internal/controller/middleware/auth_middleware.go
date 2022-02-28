@@ -50,7 +50,7 @@ func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userId := c.GetString("uid")
 
-		accountManager := account.NewLDAPManagement()
+		accountManager := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 		user, err := accountManager.GetUserByID(
 			config.GetAdminUser(),
 			config.GetAdminPassword(),

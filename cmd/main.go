@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/controller"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/repository"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/internal/v1/server"
@@ -13,7 +14,7 @@ func main() {
 	engine := pkg.NewGinEngine()
 
 	// dependencies for api v1
-	am := account.NewLDAPManagement()
+	am := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	// dependencies for api v2
 	db := pkg.NewMysqlClient()

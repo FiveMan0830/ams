@@ -5,8 +5,6 @@ import (
 	"log"
 
 	ldap "github.com/go-ldap/ldap/v3"
-
-	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 func (lm *LDAPManagement) UpdateTeamLeader(adminUser, adminPasswd, teamId, newLeaderId string) error {
@@ -38,8 +36,7 @@ func (lm *LDAPManagement) UpdateTeamLeader(adminUser, adminPasswd, teamId, newLe
 		return fmt.Errorf("user %s is not a member of team %s", newLeaderId, teamId)
 	}
 
-	baseDN := config.GetDC()
-	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", team.Name, baseDN), []ldap.Control{})
+	modify := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,ou=OISGroup,%s", team.Name, lm.BaseDN), []ldap.Control{})
 	modify.Replace("o", []string{fmt.Sprintf(newLeader.Username)})
 	err = conn.Modify(modify)
 

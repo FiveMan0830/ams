@@ -21,7 +21,7 @@ func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error 
 	addReq.Attribute("objectClass", []string{"top", "organizationalUnit"})
 	addReq.Attribute("ou", []string{ouname})
 
-	if err := lm.ldapConn.Add(addReq); err != nil {
+	if err := conn.Add(addReq); err != nil {
 		return errors.New("this Organization Unit already exists")
 	}
 
@@ -30,12 +30,12 @@ func (lm *LDAPManagement) CreateOu(adminUser, adminPasswd, ouname string) error 
 
 // DeleteOu is a function for user to delete ou
 func (lm *LDAPManagement) DeleteOu(adminUser, adminPasswd, ouname string) error {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(adminUser, adminPasswd)
-	baseDN := config.GetDC()
-	d := ldap.NewDelRequest(fmt.Sprintf("ou=%s,%s", ouname, baseDN), nil)
-	err := lm.ldapConn.Del(d)
+	conn, _ := lm.getConnectionWithoutTLS()
+	defer conn.Close()
+	lm.bindAuth(conn, adminUser, adminPasswd)
+
+	d := ldap.NewDelRequest(fmt.Sprintf("ou=%s,%s", ouname, lm.BaseDN), nil)
+	err := conn.Del(d)
 
 	if err != nil {
 		log.Println("Organization Unit entry could not be deleted :", err)

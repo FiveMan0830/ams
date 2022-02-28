@@ -6,10 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 func TestCreateUserSuccess(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	user, err := accountManagement.CreateUser(adminUser, adminPassword, userId3, username3, givenName3, surname3, userPassword3, userEmail3)
 
@@ -27,7 +28,7 @@ func TestCreateDuplicateUser(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	user, err := accountManagement.CreateUser(adminUser, adminPassword, userId1, username1, givenName1, surname1, userPassword1, userEmail1)
 
@@ -35,36 +36,11 @@ func TestCreateDuplicateUser(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestSearchUserSuccess(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	result, err := accountManagement.SearchUser(adminUser, adminPassword, username1)
-
-	assert.Equal(t, userId1, result)
-	assert.Equal(t, nil, err)
-}
-
-func TestSearchUserNotFound(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	result, err := accountManagement.SearchUser(adminUser, adminPassword, usernameNotExists)
-	searchError := errors.New("User not found")
-
-	assert.Equal(t, null, result)
-	assert.Equal(t, searchError, err)
-}
-
 func TestGetUUIDByUsername(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, username1)
 
@@ -76,7 +52,7 @@ func TestGetUUIDByUsernameNotFound(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	uuid, err := accountManagement.GetUUIDByUsername(adminUser, adminPassword, usernameNotExists)
 	uuidError := errors.New("User not found")
@@ -89,7 +65,7 @@ func TestGetUUIDByUsernameNotFound(t *testing.T) {
 // 	defer teardown()
 // 	setup()
 
-// 	accountManagement := account.NewLDAPManagement()
+// 	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 // 	result, err := accountManagement.GetAllUsers(adminUser, adminPassword)
 

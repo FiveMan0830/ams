@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 type user struct {
@@ -34,7 +35,7 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accountManagement.CreateUser(adminUser, adminPassword, userId1, username1, givenName1, surname1, userPassword1, userEmail1)
 	accountManagement.CreateUser(adminUser, adminPassword, userId2, username2, givenName2, surname2, userPassword2, userEmail2)
@@ -53,7 +54,7 @@ func setup() {
 }
 
 func teardown() {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accountManagement.DeleteUserByUserId(adminUser, adminPassword, userId1)
 	accountManagement.DeleteUserByUserId(adminUser, adminPassword, userId2)

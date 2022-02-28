@@ -4,6 +4,7 @@ import (
 	// "encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	// "os"
@@ -41,6 +42,8 @@ type RemoveMemberRequest struct {
 func teams(rg *gin.RouterGroup) {
 	team := rg
 
+	team.POST("/get/name", getName)
+
 	team.POST("/team/create", middleware.AuthMiddleware(), middleware.AdminMiddleware(), createTeam)
 	team.POST("/team/delete", middleware.AuthMiddleware(), middleware.AdminMiddleware(), deleteTeam)
 	team.GET("/teams", getAllTeams)
@@ -51,10 +54,25 @@ func teams(rg *gin.RouterGroup) {
 	team.POST("/team/:teamId/leader/handover", middleware.AuthMiddleware(), handoverLeader)
 
 	team.POST("/team/get/belonging-teams", getBelongingTeams)
+
+}
+
+func getName(c *gin.Context) {
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
+	reqbody, err := ioutil.ReadAll(c.Request.Body)
+
+	name, err := accountManagement.SearchNameByUUID(config.GetAdminUser(), config.GetAdminPassword(), string(reqbody))
+
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
+	c.JSON(200, name)
 }
 
 func createTeam(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	type createTeamReq struct {
 		TeamName string `json:"teamName" binding:"required"`
@@ -106,7 +124,7 @@ func createTeam(c *gin.Context) {
 }
 
 func getAllTeams(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	groupList, err := accountManagement.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -127,7 +145,7 @@ func getTeam(c *gin.Context) {
 		return
 	}
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	team, err := accountManagement.GetGroupInDetail(
 		config.GetAdminUser(),
 		config.GetAdminPassword(),
@@ -144,7 +162,7 @@ func getTeam(c *gin.Context) {
 }
 
 func getTeamMember(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	teamId, _ := c.Params.Get("teamId")
 
@@ -179,7 +197,7 @@ func getBelongingTeams(c *gin.Context) {
 		return
 	}
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	teams, err := accountManagement.GetUserBelongingTeams(
 		config.GetAdminUser(),
@@ -198,7 +216,7 @@ func getBelongingTeams(c *gin.Context) {
 }
 
 func deleteTeam(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	type deleteTeamReq struct {
 		TeamName string `json:"teamName" binding:"required"`
@@ -246,7 +264,7 @@ func deleteTeam(c *gin.Context) {
 }
 
 func addMember(c *gin.Context) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	type AddMemberReq struct {
 		UserId string `json:"userId" binding:"required"`
@@ -350,7 +368,7 @@ func removeMember(c *gin.Context) {
 
 	database.DeleteRole(req.UserId, teamId)
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	members, err := accountManagement.RemoveMemberFromGroup(
 		config.GetAdminUser(),
@@ -406,7 +424,7 @@ func handoverLeader(c *gin.Context) {
 		return
 	}
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	err = accountManagement.UpdateTeamLeader(
 		config.GetAdminUser(),

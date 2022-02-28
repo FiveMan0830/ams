@@ -25,7 +25,7 @@ func authorize(c *gin.Context) {
 	}
 
 	var user *account.User
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	user, err = accountManagement.GetUserByID(config.GetAdminUser(), config.GetAdminPassword(), userID)
 
 	if err != nil {

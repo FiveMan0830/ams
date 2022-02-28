@@ -35,7 +35,7 @@ func login(rg *gin.RouterGroup) {
 }
 
 // func loginUserByAccessToken(c *gin.Context) {
-// 	accountManagement := account.NewLDAPManagement()
+// 	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 // 	reqbody := &LoginRequest{}
 // 	c.Bind(reqbody)
 // 	log.Println(reqbody)
@@ -83,7 +83,7 @@ func loginUser(c *gin.Context) {
 	username := strings.Split(string(decodedStr), ":")[0]
 	password := strings.Split(string(decodedStr), ":")[1]
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accessToken, err := accountManagement.Login(
 		config.GetAdminUser(),

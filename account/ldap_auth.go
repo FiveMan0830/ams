@@ -7,10 +7,6 @@ import (
 )
 
 func (lm *LDAPManagement) IsMember(teamId string, userID string) (bool, error) {
-	conn, _ := lm.getConnectionWithoutTLS()
-	defer conn.Close()
-	lm.bindAuth(conn, config.GetAdminUser(), config.GetAdminPassword())
-
 	members, err := lm.GetGroupMembersDetail(
 		config.GetAdminUser(),
 		config.GetAdminPassword(),
@@ -29,18 +25,14 @@ func (lm *LDAPManagement) IsMember(teamId string, userID string) (bool, error) {
 	return false, nil
 }
 
-func (lm *LDAPManagement) IsLeader(teamName, userId string) bool {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
-
-	leader, err := lm.SearchGroupLeader(config.GetAdminUser(), config.GetAdminPassword(), teamName)
+func (lm *LDAPManagement) IsLeader(teamId, userId string) bool {
+	leader, err := lm.GetTeamLeader(config.GetAdminUser(), config.GetAdminPassword(), teamId)
 
 	if err != nil {
 		return false
 	}
 
-	if leader == userId {
+	if leader.UserID == userId {
 		return true
 	} else {
 		return false
@@ -48,10 +40,6 @@ func (lm *LDAPManagement) IsLeader(teamName, userId string) bool {
 }
 
 func (lm *LDAPManagement) IsTeam(teamID string) bool {
-	conn, _ := lm.getConnectionWithoutTLS()
-	defer conn.Close()
-	lm.bindAuth(conn, config.GetAdminUser(), config.GetAdminPassword())
-
 	teamList, err := lm.GetAllGroupsInDetail(config.GetAdminUser(), config.GetAdminPassword())
 
 	if err != nil {
@@ -68,10 +56,6 @@ func (lm *LDAPManagement) IsTeam(teamID string) bool {
 }
 
 func (lm *LDAPManagement) IsProfessor(userID string) bool {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
-
 	professorList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), "Professor")
 
 	if err != nil {
@@ -88,10 +72,6 @@ func (lm *LDAPManagement) IsProfessor(userID string) bool {
 }
 
 func (lm *LDAPManagement) IsStakeholder(userID string) bool {
-	lm.connectWithoutTLS()
-	defer lm.ldapConn.Close()
-	lm.bind(config.GetAdminUser(), config.GetAdminPassword())
-
 	stakeholderList, err := lm.SearchUserWithOu(config.GetAdminUser(), config.GetAdminPassword(), "Stakeholder")
 
 	if err != nil {

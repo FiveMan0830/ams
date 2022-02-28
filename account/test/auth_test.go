@@ -8,10 +8,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 func TestUserIsMemberOfGroup(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	defer func() {
 		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupId1, userId1)
@@ -29,7 +30,7 @@ func TestUserIsMemberOfGroup(t *testing.T) {
 }
 
 func TestUserIsNotMemberOfGroup(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	defer func() {
 		accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupId1, userId1)
@@ -50,10 +51,10 @@ func TestUserIsLeaderOfGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, leaderId2)
 
-	assert.True(t, accountManagement.IsLeader(groupName, leaderId1))
+	assert.True(t, accountManagement.IsLeader(groupId1, leaderId1))
 
 	result, err := accountManagement.IsMember(groupId1, leaderId2)
 	if err != nil {
@@ -66,16 +67,16 @@ func TestUserIsNotLeaderOfGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
-	assert.False(t, accountManagement.IsLeader(groupName, usernameNotExists))
+	assert.False(t, accountManagement.IsLeader(groupId1, usernameNotExists))
 }
 
 func TestIsTeam(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	assert.True(t, accountManagement.IsTeam(groupId1))
 }
@@ -84,13 +85,13 @@ func TestIsNotTeam(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	assert.False(t, accountManagement.IsTeam(groupNameNotExists))
 }
 
 func TestUserIsProfessor(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	userID := uuid.New().String()
 
 	defer func() {
@@ -107,7 +108,7 @@ func TestUserIsProfessor(t *testing.T) {
 }
 
 func TestUserIsNotProfessor(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	userID := uuid.New().String()
 
 	defer func() {
@@ -124,7 +125,7 @@ func TestUserIsNotProfessor(t *testing.T) {
 }
 
 func TestUserIsStakeholder(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	userID := uuid.New().String()
 
 	defer func() {
@@ -141,7 +142,7 @@ func TestUserIsStakeholder(t *testing.T) {
 }
 
 func TestUserIsNotStakeholder(t *testing.T) {
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	userID := uuid.New().String()
 
 	defer func() {

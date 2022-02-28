@@ -2,17 +2,19 @@ package test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/account"
+	"ssl-gitlab.csie.ntut.edu.tw/ois/ois-project/ams/config"
 )
 
 func TestCreateGroupSuccess(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	group, createGroupErr := accountManagement.CreateGroup(adminUser, adminPassword, groupName3, leaderUsername3, groupId3)
 	deleteGroupErr := accountManagement.DeleteGroup(adminUser, adminPassword, groupName3)
@@ -26,7 +28,7 @@ func TestCreateGroupDuplicateName(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderUsername, groupId1)
 	duplicateError := errors.New("team already exist")
@@ -35,23 +37,11 @@ func TestCreateGroupDuplicateName(t *testing.T) {
 	assert.Equal(t, duplicateError, err)
 }
 
-func TestSearchGroupLeaderSuccess(t *testing.T) {
-	defer teardown()
-	setup()
-
-	accountManagement := account.NewLDAPManagement()
-
-	leader, err := accountManagement.SearchGroupLeader(adminUser, adminPassword, groupName)
-
-	assert.Equal(t, leaderId1, leader)
-	assert.Equal(t, nil, err)
-}
-
 func TestCreateGroupWithNotExistsLeader(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	group, err := accountManagement.CreateGroup(adminUser, adminPassword, groupName, groupLeaderNotExists, groupId1)
 	leaderError := errors.New("user not found")
@@ -64,7 +54,7 @@ func TestAddMemberToGroupSuccess(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 	result, err = accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
@@ -120,7 +110,7 @@ func TestAddMemberToGroupSuccess(t *testing.T) {
 // 	defer teardown()
 // 	setup()
 
-// 	accountManagement := account.NewLDAPManagement()
+// 	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 // 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, groupName2)
 
@@ -132,7 +122,7 @@ func TestAddMemberToNotExistsGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupNameNotExists, userId1)
 	groupNotExistsError := errors.New("team not found")
@@ -145,7 +135,7 @@ func TestAddMemberToGroupWithNotExistsUser(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, usernameNotExists)
 	memberNotExistsError := errors.New("user not found")
@@ -158,7 +148,7 @@ func TestAddDuplicateMemberToGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
@@ -174,7 +164,7 @@ func TestGetUserBelongedTeam(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId2, userId1)
@@ -186,13 +176,15 @@ func TestGetUserBelongedTeam(t *testing.T) {
 	assert.Equal(t, groupName2, result[1].Name)
 	assert.Equal(t, groupId2, result[1].Id)
 	assert.Equal(t, err, nil)
+
+	fmt.Println("No Problem!!")
 }
 
 func TestRemoveMemberFromGroupSuccess(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId1)
 	accountManagement.AddMemberToGroup(adminUser, adminPassword, groupId1, userId2)
@@ -214,7 +206,7 @@ func TestRemoveMemberFromNotExistsGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupNameNotExists, username1)
 	groupNotExistsError := errors.New("team not found")
@@ -227,7 +219,7 @@ func TestRemoveNotExistsMemberFromGroup(t *testing.T) {
 	defer teardown()
 	setup()
 
-	accountManagement := account.NewLDAPManagement()
+	accountManagement := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 
 	result, err := accountManagement.RemoveMemberFromGroup(adminUser, adminPassword, groupId1, usernameNotExists)
 	userNotExistsError := errors.New("user not found")

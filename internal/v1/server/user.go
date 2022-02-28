@@ -93,7 +93,7 @@ func (h *userApiHandler) createUser(c *gin.Context) {
 		return
 	}
 
-	accountManager := account.NewLDAPManagement()
+	accountManager := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	user, err := accountManager.CreateUser(
 		config.GetAdminUser(),
 		config.GetAdminPassword(),
@@ -130,7 +130,7 @@ func (h *userApiHandler) deleteUser(c *gin.Context) {
 		return
 	}
 
-	accountManager := account.NewLDAPManagement()
+	accountManager := account.NewLDAPManagement(account.LDAPManagerConfig{BaseDN: config.GetDC()})
 	err := accountManager.DeleteUserByUserId(
 		config.GetAdminUser(),
 		config.GetAdminPassword(),
